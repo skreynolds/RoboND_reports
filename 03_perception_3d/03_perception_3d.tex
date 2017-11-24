@@ -5,13 +5,46 @@
 \title{Udacity: 3D Perception Report}
 \author{Shane Reynolds}
 \maketitle
-\section{Introduction}
+\section{Introduction \& Background}
+In order for a robot to perceive its environment, sensors are employed to capture data about the environment. There are many different types of sensors XXXX (use this as an way to talk about the different sensors that are used to capture data of the robot's environment). Making sense of the world around the robot is more than simply attaching a camera to the robot. To gain a representative understanding of the environment depth needs to be captured. There are a number of ways that depth can be captured. XXXX (list the type of sensing devices that can be used to capture depth data). 
+
+\section{Methods \& Implementation}
+\subsection{Segmentation}
+\subsubsection{Obtain the Point Cloud}
+The point cloud is obtained using an RGBD camera to capture pixel a 2D image which consists of three feature maps, and a depth representation. The three feature maps represent the 
+
+\subsubsection{Statistical Filtering to Remove Image Noise}
+The captured point cloud is not a perfect representation of the environment, rather, there are elements of noise introduced through XXXX(how is the noise introduced?)
+
+\begin{figure}
+\centering
+\caption{include a figure - which shows the }
+\end{figure}
+
+\subsubsection{Voxel Downsampling}
+Point clouds often provide more data than necessary to achieve an accurate representation of the robot environment. The processing of this data, left unchecked, is computationally expensive. Downsampling is the process of removing data points in a systematic fashion and is a technique that is often employed in the field of image processing. In fact, voxel downsampling is analogous to this process - points in the point cloud model are removed in a systematic fashion. 
+
+\begin{figure}
+\centering
+\caption{include a figure which shows the basics of Voxel Downsampling}
+\end{figure}
+
+\subsubsection{RANSAC Plane Segmentation}
+Random sample consensus (RANSAC) is an segmentation algorithm which detects statistical outliers according to some mathematical model. In this instance the mathematical model that is being used is that of a plane, the idea being that model outliers after the application of the algorithm would be the remaining objects in the scene (with the table being extracted)
+
+\subsubsection{Passthrough Filtering}
+A pass through filter is employed to remove some of the point cloud based on a spatial basis.
+
+\subsubsection{Euclidean Clustering (DBSCAN)}
 
 
-\section{Background}
+\subsection{Object Recognition}
 
 
-\section{The Design Brief}
+\section{Results \& Conclusion}
+
+
+\section{Further Enhancements}
 
 
 \end{document}

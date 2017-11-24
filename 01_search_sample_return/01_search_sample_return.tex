@@ -5,13 +5,152 @@
 \title{Udacity: Search and Sample Return Report}
 \author{Shane Reynolds}
 \maketitle
-\section{Introduction}
+\section{Introduction \& Background}
+The study of robotics has been around since XXXX, when XXXX first undertook XXXX. Since then there have been many advances, however, there is no clear concensus on what a robot is. There is some difficulty in defining what a constitutes a robot because XXXX. One attempt to broadly define robots is XXXX. This project serves as a short introduction to the very broad field robotics. Principally, it touches on elementary image processing concepts, and very briefly explores some basic decision making. The project is based on a simulated mobile robots operating in an environments with simple terrain. The simulation is built in Unity and the interface between the image processing algorithms, decision making algorithms and the simulation is driven by SocketIO which is provided. The main thrust of the project is to develop and image processing
 
+\begin{figure}
+\centering
+\caption{inclue a figure here of a screen shot of the basic unity simulator}
+\end{figure}
 
-\section{Background}
+\section{Methods and Implementation}
+\subsection{Sensor Data}
+What type of sensor data do we get? I think basically the rover has access to things like full 6dof data which describes position (in real life this would be implemented by and ARHS - which are esssentially IMU with some other crap - processing equipment)
 
+\begin{table}
+\caption{A table which shows the different data types, their python format, and the frequency at which they are sampled from the simulated environment}
+\begin{tabular}{content...}
+content...
+\end{tabular}
+\end{table}
 
-\section{The Design Brief}
+Further, there is a camera that is provided to the robot. Does the robot know the ground truth map?
 
+What is the frequency of the image capture for the robot? What is the frequency of the sensor data capture for the robot?
+
+What other important things are needed to accurately describe the sensor data stream?
+
+How is the sensor data procesed?
+
+\subsection{Image Processing}
+The image processing was a large component of the project, and consisted of multiple stages. The full \textbf{process image function} can be seen in Appendix A, and the subsections presented below describe five of the most important elements of the function. How often is this function called? I think it is called every image - so it runs at the same rate the camera obtains images. The question is that in an embedded system would the operation of the image processing function be in real time?
+
+\subsubsection{Image Transformation}
+Describe the implementation of how the image transformation was made. Basically, we obtained 4 points on the received image, and 4 points on the overhead image. We map the points from the front facing camera image to the overhead image for the rover in a given position. This mapping is done manually using image viewer
+
+\textbf{CODE SNIPET}
+
+\begin{table}
+\caption{include a table which has the points that we need to map to the other points}
+\begin{tabular}{content...}
+content...
+\end{tabular}
+\end{table}
+
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include an image from the front facing camera}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include an image from the overhead camera}
+\end{minipage}
+\end{figure}
+
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include a graphic of the transformation being applied - original image}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include a grapic of the transformation being applied - transformed image}
+\end{minipage}
+\end{figure}
+
+\subsubsection{Segmentation \& Filtering: Navigable Terrain \& Obstacles}
+There are 3 different types of object that are of interest to the robot: navigable terrain, obstacles, rock samples. A simple way to obtain the navigable terrain is to create a basic RGB filter. This works because it exploits the stark contrast between obstacles (which are dark), and navigable terrain (which is light). We get two for one with this type of filtering if we can filter the navigable terrain, then we have the obstacles by default - that is the two types of terrain are mutually exclusive.
+
+CODE SNIPPET
+
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{Include a grpahic of the original image}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{Include a graphic of the terrain being filtered - gray scale}
+\end{minipage}
+\end{figure}
+
+This section is more curious that that. If we filter prior to transforming, then there is some distortion to the filtered image. Basically determined what the cone is and subtracted this from the transformation to ge the final image. Further, some spacing has been left in between the navigable terrain and the obstacles to provide for a margin of error.
+
+\begin{figure}
+\centering
+\caption{include a graphic of the final terrain being filtered for obstacles and }
+\end{figure}
+
+PERHAPS TEST: see what happens if the segmentation is made first and then the transformation is made leaving an image gap - if there is no distortion then this may be the better solution.
+
+\subsubsection{Segmentaiton \& Filtering: Rock Samples}
+To get the rock samples it was a little harder - the RBG did not work that well and instead HSV was used. Talk some about the RGB background and then talk some about the HSV background. Once the rocks have been determined they are added to the image
+
+CODE SNIPPET
+
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include a graphic of the original rock image}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include a graphic of the filtered image - gray scale}
+\end{minipage}
+\end{figure}
+
+\begin{figure}
+\centering
+\caption{Include an image of the full image transformation with the rock and the blue and green}
+\end{figure}
+
+\subsubsection{Rover Centric Coordinates}
+Transformation of the image into a rover centric coordinate frame. The transformed image needs to be attached to the rover centric coordinate frame - this needs more explaining exactly what is happening here with the transformed image. What is it doing and why do we do it?
+
+CODE SNIPPET
+
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include a non-transformed image}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include an image of the transformed rover centric coord system}
+\end{minipage}
+\end{figure}
+
+\subsubsection{Writing Colour Map to the World Map}
+
+Updates the map. Describe what is actually happening here? This has not yet been described - essentially what we have is an image and we want to update the ground truth of the world map as the rover explores autonomously.
+
+CODE SNIPPET
+
+\begin{figure}
+\centering
+\caption{Show a picture of the mapped terrain, if possible}
+\end{figure}
+
+\subsection{Autonomous Navigation}
+\subsubsection{Perception Step}
+Need to talk about the implementation of these sections of the code
+
+\subsubsection{Decision Step}
+Need to talk about the implementation of these sections of the code
+
+\section{Results \& Conclusion}
+
+\section{Further Enhancements}
 
 \end{document}

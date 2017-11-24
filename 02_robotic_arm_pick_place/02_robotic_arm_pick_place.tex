@@ -5,13 +5,56 @@
 \title{Udacity: Robotic Arm Pick \& Place Report}
 \author{Shane Reynolds}
 \maketitle
-\section{Introduction}
 
+\section{Introduction \& Background}
+In recent times a robotics challenge that has holds popularity among research institutions and universities, has seen dramatic improvement in the results. This has been driven by Amazon who sponsors the competition and provides the prize money which competitors are competing for. The challenge is a pick and place challenge. The challenge comes in a variety of forms. One of the forms is a number of objects which are housed in a shelf - much like in an Amazon fulfilment centre. The objective is for the robot to identify the object on the shelf, pick the object up, and deposit the object in a container for delivery.
 
-\section{Background}
+Key to making this happen is being able to direct the robot's end effector to the desired position, once the object has been detected and the path to the object has been found. The process allowing this series of complex activities to happen is dependent on the inverse kinematics. The inverse kinematics (IK) of a robot is the mathematical conversion of position in cartesian space to the joint angles which allows the robot end effector to reach this point in space. Briefly, the position of the end effector in space can be thought of in 2 separate domains: cartesian world coordinates, or joint angle space (TIGHTEN UP ON THIS DEFINITION). This project explores the derivation of the IK for the Kuka XXXX, a 6 degree of freedom (dof) anthropomorphic robotic arm shown in figure. The project culminates with the implementation of an IK server, which is a ROS service which recieves a series of points in cartesian space (world coordinate frame) and returns a vector of joint angles after applying the IK transform.
 
+\begin{figure}
+\centering
+\caption{Include picture of a real kuka robot arm that is being used here}
+\end{figure}
 
-\section{The Design Brief}
+The implementation will be undertakne in ROS, which utilises simulation engines Rviz and Gazebo. Figure XX and XX show the Kuka XXXX in simulation.
 
+\section{Methods \& Implementation}
+
+\subsection{Determining the Denavit-Hartenburg Parameters}
+
+\subsection{Forward Kinematics}
+Forward kinematics is the transformation of joint angles to an end effector point in space. Provide an in depth description of how each of the transformations and how they were arrived at. Recall this is a simple implementation of the DH parameter matrices and then a simple multiplication (which can be done using sympy)
+
+The individual transformation matrices are shown below:
+\begin{align}
+	^{\verb|base_link|} T _1 &= MATRIX ARRAY\\
+	^1 T _2 &= MATRIX ARRAY\\
+	^2 T _3 &= MATRIX ARRAY\\
+	^3 T _4 &= MATRIX ARRAY\\
+	^4 T _5 &= MATRIX ARRAY\\
+	^5 T _6 &= MATRIX ARRAY\\
+	^5 T _{\verb|end_effector|} &= MATRIX ARRAY
+	 
+\end{align}
+
+The full transformation from the \verb|base_link| to the \verb|end_effector| is given by simple matrix multiplication as follows:
+\begin{align}
+	^{\verb|base_link|} T_{\verb|end_effector|} &= ^{\verb|base_link|} T_{1} \cdot ^{1} T_{2} \cdot ^{2} T_{3} \cdot ^{3} T_{4} \cdot ^{4} T_{5} \cdot ^{5} T_{6} \cdot ^{6} T_{\verb|end_effector|}
+\end{align}
+
+\subsection{Inverse Kinematics}
+Inverse kinematics is the process of determining the joint angles for each of the degrees of freedom. In the case of the Kuka XXXX there are 6 degrees of freedom, and hence, there are 6 joint angles which need to be determined. The anthropomorphic arm design allows us to exploit the fact that the last 3 joints are a spherical wrist (their axes of rotation intersect?), which means that these joints do not have an influence on the position of the wrist centre. This allow us to kinematically decouple the the first three joints and the last three joints, providing the ability to find a closed form solution to the problem. The closed form solution is presented below, in two parts: first three joint angles, and final three joint angles
+
+\subsubsection{First Three Joint Angles ($\theta_1$, $\theta_2$, and $\theta_3$)}
+Mathematics to show the derivation of the first three angles
+
+\subsubsection{Final Three Joint Angles ($\theta_4$, $\theta_5$, and $\theta_6$)}
+Mathematics to show the derivation of the final three angles
+
+\section{Results \& Conclusion}
+Discussion of the results of the robot kinematics.
+
+\section{Further Enhancements}
+The wrist turns around a bit - need to make sure that this doesn't happen and why this is happening. It happens because the wrist has more that 360 twist capability, however, the way it is set up does not allow for this (it has hard clamps at $-\pi$ and $\pi$). Also an error tracking capability would be nice on the project also.
 
 \end{document}
