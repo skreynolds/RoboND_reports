@@ -11,32 +11,78 @@ In order for a robot to perceive its environment, sensors are employed to captur
 \section{Methods \& Implementation}
 \subsection{Segmentation}
 \subsubsection{Obtain the Point Cloud}
-The point cloud is obtained using an RGBD camera to capture pixel a 2D image which consists of three feature maps, and a depth representation. The three feature maps represent the 
+The point cloud is obtained using an RGBD camera to capture a 2D image which consists of three feature maps, and a depth representation. The three feature maps represent the individual Red, Green, and Blue (RBG) channels for colour image. Each discrete pixel in the 2D array is also assigned an image depth. There are a total of 4 dimensions for each individual point cloud, which is assembled for use in the ROS environment by the pcl library.
+ 
+***Add additional notes about structured light from RGBD camera***
+
+***Tighten this up a little bit - look at algorithm and implementation***
 
 \subsubsection{Statistical Filtering to Remove Image Noise}
-The captured point cloud is not a perfect representation of the environment, rather, there are elements of noise introduced through XXXX(how is the noise introduced?)
+The captured point cloud is not a perfect representation of the environment, rather, there are elements of noise introduced through XXXX (how is the noise introduced?). Noise is introduced to the image through dust in the environment and imperfect instrumentation. The noisy signal can be seen in Figure XXXX. A signal which has had noise removed can be seen in Figure XX. Why is the presence of noise in the point cloud a problem? The successful implementation of this vision system relies on clean segmentation of objects in a frame. The presence of noise results in the confusion of the segmentation alogrithm which is a Euclidean clustering method based on the DBSCAN algorithm.
+
+***Need to tighten up on this paragraph***
 
 \begin{figure}
+\begin{minipage}{0.45\linewidth}
 \centering
-\caption{include a figure - which shows the }
+\caption{include a figure - which shows the noisy image data}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include a figure which shows the noise present in a signal }
+\end{minipage}
 \end{figure}
 
 \subsubsection{Voxel Downsampling}
-Point clouds often provide more data than necessary to achieve an accurate representation of the robot environment. The processing of this data, left unchecked, is computationally expensive. Downsampling is the process of removing data points in a systematic fashion and is a technique that is often employed in the field of image processing. In fact, voxel downsampling is analogous to this process - points in the point cloud model are removed in a systematic fashion. 
+Point clouds often provide more data than necessary to achieve an accurate representation of the robot environment. The processing of this data, left unchecked, is computationally expensive. Downsampling is the process of removing data points in a systematic fashion and is a technique that is often employed in the field of image processing. Voxel downsampling is analogous to this process - points in the three dimensional point cloud model are removed in a systematic fashion. Care needs to be taken when adjusting the parameters for the Voxel downsampling - if the downsampling is too aggressive too much information may be removed compromising the integrity of the pointcloud ***there may be a better way to say this - compromising an image looks like removing so much data that segmentation cannot occur successfully***
 
 \begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{include a figure which shows no Voxel Downsampling}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
 \centering
 \caption{include a figure which shows the basics of Voxel Downsampling}
+\end{minipage}
 \end{figure}
 
 \subsubsection{RANSAC Plane Segmentation}
-Random sample consensus (RANSAC) is an segmentation algorithm which detects statistical outliers according to some mathematical model. In this instance the mathematical model that is being used is that of a plane, the idea being that model outliers after the application of the algorithm would be the remaining objects in the scene (with the table being extracted)
+Random sample consensus (RANSAC) is an segmentation algorithm which detects statistical outliers according to some mathematical model. In this instance the mathematical model being used is a plane, which most closely resembles the table in the point cloud image. The model outliers, that is those points which don't statistically fit the mathematical representation of a plane, are filtered from the point cloud. The filtered points are stored in the variable ***look up the variable which the points are stored in***. This processing helps to isolate the objects in the image, ready for segmentation and object recognition.
+
+***Need to reward this better***
+
+Why is this a problem? Including the table in the point cloud image has the potential to confuse the Euclidean clustering algorithm since the segmentation is based on spatial proximity. Further benefits include the decreased computation cost for processing the remainder of the point cloud.
+
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{Include an image of filtered point cloud table}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{Include an image of the filtered point cloud which has all of the objects only}
+\end{minipage}
+\end{figure}
 
 \subsubsection{Passthrough Filtering}
-A pass through filter is employed to remove some of the point cloud based on a spatial basis.
+A pass through filter is a simple filter designed to remove points from the point cloud which fall outside a spatially bounded region. This filter is very basic in its implementation, and does not rely on any statistical filters to achieve the results. In this instance, we remove points based which don't fall within an area bounded by a rectangular prism. Whilst not essential, to the overall processing this stops the robot from segmenting points which belong to the the boxes which lie to the left and the right of the work space, and removes the robot's arms from the point cloud.
+
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{Include and image of the unfiltered point cloud}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\caption{Include an image of the filtered point cloud}
+\end{minipage}
+\end{figure}
 
 \subsubsection{Euclidean Clustering (DBSCAN)}
+Segmentation is important to implement successful object recognition. The segmentation works grouping points in the point cloud together based on their proximity to each other.
 
+Potential problems with this method. This method encounters problems if the objects are too close to each other. If the objects are too close to each other, then the Euclidean clustering method fails - the algorithm will think that the objects 
 
 \subsection{Object Recognition}
 
