@@ -1,21 +1,35 @@
 \documentclass[a4paper]{article}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{graphicsx}
+\usepackage{siunitx}
+
+\graphicspath{{./fig}}
 
 \begin{document}
 \title{Udacity: Search and Sample Return Report}
 \author{Shane Reynolds}
 \maketitle
 \section{Introduction \& Background}
-The study of robotics has been around since XXXX, when XXXX first undertook XXXX. Since then there have been many advances, however, there is no clear concensus on what a robot is. There is some difficulty in defining what a constitutes a robot because XXXX. One attempt to broadly define robots is XXXX. This project serves as a short introduction to the very broad field robotics. Principally, it touches on elementary image processing concepts, and very briefly explores some basic decision making. The project is based on a simulated mobile robots operating in an environments with simple terrain. The simulation is built in Unity and the interface between the image processing algorithms, decision making algorithms and the simulation is driven by SocketIO which is provided. The main thrust of the project is to develop and image processing
+A simplistic and wide reaching definition of a robot is a machine which performs a task with some level of autonomy. In this context, robotic systems are appealing as they allow humans to avoid work that is considered dull, dirty and dangerous. This broad definition somewhat obfuscates the elements that make robotics work. Indeed, there is no clear consensus as to the mandatory sub-systems which comprise a robotic system, however, there are some common features which can be observed across many existing robotics platforms, these include:
+\begin{itemize}
+\item \textbf{Perception systems}: systems which allow the robot to perceive the world around it
+\item \textbf{Decision making systems}: systems which allow the robot to decide a course of action given some information set
+\item \textbf{Actuation systems}: systems which allow the robot to physically interact with the world
+\end{itemize}
+
+This project serves as a short introduction to these three systems. Principally, it touches on elementary image processing concepts, and very briefly explores some basic decision making. The project is based on a simulated mobile robot operating in a simple terrain environment. The simulation is built in Unity and main python script which gives the robot perception and decision making capabilities is called XXXX. Finally, the interface between image processing, decision making algorithms, and the simulation is driven by SocketIO. A screen shot of the simulation can be seen in Figure 1 below.
 
 \begin{figure}
 \centering
-\caption{inclue a figure here of a screen shot of the basic unity simulator}
+\includegraphics{image_1}
+\caption{A screenshot of the mobile robotic rover at a standstill in the simulated environment.}
 \end{figure}
 
 \section{Methods and Implementation}
 \subsection{Sensor Data}
-What type of sensor data do we get? I think basically the rover has access to things like full 6dof data which describes position (in real life this would be implemented by and ARHS - which are esssentially IMU with some other crap - processing equipment)
+The robot perceives its world via sensors. The main sensor used in this project is the camera mounted to the front of the robot. Figure 2 shows an example of a single image captured from the rover's camera. The camera images are received approximately once every 27$\si{\milli\second}$, or 36$\si{\hertz}$.
+
+In addition to the camera data, the there are sensors which measure the rover's position and orientation in space. Position is given by simple Cartesian coordinates, $(x, y)$, with reference to a fixed world frame. Orientation is given by roll, pitch, and yaw which are also with reference to the fixed world frame. Finally, throttle, brake, and steering angle of the rover are also provided. These values values are received at the same frequency as the images. Table 1 shows the different sensors used, their data types, and a basic description of use of the captured data. 
 
 \begin{table}
 \caption{A table which shows the different data types, their python format, and the frequency at which they are sampled from the simulated environment}
