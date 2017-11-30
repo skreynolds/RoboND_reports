@@ -1,14 +1,25 @@
 \documentclass[a4paper]{article}
 
 %--------------------------------------------------------------------------
-\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage[a4paper, total={6in, 9in}]{geometry}
 \usepackage{booktabs}
+\usepackage{caption}
 \usepackage{graphicx}
+\usepackage{float}
+\usepackage{inconsolata}
 \usepackage{listings}
 \usepackage{siunitx}
+\usepackage[most]{tcolorbox}
 
 %--------------------------------------------------------------------------
-\graphicspath{{./fig}}
+\graphicspath{{./fig/}}
+
+%--------------------------------------------------------------------------
+
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
+    fonttitle=\bfseries, colframe=gray, listing only, 
+    listing options={basicstyle=\ttfamily,language=Python}, 
+    title=Listing \thetcbcounter: #2, #1}
 
 %--------------------------------------------------------------------------
 \begin{document}
@@ -26,9 +37,11 @@ A simplistic and wide reaching definition of a robot is a machine which performs
 
 This project serves as a short introduction to these three systems. Principally, it touches on elementary image processing concepts, and very briefly explores some basic decision making. The project is based on a simulated mobile robot operating in a simple terrain environment. The simulation is built in Unity and main python script which gives the robot perception and decision making capabilities is called XXXX. Finally, the interface between image processing, decision making algorithms, and the simulation is driven by SocketIO. A screen shot of the simulation can be seen in Figure 1 below.
 
-\begin{figure}
+\vspace{1cm}
+
+\begin{figure}[h]
 \centering
-\includegraphics{image1}
+\frame{\includegraphics[scale=0.3]{image1}}
 \caption{A screenshot of the mobile robotic rover at a standstill in the simulated environment.}
 \end{figure}
 
@@ -37,33 +50,42 @@ This project serves as a short introduction to these three systems. Principally,
 \subsection{Sensor Data}
 The robot perceives its world via sensors. The main sensor used in this project is the camera mounted to the front of the robot. Figure 2 shows an example of a single image captured from the rover's camera. The camera images are received approximately once every 27$\si{\milli\second}$, or 36$\si{\hertz}$.
 
-\begin{figure}
+\begin{figure}[h]
 \centering
-\includegraphics{image2}
+\includegraphics[scale=0.5]{image2}
 \caption{A single image of the simulated environment as shown from the robot's front mounted camera.}
 \end{figure}
 
 In addition to the camera data, the there are sensors which measure the rover's position and orientation in space. Position is given by simple Cartesian coordinates, $(x, y)$, with reference to a fixed world frame. Orientation is given by roll, pitch, and yaw which are also with reference to the fixed world frame. Finally, throttle, brake, and steering angle of the rover are also provided. These values values are received at the same frequency as the images. The sensor data is used to help determine a course of action for the robot. This is achieved with two principal functions: \verb|perception_step| and \verb|decision_step|. Table 1 shows the different sensors data types, and a basic description of use of the captured data. 
 
-\begin{table}
+\begin{table}[h]
 \caption{A table which shows the different sensor data types, and their python format.}
+\footnotesize
 \begin{tabular}{llp{10cm}}
 \toprule
-\textbf{Sensor Data Type} & \textbf{Python Variable} & \textbf{Description}\\
+\textbf{Sensor Data Type} & \textbf{Variable} & \textbf{Description}\\
 \midrule
 Image & \verb|img| & The image which is captured by the rover's front mounted camera - it is an \verb|np.array| of dimension $(160,320,3)$ and type \verb|uint8|\\
+ & & \\
 Position & \verb|pos| & Position of the rover with respect to a fixed world coordinate frame - it is a tuple of type \verb|np.float| \\
+ & & \\
 Yaw & \verb|yaw| & 	The yaw of the rover with respect to the world coordinate frame - it is of type \verb|np.float| and is one part of the rover orientation description\\
+ & & \\
 Pitch & \verb|pitch| & The pitch of the rover with respect to the world coordinate frame - it is of type \verb|np.float| and is one part of the rover orientation description\\
+ & & \\
 Roll & \verb|roll| & The roll of the rover with respect to the world coordinate frame - it is of type \verb|np.float| and is one part of the rover orientation description\\
+ & & \\
 Current Velocity & \verb|velocity| & The velocity of the rover - is of type \verb|np.float| and is capped at 2$\si{\meter\per\second}$ in this project\\
+ & & \\
 Steering Angle & \verb|steer| & The steering angle of the rover is determined by the angle of the front wheels with the centre line axis of the rover - is of type \verb|np.float| and is bound between $\pm 15 \si{\deg}$\\
+ & & \\
 Throttle Value & \verb|throttle| & Represents the value of locomotive force applied by the rover motors - is of type \verb|np.float| and is binary in opearation in that throttle is either applied, or not\\
-Brake Value & \verb|brake| & Represents the applied force opposing motion (due to friction)
+ & & \\
+Brake Value & \verb|brake| & Represents the applied force opposing motion (due to friction)\\
 \bottomrule
 \end{tabular}
 \end{table}
-
+\newpage
 %--------------------------------------------------------------------------
 \subsection{Image Processing}
 Image processing represents a large component of the project, and consists of multiple stages. It is encapsulated in the \verb|perception_step| function, and is applied to each image captured by the rover's front mounted camera. The processing consists of three principal components: perspective transformation, segmentation, and translating the image to obtain a rover centric coordinate system. There is no fixed order in which the perspective transformation and segmentation steps need to occur, however, the transformation to a rover centric coordinate system can only be performed once the image has undergone a perspective transformation. The following subsections decribe each component in more detail.
@@ -78,12 +100,13 @@ To make navigation easier to comprehend for observers of the rover behaviour, it
 \item Apply the transformation matrix to captured image arrays to convert the images from the front mounted camera to a top down perspective.
 \end{enumerate}  
 
-The Often is it useful to apply a grid of known size to both the source and destination images to help with the identification of points in each image. The grid applied in this instance was a 1$\si{\meter}$ by 1$\si{\meter}$ grid, and can be seen in Figure 3. The points used in both the source image and destination image to build the transformation matrix can be seen in Table 2, and the code snippet showing the creation of the transformation matrix can be seen in Figure 4. Finally, once the transformation matrix is determined, then it can be applied to each received image to transform the perspective from the front mounted camera to the top down view - a demonstration of this can be seen in Figure 5. It is worth noting that it should be expected that the perspective transform will have regions of black present in transformed image - these black areas represent the rover's blind spots.
+Often is it useful to apply a grid of known size to both the source and destination images to help with the identification of points in each image. The grid applied in this instance was a 1$\si{\meter}$ by 1$\si{\meter}$ grid, and can be seen in Figure 3. The points used in both the source image and destination image to build the transformation matrix can be seen in Table 2, and the code snippet showing the set-up of the parameters used for the perspective transformation can be seen in Listing 1. Finally, once the transformation matrix is determined, then it can be applied to each received image to transform the perspective from the front mounted camera to the top down view - a demonstration of this can be seen in Figure 5. It is worth noting that it should be expected that the perspective transform will have regions of black present in transformed image - these black areas represent the rover's blind spots. The perspective transform function can be seen in Listing 2.
 
-\begin{figure}
-	\begin{minipage}{0.45\linewidth}
-		\begin{table}
-		\caption{The points determined from the destination and source images use to create the perspective transformation matrix.}
+\begin{figure}[h]
+	\begin{minipage}[m]{0.45\linewidth}
+		\centering
+		\captionof{table}{The points determined from the destination and source images use to create the perspective transformation matrix.}
+		\vspace{0.25cm}
 		\begin{tabular}{ll}
 		\toprule
 		\textbf{Source} & \textbf{Destination}\\
@@ -94,88 +117,180 @@ The Often is it useful to apply a grid of known size to both the source and dest
 		P1 & P1\\
 		\bottomrule
 		\end{tabular}
-		\end{table}
 	\end{minipage}
-	\begin{minipage}{0.45\linewidth}
-		\begin{lstlisting}[language=Python]
-
-		\end{lstlisting}
-		\caption{Code snippet of the perspective transform}
+	\hspace{0.5cm}
+	\begin{minipage}[m]{0.45\linewidth}
+		\centering
+		\includegraphics[scale=0.5]{image3}
+		\vspace{-1cm}
+		\caption{A 1x1 meter grid used to help establish points of reference.}
 	\end{minipage}
 \end{figure}
 
-\begin{figure}
-	\centering
-	\includegraphics[scale=0.5]{image3}
-	\caption{text}
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{Set up of the parameters which are used for the perspective transform.}
+img = Rover.img # takes the current camera image from the Rover and stores it in img
+dst_size = 5 # what does this do
+bottom_offset = 6 # what does this do
+		
+# Create the source array 
+source = np.float32([[14, 140], [301 ,140],[200, 96], [118, 96]]) # specify the source array
+destination = np.float32([[img.shape[1]/2 - dst_size, img.shape[0] - bottom_offset],
+	                  [img.shape[1]/2 + dst_size, img.shape[0] - bottom_offset],
+			  [img.shape[1]/2 + dst_size, img.shape[0] - 2*dst_size - bottom_offset], 
+			  [img.shape[1]/2 - dst_size, img.shape[0] - 2*dst_size - bottom_offset],
+			  ])	
+\end{sexylisting}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{Code for the perspective transform function implementation.}
+def perspect_transform(img, src, dst):
+           
+    M = cv2.getPerspectiveTransform(src, dst)
+    
+    # Keep same size as input image
+    warped = cv2.warpPerspective(img, M, (img.shape[1],img.shape[0]))
+    
+    return warped
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.5]{image4}
-	\caption{text}
+	\includegraphics[scale=0.3]{image4}
+	\caption{The original image from the rover's front mounted camera can be seen on the left, with the image after the perspective transform has been applied can be seen on the right.}
 \end{figure}
 
 \subsubsection{Segmentation: Navigable Terrain \& Obstacles}
-There are 3 different types of object that are of interest to the rover: navigable terrain, obstacles, and rock samples. A simple way to obtain the navigable terrain is to create a basic RGB filter. This works because it exploits the stark contrast between obstacles (which are dark), and navigable terrain (which is light). We are able to extract both navigable terrain and obstacles with one instance of filtering since these two types of terrain are mutually exclusive - to put this simply: if the terrain is not navigable, then it must be an obstacle. The filtering itself is simplistic in its implementation, using an upper threshold for each of the R, G, and B values. To determine the cut-off threshold for each of the R, G, and B channels, most Operating Systems come with a basic image viewer which will provide information for each of the R, G, and B channels by pixel. A single frame of navigable terrain was loaded into an image viewer. Using this crude analysis values of 160 for each of the R, G, and B channels were determined as an appropriate threshold for navigable terrain. This process is shown in Figure 5. If a pixel in an image has R, G, and B values which are all greater than 160, the pixel is classified as navigable terrain. If this criterion is not satisfied, then the pixel is classified as an obstacle. The implementation of this code can be seen below.
+There are 3 different types of object that are of interest to the rover: navigable terrain, obstacles, and rock samples. A simple way to obtain the navigable terrain is to create a basic RGB filter. This works because it exploits the stark contrast between obstacles (which are dark), and navigable terrain (which is light). It must be noted that this technique would not generalise well, and would obviously perform best in environments with similar features to the simulation. Looking more closely at the filter, we see that we are able to extract both navigable terrain and obstacles with one instance of filtering since these two types of terrain are mutually exclusive - to put this simply: if the terrain is not navigable, then it must be an obstacle. The filtering itself is simplistic in its implementation, using an upper threshold for each of the R, G, and B values. To determine the cut-off threshold for each of the R, G, and B channels, most Operating Systems come with a basic image viewer which will provide information for each of the R, G, and B channels by pixel. A single frame of navigable terrain was loaded into an image viewer. Using this crude analysis values of 160 for each of the R, G, and B channels were determined as an appropriate threshold for navigable terrain. Implementation of the colour threshold function can be seen in Listing 3. If a pixel in an image has R, G, and B values which are all greater than 160, the pixel is classified as navigable terrain. An example of the classification of navigable terrain can be seen in Figures 6 and 7.
 
-\begin{lstlisting}[language=Python]
-
-\end{lstlisting}
-
-\begin{figure}
-\begin{minipage}{0.45\linewidth}
-\centering
-\caption{Include a grpahic of the original image}
-\end{minipage}
-\begin{minipage}{0.45\linewidth}
-\centering
-\caption{Include a graphic of the terrain being filtered - gray scale}
-\end{minipage}
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{placeholder}
+	\caption{Using XXXX a crude analysis of the image was undertaken to determine the threshold values for R, G, and B values which represent navigable terrain.}
 \end{figure}
 
-This section is more curious that that. If we filter prior to transforming, then there is some distortion to the filtered image. Basically determined what the cone is and subtracted this from the transformation to ge the final image. Further, some spacing has been left in between the navigable terrain and the obstacles to provide for a margin of error.
-
-\begin{figure}
-\centering
-\caption{include a graphic of the final terrain being filtered for obstacles and }
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{Insert caption}
+def color_thresh(img, rgb_thresh=(160, 160, 160)):
+    # Create an array of zeros same xy size as img, but single channel
+    color_select = np.zeros_like(img[:,:,0])
+    # Require that each pixel be above all three threshold values in RGB
+    # above_thresh will now contain a boolean array with "True"
+    # where threshold was met
+    above_thresh = (img[:,:,0] > rgb_thresh[0]) \
+                & (img[:,:,1] > rgb_thresh[1]) \
+                & (img[:,:,2] > rgb_thresh[2])
+    # Index the array of zeros with the boolean array and set to 1
+    color_select[above_thresh] = 1
+    # Return the binary image
+    return color_select
+\end{sexylisting}
 \end{figure}
 
-PERHAPS TEST: see what happens if the segmentation is made first and then the transformation is made leaving an image gap - if there is no distortion then this may be the better solution.
+\begin{figure}[h]
+\centering
+	\begin{minipage}[t]{0.45\linewidth}
+	\centering
+	\includegraphics[scale=0.5]{image6}
+	\caption{The perspective transformed image prior to the segmentation filter application.}
+	\end{minipage}
+	\hspace{0.5cm}
+	\begin{minipage}[t]{0.45\linewidth}
+	\centering
+	\includegraphics[scale=0.5]{image7}
+	\caption{The perspective transformed image after the segmentation filter is applied - note that this is shown in grayscale.}
+	\end{minipage}
+\end{figure}
+
+Whilst this method can be applied successfully to determine navigable terrain, incorrect results maybe obtained when segmenting obstacles. This is caused if the filter is applied without consideration of the rover's blind spot, which is the area behind the rover's camera. In order to account for the rover's blind spot the segmentation filter needs to be applied prior to the perspective transform. This allows the capture of a conical region where the rover cannot see. This additional information, used in conjunction with a binary inverse of the navigable terrain array, provides for higher levels of accuracy when segmenting obstacles - implementation of this can be seen in Listing 4. The Listing shows the extraction of the \verb|cone| array, and the \verb|rock| array (which is covered in the following sub-section) and finally subtracts them from the \verb|obstacle_temp| array to obtain the \verb|obstacle| array. An example of obstacle classification can be seen in Figures XX, XX, and XX. It must be noted that applying segmentation filters prior to perspective transforms is desirable since the code implementations would be simplified, however, in practice this structure degrades the quality overall segmentation resulting in poorer performance.\\
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{test}
+
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\begin{minipage}{0.45\linewidth}
+	\centering
+	\includegraphics[scale=0.5]{placeholder}
+	\caption{text}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+	\centering
+	\includegraphics[scale=0.5]{placeholder}
+	\caption{text}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\begin{minipage}{0.45\linewidth}
+	\centering
+	\includegraphics[scale=0.5]{placeholder}
+	\caption{text}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+	\centering
+	\includegraphics[scale=0.5]{placeholder}
+	\caption{text}
+	\end{minipage}
+\end{figure}
 
 \subsubsection{Segmentaiton: Rock Samples}
-To get the rock samples it was a little harder - the RBG did not work that well and instead HSV was used. Talk some about the RGB background and then talk some about the HSV background. Once the rocks have been determined they are added to the image
 
-CODE SNIPPET
+Providing segmentation for rock samples saw unstable performance when filtering using RGB channels. This is due to the sample rocks holding different RGB values in darker regions, when compared to samples in lighter regions. Put simply, shadows affect the segmentation performance. An alternative colour representation known as Hue, Saturation, Value (HSV) is less susceptible to performance degradation from shadows and was employed in this instance. To determine the HSV values for the sample, a similar method was employed that seen in Section XXXX - Figure XX demonstrates this process.  
 
-\begin{figure}
-\begin{minipage}{0.45\linewidth}
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{text}
+
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]
 \centering
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[scale=0.5]{placeholder}
 \caption{include a graphic of the original rock image}
 \end{minipage}
-\begin{minipage}{0.45\linewidth}
+\hspace{0.5cm}
+\begin{minipage}[t]{0.45\linewidth}
 \centering
+\includegraphics[scale=0.5]{placeholder}
 \caption{include a graphic of the filtered image - gray scale}
 \end{minipage}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[]
 \centering
+\includegraphics[scale=0.5]{placeholder}
 \caption{Include an image of the full image transformation with the rock and the blue and green}
 \end{figure}
 
 \subsubsection{Rover Centric Coordinates}
 Transformation of the image into a rover centric coordinate frame. The transformed image needs to be attached to the rover centric coordinate frame - this needs more explaining exactly what is happening here with the transformed image. What is it doing and why do we do it?
 
-CODE SNIPPET
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{text}
 
-\begin{figure}
-\begin{minipage}{0.45\linewidth}
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]
 \centering
+\begin{minipage}[t]{0.45\linewidth}
+\centering
+\includegraphics[scale=0.5]{placeholder}
 \caption{include a non-transformed image}
 \end{minipage}
-\begin{minipage}{0.45\linewidth}
+\hspace{0.5cm}
+\begin{minipage}[t]{0.45\linewidth}
 \centering
+\includegraphics[scale=0.5]{placeholder}
 \caption{include an image of the transformed rover centric coord system}
 \end{minipage}
 \end{figure}
@@ -184,10 +299,15 @@ CODE SNIPPET
 
 Updates the map. Describe what is actually happening here? This has not yet been described - essentially what we have is an image and we want to update the ground truth of the world map as the rover explores autonomously.
 
-CODE SNIPPET
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{insert text}
 
-\begin{figure}
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]
 \centering
+\includegraphics[scale=0.5]{placeholder}
 \caption{Show a picture of the mapped terrain, if possible}
 \end{figure}
 
