@@ -47,69 +47,81 @@ In addition to the camera data, the there are sensors which measure the rover's 
 
 \begin{table}
 \caption{A table which shows the different sensor data types, and their python format.}
-\begin{tabular}{lll}
+\begin{tabular}{llp{10cm}}
 \toprule
 \textbf{Sensor Data Type} & \textbf{Python Variable} & \textbf{Description}\\
 \midrule
-Image & \verb|img| & This is the \\
-Position & \verb|pos| & value\\
-Yaw & \verb|yaw| & \\
-Pitch & \verb|pitch| & \\
-Roll & \verb|roll| & \\
-Current Velocity & \verb|velocity| & \\
-Steering Angle & \verb|steer| & \\
-Throttle Value & \verb|throttle| & \\
-Brake Value & \verb|brake| & 
+Image & \verb|img| & The image which is captured by the rover's front mounted camera - it is an \verb|np.array| of dimension $(160,320,3)$ and type \verb|uint8|\\
+Position & \verb|pos| & Position of the rover with respect to a fixed world coordinate frame - it is a tuple of type \verb|np.float| \\
+Yaw & \verb|yaw| & 	The yaw of the rover with respect to the world coordinate frame - it is of type \verb|np.float| and is one part of the rover orientation description\\
+Pitch & \verb|pitch| & The pitch of the rover with respect to the world coordinate frame - it is of type \verb|np.float| and is one part of the rover orientation description\\
+Roll & \verb|roll| & The roll of the rover with respect to the world coordinate frame - it is of type \verb|np.float| and is one part of the rover orientation description\\
+Current Velocity & \verb|velocity| & The velocity of the rover - is of type \verb|np.float| and is capped at 2$\si{\meter\per\second}$ in this project\\
+Steering Angle & \verb|steer| & The steering angle of the rover is determined by the angle of the front wheels with the centre line axis of the rover - is of type \verb|np.float| and is bound between $\pm 15 \si{\deg}$\\
+Throttle Value & \verb|throttle| & Represents the value of locomotive force applied by the rover motors - is of type \verb|np.float| and is binary in opearation in that throttle is either applied, or not\\
+Brake Value & \verb|brake| & Represents the applied force opposing motion (due to friction)
 \bottomrule
 \end{tabular}
 \end{table}
 
 %--------------------------------------------------------------------------
 \subsection{Image Processing}
-The image processing was a large component of the project, and consisted of multiple stages. Image processing is applied by the \verb|perception_step| function, and is applied to each image captured by the rover's front mounted camera. The processing consists of three principal components: perspective transformation, segmentation, and translating the image to obtain a rover centric coordinate system. There is no fixed order in which the perspective transformation and segmentation steps need to occur, however, the transformation to a rover centric coordinate system can only be performed once the image has undergone a perspective transformation.
-
+Image processing represents a large component of the project, and consists of multiple stages. It is encapsulated in the \verb|perception_step| function, and is applied to each image captured by the rover's front mounted camera. The processing consists of three principal components: perspective transformation, segmentation, and translating the image to obtain a rover centric coordinate system. There is no fixed order in which the perspective transformation and segmentation steps need to occur, however, the transformation to a rover centric coordinate system can only be performed once the image has undergone a perspective transformation. The following subsections decribe each component in more detail.
 
 %--------------------------------------------------------------------------
 \subsubsection{Perspective Transformation}
-Describe the implementation of how the image transformation was made. Basically, we obtained 4 points on the received image, and 4 points on the overhead image. We map the points from the front facing camera image to the overhead image for the rover in a given position. This mapping is done manually using image viewer
+To make navigation easier to comprehend for observers of the rover behaviour, it is often useful to implement a perspective transforms. Certainly, the rover is capable of navigating via the front mounted RGB camera, however, it is often useful to transform this view into a top down perspective. The process for implementing such a transform involves the following four steps:
+\begin{enumerate}
+\item Define four $(x,y)$ points in the source image (the image from the front mounted camera);
+\item Identify the four $(x,y)$ points, defined from the source image, in the destination image (the top down image);
+\item Using the information from steps 1) and 2), create a transformation matrix which will transform the points from the source image to the destination image;
+\item Apply the transformation matrix to captured image arrays to convert the images from the front mounted camera to a top down perspective.
+\end{enumerate}  
 
-\begin{lstlisting}[language=]
-
-\end{lstlisting}
-
-\begin{table}
-\caption{include a table which has the points that we need to map to the other points}
-\begin{tabular}{content...}
-content...
-\end{tabular}
-\end{table}
+The Often is it useful to apply a grid of known size to both the source and destination images to help with the identification of points in each image. The grid applied in this instance was a 1$\si{\meter}$ by 1$\si{\meter}$ grid, and can be seen in Figure 3. The points used in both the source image and destination image to build the transformation matrix can be seen in Table 2, and the code snippet showing the creation of the transformation matrix can be seen in Figure 4. Finally, once the transformation matrix is determined, then it can be applied to each received image to transform the perspective from the front mounted camera to the top down view - a demonstration of this can be seen in Figure 5. It is worth noting that it should be expected that the perspective transform will have regions of black present in transformed image - these black areas represent the rover's blind spots.
 
 \begin{figure}
-\begin{minipage}{0.45\linewidth}
-\centering
-\caption{include an image from the front facing camera}
-\end{minipage}
-\begin{minipage}{0.45\linewidth}
-\centering
-\caption{include an image from the overhead camera}
-\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\begin{table}
+		\caption{The points determined from the destination and source images use to create the perspective transformation matrix.}
+		\begin{tabular}{ll}
+		\toprule
+		\textbf{Source} & \textbf{Destination}\\
+		\midrule
+		P1 & P1\\
+		P1 & P1\\
+		P1 & P1\\
+		P1 & P1\\
+		\bottomrule
+		\end{tabular}
+		\end{table}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\begin{lstlisting}[language=Python]
+
+		\end{lstlisting}
+		\caption{Code snippet of the perspective transform}
+	\end{minipage}
 \end{figure}
 
 \begin{figure}
-\begin{minipage}{0.45\linewidth}
-\centering
-\caption{include a graphic of the transformation being applied - original image}
-\end{minipage}
-\begin{minipage}{0.45\linewidth}
-\centering
-\caption{include a grapic of the transformation being applied - transformed image}
-\end{minipage}
+	\centering
+	\includegraphics[scale=0.5]{image3}
+	\caption{text}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.5]{image4}
+	\caption{text}
 \end{figure}
 
 \subsubsection{Segmentation: Navigable Terrain \& Obstacles}
-There are 3 different types of object that are of interest to the robot: navigable terrain, obstacles, rock samples. A simple way to obtain the navigable terrain is to create a basic RGB filter. This works because it exploits the stark contrast between obstacles (which are dark), and navigable terrain (which is light). We get two for one with this type of filtering if we can filter the navigable terrain, then we have the obstacles by default - that is the two types of terrain are mutually exclusive.
+There are 3 different types of object that are of interest to the rover: navigable terrain, obstacles, and rock samples. A simple way to obtain the navigable terrain is to create a basic RGB filter. This works because it exploits the stark contrast between obstacles (which are dark), and navigable terrain (which is light). We are able to extract both navigable terrain and obstacles with one instance of filtering since these two types of terrain are mutually exclusive - to put this simply: if the terrain is not navigable, then it must be an obstacle. The filtering itself is simplistic in its implementation, using an upper threshold for each of the R, G, and B values. To determine the cut-off threshold for each of the R, G, and B channels, most Operating Systems come with a basic image viewer which will provide information for each of the R, G, and B channels by pixel. A single frame of navigable terrain was loaded into an image viewer. Using this crude analysis values of 160 for each of the R, G, and B channels were determined as an appropriate threshold for navigable terrain. This process is shown in Figure 5. If a pixel in an image has R, G, and B values which are all greater than 160, the pixel is classified as navigable terrain. If this criterion is not satisfied, then the pixel is classified as an obstacle. The implementation of this code can be seen below.
 
-CODE SNIPPET
+\begin{lstlisting}[language=Python]
+
+\end{lstlisting}
 
 \begin{figure}
 \begin{minipage}{0.45\linewidth}
