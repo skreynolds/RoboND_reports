@@ -1,14 +1,21 @@
 \documentclass[a4paper]{article}
+
+%--------------------------------------------------------------------------
 \usepackage[a4paper, total={6in, 8in}]{geometry}
-\usepackage{graphicsx}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{listings}
 \usepackage{siunitx}
 
+%--------------------------------------------------------------------------
 \graphicspath{{./fig}}
 
+%--------------------------------------------------------------------------
 \begin{document}
 \title{Udacity: Search and Sample Return Report}
 \author{Shane Reynolds}
 \maketitle
+%--------------------------------------------------------------------------
 \section{Introduction \& Background}
 A simplistic and wide reaching definition of a robot is a machine which performs a task with some level of autonomy. In this context, robotic systems are appealing as they allow humans to avoid work that is considered dull, dirty and dangerous. This broad definition somewhat obfuscates the elements that make robotics work. Indeed, there is no clear consensus as to the mandatory sub-systems which comprise a robotic system, however, there are some common features which can be observed across many existing robotics platforms, these include:
 \begin{itemize}
@@ -21,38 +28,54 @@ This project serves as a short introduction to these three systems. Principally,
 
 \begin{figure}
 \centering
-\includegraphics{image_1}
+\includegraphics{image1}
 \caption{A screenshot of the mobile robotic rover at a standstill in the simulated environment.}
 \end{figure}
 
+%--------------------------------------------------------------------------
 \section{Methods and Implementation}
 \subsection{Sensor Data}
 The robot perceives its world via sensors. The main sensor used in this project is the camera mounted to the front of the robot. Figure 2 shows an example of a single image captured from the rover's camera. The camera images are received approximately once every 27$\si{\milli\second}$, or 36$\si{\hertz}$.
 
-In addition to the camera data, the there are sensors which measure the rover's position and orientation in space. Position is given by simple Cartesian coordinates, $(x, y)$, with reference to a fixed world frame. Orientation is given by roll, pitch, and yaw which are also with reference to the fixed world frame. Finally, throttle, brake, and steering angle of the rover are also provided. These values values are received at the same frequency as the images. Table 1 shows the different sensors used, their data types, and a basic description of use of the captured data. 
+\begin{figure}
+\centering
+\includegraphics{image2}
+\caption{A single image of the simulated environment as shown from the robot's front mounted camera.}
+\end{figure}
+
+In addition to the camera data, the there are sensors which measure the rover's position and orientation in space. Position is given by simple Cartesian coordinates, $(x, y)$, with reference to a fixed world frame. Orientation is given by roll, pitch, and yaw which are also with reference to the fixed world frame. Finally, throttle, brake, and steering angle of the rover are also provided. These values values are received at the same frequency as the images. The sensor data is used to help determine a course of action for the robot. This is achieved with two principal functions: \verb|perception_step| and \verb|decision_step|. Table 1 shows the different sensors data types, and a basic description of use of the captured data. 
 
 \begin{table}
-\caption{A table which shows the different data types, their python format, and the frequency at which they are sampled from the simulated environment}
-\begin{tabular}{content...}
-content...
+\caption{A table which shows the different sensor data types, and their python format.}
+\begin{tabular}{lll}
+\toprule
+\textbf{Sensor Data Type} & \textbf{Python Variable} & \textbf{Description}\\
+\midrule
+Image & \verb|img| & This is the \\
+Position & \verb|pos| & value\\
+Yaw & \verb|yaw| & \\
+Pitch & \verb|pitch| & \\
+Roll & \verb|roll| & \\
+Current Velocity & \verb|velocity| & \\
+Steering Angle & \verb|steer| & \\
+Throttle Value & \verb|throttle| & \\
+Brake Value & \verb|brake| & 
+\bottomrule
 \end{tabular}
 \end{table}
 
-Further, there is a camera that is provided to the robot. Does the robot know the ground truth map?
-
-What is the frequency of the image capture for the robot? What is the frequency of the sensor data capture for the robot?
-
-What other important things are needed to accurately describe the sensor data stream?
-
-How is the sensor data procesed?
-
+%--------------------------------------------------------------------------
 \subsection{Image Processing}
-The image processing was a large component of the project, and consisted of multiple stages. The full \textbf{process image function} can be seen in Appendix A, and the subsections presented below describe five of the most important elements of the function. How often is this function called? I think it is called every image - so it runs at the same rate the camera obtains images. The question is that in an embedded system would the operation of the image processing function be in real time?
+The image processing was a large component of the project, and consisted of multiple stages. Image processing is applied by the \verb|perception_step| function, and is applied to each image captured by the rover's front mounted camera. The processing consists of three principal components: perspective transformation, segmentation, and translating the image to obtain a rover centric coordinate system. There is no fixed order in which the perspective transformation and segmentation steps need to occur, however, the transformation to a rover centric coordinate system can only be performed once the image has undergone a perspective transformation.
 
-\subsubsection{Image Transformation}
+
+%--------------------------------------------------------------------------
+\subsubsection{Perspective Transformation}
 Describe the implementation of how the image transformation was made. Basically, we obtained 4 points on the received image, and 4 points on the overhead image. We map the points from the front facing camera image to the overhead image for the rover in a given position. This mapping is done manually using image viewer
 
-\textbf{CODE SNIPET}
+\begin{lstlisting}[language=]
+
+\end{lstlisting}
 
 \begin{table}
 \caption{include a table which has the points that we need to map to the other points}
@@ -83,7 +106,7 @@ content...
 \end{minipage}
 \end{figure}
 
-\subsubsection{Segmentation \& Filtering: Navigable Terrain \& Obstacles}
+\subsubsection{Segmentation: Navigable Terrain \& Obstacles}
 There are 3 different types of object that are of interest to the robot: navigable terrain, obstacles, rock samples. A simple way to obtain the navigable terrain is to create a basic RGB filter. This works because it exploits the stark contrast between obstacles (which are dark), and navigable terrain (which is light). We get two for one with this type of filtering if we can filter the navigable terrain, then we have the obstacles by default - that is the two types of terrain are mutually exclusive.
 
 CODE SNIPPET
@@ -108,7 +131,7 @@ This section is more curious that that. If we filter prior to transforming, then
 
 PERHAPS TEST: see what happens if the segmentation is made first and then the transformation is made leaving an image gap - if there is no distortion then this may be the better solution.
 
-\subsubsection{Segmentaiton \& Filtering: Rock Samples}
+\subsubsection{Segmentaiton: Rock Samples}
 To get the rock samples it was a little harder - the RBG did not work that well and instead HSV was used. Talk some about the RGB background and then talk some about the HSV background. Once the rocks have been determined they are added to the image
 
 CODE SNIPPET
@@ -156,6 +179,7 @@ CODE SNIPPET
 \caption{Show a picture of the mapped terrain, if possible}
 \end{figure}
 
+%--------------------------------------------------------------------------
 \subsection{Autonomous Navigation}
 \subsubsection{Perception Step}
 Need to talk about the implementation of these sections of the code
@@ -163,8 +187,10 @@ Need to talk about the implementation of these sections of the code
 \subsubsection{Decision Step}
 Need to talk about the implementation of these sections of the code
 
+%--------------------------------------------------------------------------
 \section{Results \& Conclusion}
 
+%--------------------------------------------------------------------------
 \section{Further Enhancements}
 
 \end{document}
