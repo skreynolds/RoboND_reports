@@ -10,8 +10,12 @@
 \usepackage{float}
 \usepackage{inconsolata}
 \usepackage{listings}
+\usepackage{pstricks-add}
 \usepackage{siunitx}
 \usepackage[most]{tcolorbox}
+\usepackage{tikz}
+
+\usetikzlibrary{shapes.geometric}
 
 %--------------------------------------------------------------------------
 \graphicspath{{./fig/}}
@@ -63,7 +67,7 @@ Forward and Inverse kinematic analysis relies heavily on successful specificatio
 
 \begin{table}[h]
 \centering
-\caption{text}
+\caption{Description of the Denavit-Hartenburg parameters}
 \begin{tabular}{cp{8cm}}
 \toprule
 \textbf{Parameter} & \textbf{Description}\\
@@ -74,11 +78,38 @@ $a_{i-1}$ & Distance from $\hat{z}_{i-1}$ to $\hat{z}_i$ measured along $\hat{x}
  & \\
 $d_i$ & Signed distance between $\hat{x}_i$ and $\hat{x}_{i-1}$, measured along $\hat{z}_i$\\
  & \\
-$\theta_i$ & \\
+$\theta_i$ & Angle between $\hat{x_{i-1}}$ and $\hat{x}_i$, measured about $\hat{z}_i$\\
 \bottomrule
 \end{tabular}
 \end{table}
-  
+
+The KR210 has a base link, 6 degrees of freedom, and an end effector. Each of the links require a coordinate frame assignment, making a total requirement of 8 coordinate frames. Each of the joints were systematically labelled from 1 to 6, starting with the joint closest to the \verb|base_link|. Following this, each of the links were assigned a number from 0 to 7. It must be noted that link 0 is actually the \verb|base_link|, and link 7 is the \verb|end_effector|. For the sake of simplicity, the \verb|base_link| and \verb|end_effector| will retain their names throughout this report. Coordinate frames were assigned to the links according to the DH procedure. Each link can be thought of as being associated with a joint. The \verb|base_link| is associated with the fixed ground, link 1 is associated with joint 1, and so on. To assign the coordinate frame to a link, DH requires the $\hat{z}_i$ coordinate axis for link $i$ to pass through the joint $i$ axis of rotation. Finally, starting at the \verb|base_link|, the $\hat{x}_i$ axes are assigned dependent on whether the $\hat{z}_i$, and $\hat{z}_{i+1}$ axes are:
+\begin{enumerate}
+\item Skewed; 
+\item Intersecting; or
+\item Coincident
+\end{enumerate}
+
+To reiterate, the $\hat{x}_i$ axis is assigned dependent on the geometric how the $\hat{z}_i$ axis, and the \textbf{next link coordinate frame}, $\hat{z}_{i+1}$, interact with each other geometrically. The full DH coordinate frame assignment can be seen in Figure 4.
+
+\begin{figure}[h]
+\centering
+\scalebox{0.8}{\input{./arm_sketch/kinematics.tex}}
+\caption{Sexy robot drawing}
+\end{figure}
+
+\begin{table}
+\centering
+\caption{DH parameter table}
+\begin{tabular}{ll}
+\toprule
+
+\midrule
+
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Forward Kinematics}
 Forward kinematics is the transformation of joint angles to an end effector point in space. Provide an in depth description of how each of the transformations and how they were arrived at. Recall this is a simple implementation of the DH parameter matrices and then a simple multiplication (which can be done using sympy)
 
