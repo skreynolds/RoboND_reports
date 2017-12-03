@@ -21,6 +21,13 @@
 \graphicspath{{./fig/}}
 
 %--------------------------------------------------------------------------
+
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
+    fonttitle=\bfseries, colframe=gray, listing only, 
+    listing options={basicstyle=\ttfamily,language=Python}, 
+    title=Listing \thetcbcounter: #2, #1}
+
+%--------------------------------------------------------------------------
 \begin{document}
 \title{Udacity: Robotic Arm Pick \& Place Report}
 \author{Shane Reynolds}
