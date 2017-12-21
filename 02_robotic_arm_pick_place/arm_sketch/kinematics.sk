@@ -1,0 +1,189 @@
+## Kinematics diagram for a 6-DOF robot arm
+##
+## Author : Shane Reynolds <shane.k.reynolds>
+
+def blue<>
+input{lib/defaults.sk}
+input{lib/objects.sk}
+
+def J1 0
+def J2 -90
+def J3 180
+def J4 0
+def J5 90
+def J6 90
+
+def arrowarc
+{
+    sweep [style=thick]{215, rotate(1, [Z])} (1,0)
+    def p1 (1,0) then rotate(210, [Z])
+    def p2 (1,0) then rotate(210+30, [Z])
+    line [style=thick, style=->] (p1)(p2)
+}
+
+% The main drawing
+put {scale(0.5)}
+{
+#############################
+######################## base
+#############################
+    put {scale(1)}
+    {
+        put{scale([8,8,0.5])}{box}
+        put{scale([7,7,3.5]) * translate([0,0,0.2])}
+        {
+            {coordsys}
+            special |\path #1 node[left] {$Z_\texttt{base}$}
+                           #2 node[right] {$X_\texttt{base}$}
+                           #3 node[right] {$Y_\texttt{base}$};|(z)(x)(y)(o)
+        }
+
+        put {translate([0,0,10]) * rotate(135, [Z])}{arrowarc}
+        special|\node[right] at #1 {$\theta_1$};|(1,0,10)
+
+
+        line [style=dashed] (0,0,0.2)(0,0,13)
+        line [style=dashed] (0,0,13)(7,0,13)
+
+
+#############################
+####################### link1
+#############################
+        put {translate([0,0,7]) * rotate(J1, [Z])}
+        {
+            put{scale([1,1,3])}{cylinder}
+
+            put{translate([0,0,6]) * rotate(0, [X])}
+            {
+                put{scale([3.5,4.5,3.5])}
+                {
+                    {coordsys}
+                    special |\path #1 node[above] {$Z_1$}
+                                   #2 node[above] {$X_1$}
+                                   #3 node[above] {$Y_1$};|(z)(x)(y)(o)
+                }
+            }
+
+
+#############################
+####################### link2
+#############################
+            put {translate([7,0,6]) * rotate(-90, [X]) * rotate(J2+90, [Z])}
+            {
+                put{scale([1,1,3])}{cylinder}
+                put{translate([0,0,0]) * rotate(-90, [Z])}
+                {
+                    put {scale([3.5,3.5,4.5])}
+                    {
+                        {coordsys}
+                        special |\path #1 node[above] {$Z_2$}
+                                       #2 node[left] {$X_2$}
+                                       #3 node[right] {$Y_2$};|(z)(x)(y)(o)
+                    }
+
+                    put {translate([0,0,-4]) * rotate(120, [Z])}{arrowarc}
+                    special|\node at #1 {$\theta_2$};|(0,0,-4)
+                }
+
+                line [style=dashed] (0,0,0)(0,-7,0)
+
+#############################
+####################### link3
+#############################
+                put {translate([0,-7,0]) * rotate(J3-180, [Z]) * rotate(90, [Y]) * rotate(90, [Z])}
+                {
+                    put{rotate(90, [X]) * scale([1,1,3])}{cylinder}
+                    put{translate([0,0,0]) * rotate(-90, [X]) * rotate(180, [Z])}
+                    {
+                        put{scale([3.5,3.5,4.5])}
+                        {
+                            {coordsys}
+                            special |\path #1 node[above] {$Z_3$}
+                                        #2 node[left] {$X_3$}
+                                        #3 node[right] {$Y_3$};|(z)(x)(y)(o)
+                        }
+
+                        put {translate([0,0,-4]) * rotate(120, [Z])}{arrowarc}
+                        special|\node at #1 {$\theta_3$};|(0,0,-4)
+
+                    }
+
+                    put {translate([2.5,0,13]) * rotate(0, [Z])}{arrowarc}
+                    special|\node[above] at #1 {$\theta_4$};|(1.5,0,13)
+
+                    line [style=dashed] (0,0,0)(2.5,0,8)
+
+
+#############################
+####################### link4
+#############################
+                    put {translate([2.5,0,9.5]) * rotate(180+J4, [Z])}
+                    {
+                        put{scale([1,1,3])}{cylinder}
+
+                    line [style=dashed] (0,0,0)(0,0,5)
+
+###############################
+######################### link5
+###############################
+                        put {translate([0,0,6.5]) * rotate(-90, [X]) * rotate(180, [Y])}
+                        {
+                            put{scale([1,1,3])}{cylinder}
+                            put{translate([0,0,0]) * rotate(180, [Z])}
+                            {
+                                put{scale([3.5,3.5,7.5])}
+                                {
+                                    {coordsys}
+                                    special |\path #1 node[above] {$Z_4$}
+                                                   #2 node[above] {$X_4$, $X_5$, $X_6$}
+                                                   #3 node[below] {$Y_4$};|(z)(x)(y)(o)
+                                }
+                            }
+                            put {translate([0,0,5]) * rotate(120, [Z])}{arrowarc}
+                            special|\node at #1 {$\theta_5$};|(0,1.5,5)
+
+###################################
+############################# link6
+###################################
+                            put {rotate(J5-90, [Z]) * translate([0,-6.5,0]) * rotate(90, [Y]) * rotate(90, [X])}
+                            {
+                                line [style=dashed] (0,0,7.25)(0,0,-5)
+                                put{scale([1,1,3])}{cylinder}
+
+                                put {translate([0,0,4]) * rotate(150, [Z])}{arrowarc}
+                                special|\node[left] at #1 {$\theta_6$};|(1,0,4)
+
+##############################################
+################################# end effector
+##############################################
+                                put {rotate(J6, [Z]) * translate([0,0,6])}
+                                {
+                                    put{scale([1,2,1])}{box}
+                                    put{translate([0,-0.7,1]) * scale([1,0.2,1])}{box}
+                                    put{translate([0,0.7,1]) * scale([1,0.2,1])}{box}
+                                    put{translate([0,0,1.25]) * rotate(180, [Z]) * scale([3,5,3])}
+                                    {
+                                        {coordsys}
+                                        special |\path #1 node[label={[shift={(0.3,-0.8)}]$Z_4$, $Z_6$, $Z_\texttt{end\_effector}$}] {}
+                                                       #2 node[right] {$X_\texttt{end\_effector}$}
+                                                       #3 node[below] {$Y_6$};|(z)(x)(y)(o)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+global
+{
+    language tikz
+    camera rotate(0, (1,0,0)) * view((1.5,2,1),(0,0,0),[0,0,1]) * rotate(110, (0,0,1))
+}
+
+
