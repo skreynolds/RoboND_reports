@@ -471,7 +471,7 @@ def pix_to_world(xpix, ypix, xpos, ypos, yaw, world_size, scale):
 The rover is designed to move about the simulated environment autonomously. The main code executing the autonomous mode of navigation is encapsulated in \verb|rover_drive.py|, shown in Appendix B. There are two key functions which are executed in this script: \verb|perception.py| and \verb|decision.py|. The \verb|perception.py| function processes rover captured images, and provides an information set which is used by the \verb|decision.py| function as input for autonomous navigation. Each of the functions are discussed in more detail below.
 
 \subsubsection{Perception Step}
-The perception step is applied to each image that is captured by the rover's front mounted camera. As previously mentioned, images are capture at approximately 36 $\si{\hertz}$. The \verb|perception_step| function can be seen, in full, in Appendix A. The function takes a single object oriented arguement, which details the current state of the rover, including the latest image captured by the camera. Using the image, navigable terrain, obstacles, and the prescence of rocks are determined and updated on the world map. Listing 10 shows the code which provides for world map updating - obstacles are on the red channel, navigable terrain is on the blue channel, and rocks are on the green channel.
+The perception step is applied to each image that is captured by the rover's front mounted camera. As previously mentioned, images are captured at approximately 36 $\si{\hertz}$. The \verb|perception_step| function can be seen, in full, in Appendix A. The function takes a single object oriented arguement, which details the current state of the rover, including the latest image captured by the camera. Using the image, navigable terrain, obstacles, and the prescence of rocks are determined and updated on the world map. Listing 10 shows the code which provides for world map updating - obstacles are on the red channel, navigable terrain is on the blue channel, and rocks are on the green channel.
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{insert text}
@@ -699,7 +699,136 @@ The forward mode code snippet is shown in Listing 11, and the flow diagram expla
 %--------------------------------------------------------------------------
 \section{Further Enhancements}
 
+\newpage
+
 \section{Appendix A}
+\tiny
+\begin{lstlisting}[language=Python]
+def perception_step(Rover):
+    # Perform perception steps to update Rover()
+    # TODO: 
+    # NOTE: camera image is coming to you in Rover.img
+    
+    # 1) Define source and destination points for perspective transform
+    img = Rover.img
+    dst_size = 5 
+    bottom_offset = 6
+    source = np.float32([[14, 140], [301 ,140],[200, 96], [118, 96]])
+    destination = np.float32([[img.shape[1]/2 - dst_size, img.shape[0] - bottom_offset],
+                  [img.shape[1]/2 + dst_size, img.shape[0] - bottom_offset],
+                  [img.shape[1]/2 + dst_size, img.shape[0] - 2*dst_size - bottom_offset], 
+                  [img.shape[1]/2 - dst_size, img.shape[0] - 2*dst_size - bottom_offset],
+                  ])
+    
+    # 2) Apply perspective transform
+    warped = perspect_transform(img, source, destination)
+    
+    # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
+    # Threshold image for terrain
+    nav = color_thresh(warped, (165, 165, 165))
+    
+    # Threshold image for gold rocks
+    hsv_warped = cv2.cvtColor(warped, cv2.COLOR_RGB2HSV)
+    lower_thres = np.array([0,120,120])
+    upper_thres = np.array([40,255,255])
+    rock = cv2.inRange(hsv_warped, lower_thres, upper_thres).astype(bool).astype(int)
+    
+    # Threshold image for obstacles
+    obstacles_temp = color_thresh(warped, (135, 135, 135))
+    obstacles_temp ^= 1
+    
+    # Threshold image for cone
+    # Cone derivation
+    nav_thresh = color_thresh(img, (165, 165, 165))
+    obstacles_thresh = nav_thresh.copy()
+    obstacles_thresh ^= 1
+    cone = perspect_transform(obstacles_thresh, source, destination)
+    cone ^= 1
+    cone = np.logical_and(obstacles_temp, cone)
+    
+    # Thresholded image for obstacles (with cone and rocks removed)
+    obstacles = obstacles_temp - cone - rock
+    
+    # 4) Update Rover.vision_image (this will be displayed on left side of screen)
+        # Example: Rover.vision_image[:,:,0] = obstacle color-thresholded binary image
+        #          Rover.vision_image[:,:,1] = rock_sample color-thresholded binary image
+        #          Rover.vision_image[:,:,2] = navigable terrain color-thresholded binary image
+    Rover.vision_image[:,:,0] = obstacles*255
+    Rover.vision_image[:,:,1] = rock*255
+    Rover.vision_image[:,:,2] = nav*255
+    
+    # 5) Convert map image pixel values to rover-centric coords
+    # Terrain
+    xpix_nav, ypix_nav = rover_coords(nav)
+    
+    # Obstacles
+    xpix_obstacles, ypix_obstacles = rover_coords(obstacles)
+    
+    # Rocks
+    xpix_rock, ypix_rock = rover_coords(rock)
+    
+    # 6) Convert rover-centric pixel values to world coordinates
+    # Define parameters which will transform image
+    xpos, ypos = Rover.pos
+    yaw = Rover.yaw
+    world_size = 200
+    scale = 10
+    
+    # Terrain
+    nav_x_world, nav_y_world = pix_to_world(xpix_nav, ypix_nav, xpos, ypos, yaw, world_size, scale)
+    
+    # Obstacles
+    obstacle_x_world, obstacle_y_world = pix_to_world(xpix_obstacles, ypix_obstacles, xpos, ypos, yaw, world_size, scale)
+    
+    # Rocks
+    rock_x_world, rock_y_world = pix_to_world(xpix_rock, ypix_rock, xpos, ypos, yaw, world_size, scale)
+    
+    # 7) Update Rover worldmap (to be displayed on right side of screen)
+        # Example: Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 1
+        #          Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
+        #          Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
+    
+    # Add a small amount of colour to obstacles
+    Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 2
+    # Reset obstacle channel that rover currently sees as navigable terrain
+    Rover.worldmap[nav_y_world, nav_x_world, 0] = 0
+    
+    # Update any rocks on the rock colour channel
+    Rover.worldmap[rock_y_world, rock_x_world, 1] = 255 
+    
+    # Reset anything on the navigable terrain channel that the rover currently sees as an obstacle
+    Rover.worldmap[obstacle_y_world, obstacle_x_world, 2] = 0
+    Rover.worldmap[nav_y_world, nav_x_world, 2] = 255
+    
+    # 8) Convert rover-centric pixel positions to polar coordinates
+    # Update Rover pixel distances and angles
+        # Rover.nav_dists = rover_centric_pixel_distances
+        # Rover.nav_angles = rover_centric_angles
+    
+    # If the rover detects a rock, and it is not in stuck mode, the Rover will
+    # switch to the rocking mode (i.e. the mode used to search for rocks)
+    if (sum(sum(rock)) > 20) and Rover.mode != "stuck":
+        Rover.mode = "rocking"
+        Rover.rock_spot_count = 0 # The rover will reset the rock spot counter
+        distances, angles = to_polar_coords(xpix_rock, ypix_rock)
+        Rover.rock_dists = distances
+        Rover.rock_angles = angles
+    # If the Rover loses track of the rock, the Rover still remains in the rocking
+    # mode, however, will start to count down to switching back to forward mode
+    # provided the Rover cannot relocate the rock
+    elif Rover.mode == "rocking":
+        Rover.rock_spot_count += 1
+        Rover.rock_angles = 0
+    
+    # The code will always take the updated navigation distances and angles
+    # irrespective of whether or not a rock is detected
+    distances, angles = to_polar_coords(xpix_nav, ypix_nav)
+    Rover.nav_dists = distances
+    Rover.nav_angles = angles
+    
+    return Rover
+\end{lstlisting}
+
 \section{Appendix B}
 \section{Appendix C}
 \end{document}

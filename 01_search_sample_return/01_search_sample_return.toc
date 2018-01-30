@@ -1,0 +1,17 @@
+\contentsline {section}{\numberline {1}Introduction \& Background}{2}
+\contentsline {section}{\numberline {2}Methods and Implementation}{3}
+\contentsline {subsection}{\numberline {2.1}Sensor Data}{3}
+\contentsline {subsection}{\numberline {2.2}Image Processing}{4}
+\contentsline {subsubsection}{\numberline {2.2.1}Perspective Transformation}{4}
+\contentsline {subsubsection}{\numberline {2.2.2}Segmentation: Navigable Terrain \& Obstacles}{5}
+\contentsline {subsubsection}{\numberline {2.2.3}Segmentaiton: Rock Samples}{9}
+\contentsline {subsubsection}{\numberline {2.2.4}Rover Centric Coordinates}{10}
+\contentsline {subsubsection}{\numberline {2.2.5}Mapping the the World Coordinate Frame}{11}
+\contentsline {subsection}{\numberline {2.3}Autonomous Navigation}{12}
+\contentsline {subsubsection}{\numberline {2.3.1}Perception Step}{12}
+\contentsline {subsubsection}{\numberline {2.3.2}Decision Step}{13}
+\contentsline {section}{\numberline {3}Results \& Conclusion}{20}
+\contentsline {section}{\numberline {4}Further Enhancements}{20}
+\contentsline {section}{\numberline {5}Appendix A}{21}
+\contentsline {section}{\numberline {6}Appendix B}{22}
+\contentsline {section}{\numberline {7}Appendix C}{22}
