@@ -10,8 +10,8 @@
 \contentsline {subsection}{\numberline {2.3}Autonomous Navigation}{12}
 \contentsline {subsubsection}{\numberline {2.3.1}Perception Step}{12}
 \contentsline {subsubsection}{\numberline {2.3.2}Decision Step}{13}
-\contentsline {section}{\numberline {3}Results \& Conclusion}{20}
-\contentsline {section}{\numberline {4}Further Enhancements}{20}
-\contentsline {section}{\numberline {5}Appendix A}{21}
-\contentsline {section}{\numberline {6}Appendix B}{22}
-\contentsline {section}{\numberline {7}Appendix C}{22}
+\contentsline {section}{\numberline {3}Results \& Conclusion}{19}
+\contentsline {section}{\numberline {4}Further Enhancements}{21}
+\contentsline {section}{\numberline {5}Appendix A}{22}
+\contentsline {section}{\numberline {6}Appendix B}{24}
+\contentsline {section}{\numberline {7}Appendix C}{27}

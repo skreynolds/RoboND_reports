@@ -11,6 +11,21 @@
 \usepackage{listings}
 \usepackage{siunitx}
 \usepackage[most]{tcolorbox}
+\usepackage{xfrac}
+\usepackage{color}
+\usepackage{setspace}
+\usepackage{url}
+
+%---------------------------------------------------------------------------
+
+\lstdefinestyle{Python}{
+	language        = Python,
+	basicstyle      = \ttfamily,
+	keywordstyle    = \color{blue},
+	keywordstyle    = [2] \color{teal}, % just to check that it works
+	stringstyle     = \color{green},
+	commentstyle    = \color{red}\ttfamily
+}
 
 %--------------------------------------------------------------------------
 \graphicspath{{./fig/}}
@@ -24,6 +39,7 @@
 
 %--------------------------------------------------------------------------
 \begin{document}
+
 \title{Udacity: Search and Sample Return Report}
 \author{Shane Reynolds}
 \maketitle
@@ -468,7 +484,7 @@ def pix_to_world(xpix, ypix, xpos, ypos, yaw, world_size, scale):
 
 %--------------------------------------------------------------------------
 \subsection{Autonomous Navigation}
-The rover is designed to move about the simulated environment autonomously. The main code executing the autonomous mode of navigation is encapsulated in \verb|rover_drive.py|, shown in Appendix B. There are two key functions which are executed in this script: \verb|perception.py| and \verb|decision.py|. The \verb|perception.py| function processes rover captured images, and provides an information set which is used by the \verb|decision.py| function as input for autonomous navigation. Each of the functions are discussed in more detail below.
+The rover is designed to move about the simulated environment autonomously. The main code executing the autonomous mode of navigation is encapsulated in \verb|drive_rover.py|, shown in Appendix B. There are two key functions which are executed in this script: \verb|perception.py| and \verb|decision.py|. The \verb|perception.py| function processes rover captured images, and provides an information set which is used by the \verb|decision.py| function as input for autonomous navigation. Each of the functions are discussed in more detail below.
 
 \subsubsection{Perception Step}
 The perception step is applied to each image that is captured by the rover's front mounted camera. As previously mentioned, images are captured at approximately 36 $\si{\hertz}$. The \verb|perception_step| function can be seen, in full, in Appendix A. The function takes a single object oriented arguement, which details the current state of the rover, including the latest image captured by the camera. Using the image, navigable terrain, obstacles, and the prescence of rocks are determined and updated on the world map. Listing 10 shows the code which provides for world map updating - obstacles are on the red channel, navigable terrain is on the blue channel, and rocks are on the green channel.
@@ -534,10 +550,14 @@ def to_polar_coords(x_pixel, y_pixel):
 \subsubsection{Decision Step}
 The \verb|decision.py| function, shown in Appendix C, is applied after the current image has been processed, and the rover state updated. Principally, this function is concerned with rover navigation and focuses on obstacles avoidance, in addition to providing the rover with some capacity to negotiate dead ends in the environment and locate rocks. The decision step decides between 4 distinct Rover modes: forward, rocking, stop, and stuck.\\
 
-The forward mode code snippet is shown in Listing 11, and the flow diagram explaining the logic operation is shown in Figure 21. When in forward mode the rover checks that there is 
+The forward state code snippet is shown in Listing 11, and the flow diagram explaining the logic behind the operation is shown in Figure 21. When in the forward state the rover checks that there is navigable terrain in front of it. If there is sufficient navigable terrain, and the velocity is at the maximum velocity, then the rover will continue in this mode. If the rover is below maximum velocity, then the throttle will be applied. If the rover has zero velocity, but has sufficient navigable terrain, then the clock for determining if the rover is stuck will start to count. If the stuck counter, which is stored in the object variable \verb|Rover.vel|, reaches 400, then the rover will change state from \verb|forward| to \verb|stuck|. The timer for this state change was implemented to provide some hysteresis preventing the rover from rapid state switching. Note that if the Rover's velocity reaches above a threshold while the stuck counter is counting, then it is deemed that the rover has freed itself from the obstacle and the counter is reset.\\
+
+The steering direction is determined by a weighted moving average of the present steering angle stored in \verb|Rover.nav_angles|, with a weight of $\sfrac{1}{3}$, and the previous steering angle, with a weight of $\sfrac{2}{3}$. This provides a slight reduction in erratic corrections given extreme values in \verb|Rover.nav_angles|. Erratic changes are further ameliorated by bounding the steering angle between -15$^o$ and 15$^o$.
+
+\vspace{2cm}
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{text here}
+\begin{sexylisting}{Code snippet for the operation of the forward state of the rover}
 # Check for Rover.mode status
         if Rover.mode == 'forward':
             # If the Rover is no longer stuck, then 
@@ -583,14 +603,41 @@ The forward mode code snippet is shown in Listing 11, and the flow diagram expla
 \end{sexylisting}
 \end{figure}
 
+\newpage
+
 \begin{figure}[h]
-\hspace{-0.5cm}
-\includegraphics[scale = 0.6]{forward_flow}
-\caption{text}
+\hspace{-1.5cm}
+\vspace{4cm}
+\includegraphics[scale = 0.7]{forward_flow}
+\vspace{-3cm}
+\caption{Flow diagram showing the operation of the rover when it is in the forward state of operation.}
+\end{figure}
+
+\newpage
+
+The rocking state is used when the rover detects a rock, or the current image has rock like characteristics. The change from the current state to the rocking state is determined by the code snippet shown in Listing 12. This state change will occur if the rover is not in the stuck state, and there are more than 20 pixels in the current image which have the characteristics of a rock. Note that if the rover is in rocking mode, but loses track of the rock (that is the rock is not persistent in teh image) then a counter starts which will eventually switch the rover back to the forward state. The timer is employed to stop rapid state switching. The rocking state code snippet is shown in Listing 12, and the flow diagram explaining the logic behind the operation is shown in Figure 22.\\
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{Code snippet showing how the rover changes to the rocking state}
+# If the rover detects a rock, and it is not in stuck mode, the Rover will
+# switch to the rocking mode (i.e. the mode used to search for rocks)
+if (sum(sum(rock)) > 20) and Rover.mode != "stuck":
+	Rover.mode = "rocking"
+	Rover.rock_spot_count = 0 # The rover will reset the rock spot counter
+	distances, angles = to_polar_coords(xpix_rock, ypix_rock)
+	Rover.rock_dists = distances
+	Rover.rock_angles = angles
+# If the Rover loses track of the rock, the Rover still remains in the rocking
+# mode, however, will start to count down to switching back to forward mode
+# provided the Rover cannot relocate the rock
+elif Rover.mode == "rocking":
+	Rover.rock_spot_count += 1
+	Rover.rock_angles = 0
+\end{sexylisting}
 \end{figure}
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{text here}
+\begin{sexylisting}{Code snippet showing rover operation in the rocking state}
 # If the rover is in the vicinity of a rock - this is set in perception 
         elif Rover.mode == 'rocking':
             if abs(Rover.vel) > 0.08:
@@ -625,14 +672,18 @@ The forward mode code snippet is shown in Listing 11, and the flow diagram expla
 \end{sexylisting}
 \end{figure}
 
+When in the rocking state, the rover will first check if timer if the rock image has been lost. If the timer is greater than 200, then the rover will switch back to the forward state. The rover will then check if it is moving, and start a stuck counter similar to that used in forward mode if the velocity is below a certain threshold. If the counter \verb|Rover.vel_count| goes above 400 then the rover will switch to the stuck state. Provided the rover remains in the rocking state, the rover will approach the rock using \verb|Rover.rock_angles| to steer, at a maximum velocity of 0.5. Note that if the rover loses track of the rock image, then the steering angle is set to 0. Once the rover is near the sample, the \verb|Rover.near_sample| flag is tripped, and the rover will stop to pick up the rock, after which the state will change to forward.\\
+
 \begin{figure}[h]
-\hspace{-0.5cm}
-\includegraphics[scale=0.6]{rocking_flow}
-\caption{text}
+\hspace{-2.5cm}
+\includegraphics[scale=0.7]{rocking_flow}
+\caption{Flow diagram showing the operation of the rover when it is in the rocking state of operation.}
 \end{figure}
 
+The stuck state code snippet can be seen in Listing 16, and the flow diagram explaining the logic behind the operation is shown in Figure 23. When the rover is in the stuck state, a counter is increased by one, and the throttle is set to -0.1, with the steering angle set to 0 so the rover will reverse away from the obstacle. The rover will persist in this mode until the counter reaches 300, at which time the rover will change states to the forward state.\\
+
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{text here}
+\begin{sexylisting}{Code snippet showing the operation of the rover in the stuck state}
 # This is the Rover stuck mode - that is if the wheels are caught on the terrain        
         elif Rover.mode == 'stuck':
             Rover.stuck_count += 1 # Add a count to the hysteresis
@@ -650,13 +701,19 @@ The forward mode code snippet is shown in Listing 11, and the flow diagram expla
 \end{figure}
 
 \begin{figure}[h]
-\hspace{-1cm}
-\includegraphics[scale=0.6]{stuck_flow}
-\caption{text}
+\hspace{-1.5cm}
+\includegraphics[scale=0.7]{stuck_flow}
+\vspace{-3cm}
+\caption{Flow diagram showing the operation of the rover when it is in the stuck state of operation.}
 \end{figure}
 
+\clearpage
+
+
+Finally, the stop state code snippet can be seen in Listing 17, and the flow diagram explaining the logic behind the operation is shown in Figure 24. When in the stop state, the rover will first check if the velocity is greater than 0.2, in which case it will apply the brake to bring the rover to a rapid stop. The rover will then check the navigable terrain. If there is no navigable terrain, then the rover will turn counter clockwise on the spot, until sufficient navigable terrain is visible. At this point the rover will recommence in the forward state.
+
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{text here}
+\begin{sexylisting}{Code snippet showing the operation of the rover in the stop state}
 # If we're already in "stop" mode then make different decisions
         elif Rover.mode == 'stop':
             # If we're in stop mode but still moving keep braking
@@ -671,7 +728,8 @@ The forward mode code snippet is shown in Listing 11, and the flow diagram expla
                     Rover.throttle = 0
                     # Release the brake to allow turning
                     Rover.brake = 0
-                    # Turn range is +/- 15 degrees, when stopped the next line will induce 4-wheel turning
+                    # Turn range is +/- 15 degrees, when stopped the next line
+                    # will induce 4-wheel turning
                     Rover.steer = -15 # Could be more clever here about which way to turn
                 # If we're stopped but see sufficient navigable terrain in front then go!
                 if len(Rover.nav_angles) >= Rover.go_forward:
@@ -686,149 +744,62 @@ The forward mode code snippet is shown in Listing 11, and the flow diagram expla
 \end{figure}
 
 \begin{figure}
-\hspace{-1cm}
-\includegraphics[scale=0.6]{stop_flow}
-\caption{text}
+\hspace{-1.5cm}
+\includegraphics[scale=0.7]{stop_flow}
+\caption{Flow diagram showing the operation of the rover when it is in the stuck state of operation.}
 \end{figure}
-
-\clearpage
 
 %--------------------------------------------------------------------------
 \section{Results \& Conclusion}
 
+The code implementations seen in the perception step and the decision step allowed the rover to navigate the map in almost all circumstances. The full set of code implementations can be found at the following Github repository:
+
+\begin{center}
+	\url{https://github.com/skreynolds/RoboND-Rover-Project.git}
+\end{center}
+
+There were only a few minor instances where the rover would become stuck with no chance to recover. These minor situations would occur when the rover would have the undercarriage balanced on a rock providing no contact between the rover wheels and the ground, or places that the rover itself would become embedded into the obstacle. A video of the rover navigating successfully through the terrain can be seen at the following YouTube link:
+
+\begin{center}
+	\url{https://youtu.be/-hOlGIr9gxk}
+\end{center}
+
+The implementation was able to map well over the required 40\% of the map, and the fidelity of the mapping never fell below 80\% - most of the time it was above 90\%. Further, the rover was able to autonomously locate rock samples and pick them up in most instances.
+
+\newpage
+
 %--------------------------------------------------------------------------
+
 \section{Further Enhancements}
+
+Enhancements could be made by instructing the rover to return back to its original position when it has found all of the rock samples present in the map. This would require the rover to take note of the Cartesian coordinates at which it was positioned when the simulation started. Further, the number of samples collected would also need to be monitored. When the rover had collected 6 samples (this is the number of samples in each simulation), then the rover would switch to a newly created state which would see the rover return to its original position. Further, adjustments to the rover's forward state of navigation may help it to avoid areas which cause it to becomes irrecoverably stuck.
 
 \newpage
 
 \section{Appendix A}
+
+\lstset{
+	frame       = single,
+	numbers     = left,
+	showspaces  = false,
+	showstringspaces    = false
+}
+
 \tiny
-\begin{lstlisting}[language=Python]
-def perception_step(Rover):
-    # Perform perception steps to update Rover()
-    # TODO: 
-    # NOTE: camera image is coming to you in Rover.img
-    
-    # 1) Define source and destination points for perspective transform
-    img = Rover.img
-    dst_size = 5 
-    bottom_offset = 6
-    source = np.float32([[14, 140], [301 ,140],[200, 96], [118, 96]])
-    destination = np.float32([[img.shape[1]/2 - dst_size, img.shape[0] - bottom_offset],
-                  [img.shape[1]/2 + dst_size, img.shape[0] - bottom_offset],
-                  [img.shape[1]/2 + dst_size, img.shape[0] - 2*dst_size - bottom_offset], 
-                  [img.shape[1]/2 - dst_size, img.shape[0] - 2*dst_size - bottom_offset],
-                  ])
-    
-    # 2) Apply perspective transform
-    warped = perspect_transform(img, source, destination)
-    
-    # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
-    # Threshold image for terrain
-    nav = color_thresh(warped, (165, 165, 165))
-    
-    # Threshold image for gold rocks
-    hsv_warped = cv2.cvtColor(warped, cv2.COLOR_RGB2HSV)
-    lower_thres = np.array([0,120,120])
-    upper_thres = np.array([40,255,255])
-    rock = cv2.inRange(hsv_warped, lower_thres, upper_thres).astype(bool).astype(int)
-    
-    # Threshold image for obstacles
-    obstacles_temp = color_thresh(warped, (135, 135, 135))
-    obstacles_temp ^= 1
-    
-    # Threshold image for cone
-    # Cone derivation
-    nav_thresh = color_thresh(img, (165, 165, 165))
-    obstacles_thresh = nav_thresh.copy()
-    obstacles_thresh ^= 1
-    cone = perspect_transform(obstacles_thresh, source, destination)
-    cone ^= 1
-    cone = np.logical_and(obstacles_temp, cone)
-    
-    # Thresholded image for obstacles (with cone and rocks removed)
-    obstacles = obstacles_temp - cone - rock
-    
-    # 4) Update Rover.vision_image (this will be displayed on left side of screen)
-        # Example: Rover.vision_image[:,:,0] = obstacle color-thresholded binary image
-        #          Rover.vision_image[:,:,1] = rock_sample color-thresholded binary image
-        #          Rover.vision_image[:,:,2] = navigable terrain color-thresholded binary image
-    Rover.vision_image[:,:,0] = obstacles*255
-    Rover.vision_image[:,:,1] = rock*255
-    Rover.vision_image[:,:,2] = nav*255
-    
-    # 5) Convert map image pixel values to rover-centric coords
-    # Terrain
-    xpix_nav, ypix_nav = rover_coords(nav)
-    
-    # Obstacles
-    xpix_obstacles, ypix_obstacles = rover_coords(obstacles)
-    
-    # Rocks
-    xpix_rock, ypix_rock = rover_coords(rock)
-    
-    # 6) Convert rover-centric pixel values to world coordinates
-    # Define parameters which will transform image
-    xpos, ypos = Rover.pos
-    yaw = Rover.yaw
-    world_size = 200
-    scale = 10
-    
-    # Terrain
-    nav_x_world, nav_y_world = pix_to_world(xpix_nav, ypix_nav, xpos, ypos, yaw, world_size, scale)
-    
-    # Obstacles
-    obstacle_x_world, obstacle_y_world = pix_to_world(xpix_obstacles, ypix_obstacles, xpos, ypos, yaw, world_size, scale)
-    
-    # Rocks
-    rock_x_world, rock_y_world = pix_to_world(xpix_rock, ypix_rock, xpos, ypos, yaw, world_size, scale)
-    
-    # 7) Update Rover worldmap (to be displayed on right side of screen)
-        # Example: Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 1
-        #          Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
-        #          Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
-    
-    # Add a small amount of colour to obstacles
-    Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 2
-    # Reset obstacle channel that rover currently sees as navigable terrain
-    Rover.worldmap[nav_y_world, nav_x_world, 0] = 0
-    
-    # Update any rocks on the rock colour channel
-    Rover.worldmap[rock_y_world, rock_x_world, 1] = 255 
-    
-    # Reset anything on the navigable terrain channel that the rover currently sees as an obstacle
-    Rover.worldmap[obstacle_y_world, obstacle_x_world, 2] = 0
-    Rover.worldmap[nav_y_world, nav_x_world, 2] = 255
-    
-    # 8) Convert rover-centric pixel positions to polar coordinates
-    # Update Rover pixel distances and angles
-        # Rover.nav_dists = rover_centric_pixel_distances
-        # Rover.nav_angles = rover_centric_angles
-    
-    # If the rover detects a rock, and it is not in stuck mode, the Rover will
-    # switch to the rocking mode (i.e. the mode used to search for rocks)
-    if (sum(sum(rock)) > 20) and Rover.mode != "stuck":
-        Rover.mode = "rocking"
-        Rover.rock_spot_count = 0 # The rover will reset the rock spot counter
-        distances, angles = to_polar_coords(xpix_rock, ypix_rock)
-        Rover.rock_dists = distances
-        Rover.rock_angles = angles
-    # If the Rover loses track of the rock, the Rover still remains in the rocking
-    # mode, however, will start to count down to switching back to forward mode
-    # provided the Rover cannot relocate the rock
-    elif Rover.mode == "rocking":
-        Rover.rock_spot_count += 1
-        Rover.rock_angles = 0
-    
-    # The code will always take the updated navigation distances and angles
-    # irrespective of whether or not a rock is detected
-    distances, angles = to_polar_coords(xpix_nav, ypix_nav)
-    Rover.nav_dists = distances
-    Rover.nav_angles = angles
-    
-    return Rover
-\end{lstlisting}
+\lstinputlisting[style=Python]{./code/perception.py}
+
+\newpage
 
 \section{Appendix B}
+
+\tiny
+\lstinputlisting[style=Python]{./code/drive_rover.py}
+
+\newpage
+
 \section{Appendix C}
+
+\tiny
+\lstinputlisting[style=Python]{./code/decision.py}
+
 \end{document}
