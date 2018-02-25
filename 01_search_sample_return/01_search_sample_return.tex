@@ -124,21 +124,21 @@ To make navigation easier to comprehend for observers of the rover behaviour, it
 \item Apply the transformation matrix to captured image arrays to convert the images from the front mounted camera to a top down perspective.
 \end{enumerate}  
 
-Often is it useful to apply a grid of known size to both the source and destination images to help with the identification of points in each image. The grid applied in this instance was a 1$\si{\meter}$ by 1$\si{\meter}$ grid, and can be seen in Figure 3. The points used in both the source image and destination image to build the transformation matrix can be seen in Table 2, and the code snippet showing the set-up of the parameters used for the perspective transformation can be seen in Listing 1. Finally, once the transformation matrix is determined, then it can be applied to each received image to transform the perspective from the front mounted camera to the top down view - a demonstration of this can be seen in Figure 5. It is worth noting that it should be expected that the perspective transform will have regions of black present in transformed image - these black areas represent the rover's blind spots. The perspective transform function can be seen in Listing 2.
+Often is it useful to apply a grid of known size to both the source and destination images to help with the identification of points in each image. The grid applied in this instance was a 1$\si{\meter}$ by 1$\si{\meter}$ grid, and can be seen in Figure 3. The points used in both the source image and destination image to build the transformation matrix can be seen in Table 2, and the code snippet showing the set-up of the parameters used for the perspective transformation can be seen in Listing 1. Finally, once the transformation matrix is determined, then it can be applied to each received image to transform the perspective from the front mounted camera to the top down view - a demonstration of this can be seen in Figure 4. It is worth noting that it should be expected that the perspective transform will have regions of black present in transformed image - these black areas represent the rover's blind spots. The perspective transform function can be seen in Listing 2.
 
 \begin{figure}[h]
 	\begin{minipage}[m]{0.45\linewidth}
 		\centering
-		\captionof{table}{The points determined from the destination and source images use to create the perspective transformation matrix.}
+		\captionof{table}{Approximate points determined from the destination and source images use to create the perspective transformation matrix.}
 		\vspace{0.25cm}
 		\begin{tabular}{ll}
 		\toprule
 		\textbf{Source} & \textbf{Destination}\\
 		\midrule
-		P1 & P1\\
-		P1 & P1\\
-		P1 & P1\\
-		P1 & P1\\
+		(14.94,139.83) & (150,150)\\
+		(301.57,139.83) & (160,150)\\
+		(199.08,95.82) & (160,140)\\
+		(119.32,95.75) & (150,140)\\
 		\bottomrule
 		\end{tabular}
 	\end{minipage}
@@ -192,7 +192,7 @@ There are 3 different types of object that are of interest to the rover: navigab
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.4]{rock_test}
-	\caption{Using XXXX a crude analysis of the image was undertaken to determine the threshold values for R, G, and B values which represent navigable terrain.}
+	\caption{Using the figure display tool in Spyder, a Python IDE, crude analysis of the image was undertaken to determine the threshold values for R, G, and B values which represent navigable terrain.}
 \end{figure}
 
 Implementation of the colour threshold function can be seen in Listing 3. If a pixel in an image has R, G, and B values which are all greater than 160, the pixel is classified as navigable terrain. An example of the classification of navigable terrain can be seen in Figures 6 and 7.
@@ -200,7 +200,7 @@ Implementation of the colour threshold function can be seen in Listing 3. If a p
 \vspace{0.5cm}
 
 \begin{figure}[H]\scriptsize
-\begin{sexylisting}{Insert caption}
+\begin{sexylisting}{Code snippet of the colour thresholding function}
 def color_thresh(img, rgb_thresh=(160, 160, 160)):
     # Create an array of zeros same xy size as img, but single channel
     color_select = np.zeros_like(img[:,:,0])
@@ -243,7 +243,7 @@ An example of the full process for extracting navigable terrain and obstacles ca
 \vspace{1cm}
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{test}
+\begin{sexylisting}{Code snippet showing how the image is segmented}
 # Apply perspective transform
 warped = perspect_transform(img, source, destination)
     
@@ -330,13 +330,13 @@ obstacles = obstacles_temp - cone - rock
 
 \subsubsection{Segmentaiton: Rock Samples}
 
-Providing segmentation for rock samples saw unstable performance when filtering using RGB channels. This is due to the sample rocks holding different RGB values in darker regions, when compared to samples in lighter regions. Put simply, shadows affect the segmentation performance. An alternative colour representation known as Hue, Saturation, Value (HSV) is less susceptible to performance degradation from shadows and was employed in this instance. To determine the HSV values for the sample, a method was employed similar to that seen in Figure 5. Figures 14, and 15 show the process of segmenting the rock samples. Figure 16 shows the completed perspective transformed and segmented image of the navigable terrain, obstacles, and rocks.
+Providing segmentation for rock samples saw unstable performance when filtering using RGB channels. This is due to the sample rocks holding different RGB values in darker regions, when compared to samples in lighter regions. Put simply, shadows affect the segmentation performance. An alternative colour representation known as Hue, Saturation, Value (HSV) is less susceptible to performance degradation from shadows and was employed in this instance. To determine the HSV values for the sample, a method was employed similar to that seen in Figure 5. Figures 14, and 15 show the process of segmenting the rock samples. Figure 16 shows the completed perspective transformed and segmented image of sample rocks.
 
 \vspace{1cm}
 
 \begin{figure}[h]\scriptsize
 \centering
-\begin{sexylisting}{text}
+\begin{sexylisting}{Code snippet showing how CV2 HSV is used to detect rock samples}
 # Apply perspective transform
 warped = perspect_transform(img, source, destination)
 
@@ -356,24 +356,24 @@ rock = cv2.inRange(hsv_warped, lower_thres, upper_thres).astype(bool).astype(int
 \centering
 \includegraphics[scale=0.45]{image15}
 \vspace{-1.5cm}
-\caption{include a graphic of the original rock image}
+\caption{An image of a rock sample}
 \end{minipage}
 \hspace{0.5cm}
 \begin{minipage}[t]{0.45\linewidth}
 \centering
 \includegraphics[scale=0.45]{image16}
 \vspace{-1.5cm}
-\caption{include a graphic of the filtered image - gray scale}
+\caption{Perspective transform of original image}
 \end{minipage}
 \end{figure}
 
-\vspace{-1cm}
+\vspace{-0.85cm}
 
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.55]{image17}
 \vspace{-1cm}
-\caption{Include an image of the full image transformation with the rock and the blue and green}
+\caption{Segmentation of the perspective transformed image, showing the detected rock sample.}
 \end{figure}
 
 \newpage
@@ -391,13 +391,13 @@ A coordinate frame is attached to the rover, in addition to establishing a fixed
 
 \vspace{1cm}
 
-The image that is captured and processed by the \verb|XXXX| function uses the source and destination points to map the recieved image into a 2D top down view point. Unfortunately, this function does not provide the correct orientation of the image with respect to the rover coordinate frame - this is shown in Figure 18. To ensure that the image is correctly positioned and oriented a coordinate frame transformation is performed, called \verb|XXXX|, shown in Listing 6. This transformation translates the image so that it is positioned along the $x$-axis of the coordinate frame, and flips the $x$ and $y$ axes. The image which has been correctly positioned on the rover coordinate frame can be seen in Figure 19. 
+The image that is captured and processed by the \verb|perception.py| function uses the source and destination points to map the received image into a 2D top down view point. Unfortunately, this function does not provide the correct orientation of the image with respect to the rover coordinate frame - this is shown in Figure 18. To ensure that the image is correctly positioned and oriented a coordinate frame transformation is performed is, shown in Listing 6. This transformation translates the image so that it is positioned along the $x$-axis of the coordinate frame, and flips the $x$ and $y$ axes. The image which has been correctly positioned on the rover coordinate frame can be seen in Figure 19. 
 
 \vspace{1cm}
 
 \begin{figure}[h]\scriptsize
 \centering
-\begin{sexylisting}{text}
+\begin{sexylisting}{Code snippet showing function for transforming perspective transformed image to rover centric coordinates}
 def rover_coords(binary_img):
     # Identify nonzero pixels
     ypos, xpos = binary_img.nonzero()
@@ -416,24 +416,24 @@ def rover_coords(binary_img):
 \begin{minipage}[t]{0.45\linewidth}
 \centering
 \includegraphics[scale=0.45]{image19}
-\caption{include a non-transformed image}
+\caption{Perspective transformed, segmented image for navigable terrain prior to converting the image to rover centric coordinates}
 \end{minipage}
 \hspace{0.5cm}
 \begin{minipage}[t]{0.45\linewidth}
 \centering
 \includegraphics[scale=0.45]{image20}
-\caption{include an image of the transformed rover centric coord system}
+\caption{Perspective transformed, segmented image for navigable terrain after to converting the image to rover centric coordinates}
 \end{minipage}
 \end{figure}
 
 \subsubsection{Mapping the the World Coordinate Frame}
 
-The rover navigates around the simulated environment generating information about the environment topology, using the segmentation techniques described in sections 2.2.2 and 2.2.3. Essentially, the rover captures information on navigable terrain and obstacles, and creates a map of the world. In order to do this, image information being processed needs to be transformed from the rover coordinate frame to the world coordinate frame. This requires further transformation. Listings 7, and 8 provide a function for 2D rotation, and 2D translation, respectively. Listing 9 uses both Listings 7, and 8 to perform the full transformation from rover to world coordinate frame. Figure 20 provides an example of the map that generated by the rover.
+The rover navigates around the simulated environment generating information about the environment topology, using the segmentation techniques described in sections 2.2.2 and 2.2.3. Essentially, the rover captures information on navigable terrain and obstacles, and creates a map of the world. In order to do this, image information being processed needs to be transformed from the rover coordinate frame to the world coordinate frame. This requires further transformation. Listings 7, and 8 provide a function for 2D rotation, and 2D translation, respectively. Listing 9 uses both Listings 7, and 8 to perform the full transformation from rover to world coordinate frame.
 
 \vspace{1cm}
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{insert text}
+\begin{sexylisting}{A code snippet showing a function which rotates pixels in an image by the angle yaw}
 # A function which provides rotation in 2D
 def rotate_pix(xpix, ypix, yaw):
     # Convert yaw to radians
@@ -447,7 +447,7 @@ def rotate_pix(xpix, ypix, yaw):
 \end{figure}
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{insert text}
+\begin{sexylisting}{A code snippet which shows a function used for translation of pixels in an image}
 # A functions which provides a translation in 2D
 def translate_pix(xpix_rot, ypix_rot, xpos, ypos, scale): 
     # Apply a scaling and a translation
@@ -459,7 +459,7 @@ def translate_pix(xpix_rot, ypix_rot, xpos, ypos, scale):
 \end{figure}
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{insert text}
+\begin{sexylisting}{A code snippet which shows the combined rotation and translation required for mapping the rover centric coordinates to the world frame}
 # A function which performs the transformation from rover to world coordinates
 def pix_to_world(xpix, ypix, xpos, ypos, yaw, world_size, scale):
     # Apply rotation
@@ -474,13 +474,7 @@ def pix_to_world(xpix, ypix, xpos, ypos, yaw, world_size, scale):
 \end{sexylisting}
 \end{figure}
 
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.5]{placeholder}
-\caption{Show a picture of the mapped terrain, if possible}
-\end{figure}
 
-\newpage
 
 %--------------------------------------------------------------------------
 \subsection{Autonomous Navigation}
@@ -490,7 +484,7 @@ The rover is designed to move about the simulated environment autonomously. The 
 The perception step is applied to each image that is captured by the rover's front mounted camera. As previously mentioned, images are captured at approximately 36 $\si{\hertz}$. The \verb|perception_step| function can be seen, in full, in Appendix A. The function takes a single object oriented arguement, which details the current state of the rover, including the latest image captured by the camera. Using the image, navigable terrain, obstacles, and the prescence of rocks are determined and updated on the world map. Listing 10 shows the code which provides for world map updating - obstacles are on the red channel, navigable terrain is on the blue channel, and rocks are on the green channel.
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{insert text}
+\begin{sexylisting}{A code snippet showing how the world map is updated as the rover scouts an area}
 # Add a small amount of colour to obstacles
     Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 2
     # Reset obstacle channel that rover currently sees as navigable terrain
@@ -505,7 +499,9 @@ The perception step is applied to each image that is captured by the rover's fro
 \end{sexylisting}
 \end{figure}
 
-It is important to note that the segmentation of navigable terrain, and obstacles, in the current image can be in conflict with historically recorded areas on the world map. To put this simply, the segmentation of obstacles and navigable terrain is imperfect - this leads to differing results in images of the same area. To overcome this, when the red channel (obstacles) is being updated, all navigable terrain pixels in the current image are set to zero. Similarly, when the blue channel is being updated, all obstacles pixels in the current image are set to zero. This ensures that pixels in the world map are never simultaneously an obstacle and navigable terrain.
+It is important to note that the segmentation of navigable terrain, and obstacles, in the current image can be in conflict with historically recorded areas on the world map. To put this simply, the segmentation of obstacles and navigable terrain is imperfect - this leads to differing results in images of the same area. To overcome this, when the red channel (obstacles) is being updated, all navigable terrain pixels in the current image are set to zero. Similarly, when the blue channel is being updated, all obstacles pixels in the current image are set to zero. This ensures that pixels in the world map are never simultaneously an obstacle and navigable terrain.\\
+
+\newpage
 
 The main importance of the perception step is to take an image an to organise it into meaningful information so that decisions can be made using the decision step. Important parts are:
 \begin{itemize}
@@ -513,29 +509,10 @@ The main importance of the perception step is to take an image an to organise it
 \item determining if a rock can be seen, and switching the rover mode into one which readys the rover for rock collection
 \end{itemize}
 
-The perception step also helps to determine whether there is a rock present in the image, and if so will direct the rover into rocking mode which collects rocks.
+The perception step also helps to determine whether there is a rock present in the image, and if so will direct the rover into rocking mode which collects rocks. All navigation is done by taking navigation pixels determined by the segmentation function and converting them into angles using the polar conversion function, shown in Listing 11.
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}
-if (sum(sum(rock)) > 20) and Rover.mode != "stuck":
-        Rover.mode = "rocking"
-        Rover.rock_spot_count = 0 # The rover will reset the rock spot counter
-        distances, angles = to_polar_coords(xpix_rock, ypix_rock)
-        Rover.rock_dists = distances
-        Rover.rock_angles = angles
-    # If the Rover loses track of the rock, the Rover still remains in the rocking
-    # mode, however, will start to count down to switching back to forward mode
-    # provided the Rover cannot relocate the rock
-    elif Rover.mode == "rocking":
-        Rover.rock_spot_count += 1
-        Rover.rock_angles = 0
-\end{sexylisting}
-\end{figure}
-
-All navigation is done by taking navigation pixels determined by the segmentation function and converting them into angles using the polar conversion function
-
-\begin{figure}[h]\scriptsize
-\begin{sexylisting}{text}
+\begin{sexylisting}{A code snippet showing the function for converting Cartesian coordinates to polar Coordinates for a given pixel}
 def to_polar_coords(x_pixel, y_pixel):
     # Convert (x_pixel, y_pixel) to (distance, angle) 
     # in polar coordinates in rover space
@@ -548,13 +525,11 @@ def to_polar_coords(x_pixel, y_pixel):
 \end{figure}
 
 \subsubsection{Decision Step}
-The \verb|decision.py| function, shown in Appendix C, is applied after the current image has been processed, and the rover state updated. Principally, this function is concerned with rover navigation and focuses on obstacles avoidance, in addition to providing the rover with some capacity to negotiate dead ends in the environment and locate rocks. The decision step decides between 4 distinct Rover modes: forward, rocking, stop, and stuck.\\
+The \verb|decision.py| function, shown in Appendix C, is applied after the current image has been processed, and the rover state updated. Principally, this function is concerned with rover navigation and focuses on obstacles avoidance, in addition to providing the rover with some capacity to negotiate dead ends in the environment and locate rocks. The decision step decides between 4 distinct Rover states: forward, rocking, stop, and stuck.\\
 
-The forward state code snippet is shown in Listing 11, and the flow diagram explaining the logic behind the operation is shown in Figure 21. When in the forward state the rover checks that there is navigable terrain in front of it. If there is sufficient navigable terrain, and the velocity is at the maximum velocity, then the rover will continue in this mode. If the rover is below maximum velocity, then the throttle will be applied. If the rover has zero velocity, but has sufficient navigable terrain, then the clock for determining if the rover is stuck will start to count. If the stuck counter, which is stored in the object variable \verb|Rover.vel|, reaches 400, then the rover will change state from \verb|forward| to \verb|stuck|. The timer for this state change was implemented to provide some hysteresis preventing the rover from rapid state switching. Note that if the Rover's velocity reaches above a threshold while the stuck counter is counting, then it is deemed that the rover has freed itself from the obstacle and the counter is reset.\\
+The forward state code snippet is shown in Listing 12, and the flow diagram explaining the logic behind the operation is shown in Figure 20. When in the forward state the rover checks that there is navigable terrain in front of it. If there is sufficient navigable terrain, and the velocity is at the maximum velocity, then the rover will continue in this mode. If the rover is below maximum velocity, then the throttle will be applied. If the rover has zero velocity, but has sufficient navigable terrain, then the clock for determining if the rover is stuck will start to count. If the stuck counter, which is stored in the object variable \verb|Rover.vel|, reaches 400, then the rover will change state from \verb|forward| to \verb|stuck|. The timer for this state change was implemented to provide some hysteresis preventing the rover from rapid state switching. Note that if the Rover's velocity reaches above a threshold while the stuck counter is counting, then it is deemed that the rover has freed itself from the obstacle and the counter is reset.\\
 
 The steering direction is determined by a weighted moving average of the present steering angle stored in \verb|Rover.nav_angles|, with a weight of $\sfrac{1}{3}$, and the previous steering angle, with a weight of $\sfrac{2}{3}$. This provides a slight reduction in erratic corrections given extreme values in \verb|Rover.nav_angles|. Erratic changes are further ameliorated by bounding the steering angle between -15$^o$ and 15$^o$.
-
-\vspace{2cm}
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{Code snippet for the operation of the forward state of the rover}
@@ -603,8 +578,6 @@ The steering direction is determined by a weighted moving average of the present
 \end{sexylisting}
 \end{figure}
 
-\newpage
-
 \begin{figure}[h]
 \hspace{-1.5cm}
 \vspace{4cm}
@@ -613,9 +586,9 @@ The steering direction is determined by a weighted moving average of the present
 \caption{Flow diagram showing the operation of the rover when it is in the forward state of operation.}
 \end{figure}
 
-\newpage
+\clearpage
 
-The rocking state is used when the rover detects a rock, or the current image has rock like characteristics. The change from the current state to the rocking state is determined by the code snippet shown in Listing 12. This state change will occur if the rover is not in the stuck state, and there are more than 20 pixels in the current image which have the characteristics of a rock. Note that if the rover is in rocking mode, but loses track of the rock (that is the rock is not persistent in teh image) then a counter starts which will eventually switch the rover back to the forward state. The timer is employed to stop rapid state switching. The rocking state code snippet is shown in Listing 12, and the flow diagram explaining the logic behind the operation is shown in Figure 22.\\
+The rocking state is used when the rover detects a rock, or the current image has rock like characteristics. The change from the current state to the rocking state is determined by the code snippet shown in Listing 13. This state change will occur if the rover is not in the stuck state, and there are more than 20 pixels in the current image which have the characteristics of a rock. Note that if the rover is in rocking mode, but loses track of the rock (that is the rock is not persistent in the image) then a counter starts which will eventually switch the rover back to the forward state. The timer is employed to stop rapid state switching. The rocking state code snippet is shown in Listing 14, and the flow diagram explaining the logic behind the operation is shown in Figure 21.\\
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{Code snippet showing how the rover changes to the rocking state}
@@ -680,7 +653,7 @@ When in the rocking state, the rover will first check if timer if the rock image
 \caption{Flow diagram showing the operation of the rover when it is in the rocking state of operation.}
 \end{figure}
 
-The stuck state code snippet can be seen in Listing 16, and the flow diagram explaining the logic behind the operation is shown in Figure 23. When the rover is in the stuck state, a counter is increased by one, and the throttle is set to -0.1, with the steering angle set to 0 so the rover will reverse away from the obstacle. The rover will persist in this mode until the counter reaches 300, at which time the rover will change states to the forward state.\\
+The stuck state code snippet can be seen in Listing 15, and the flow diagram explaining the logic behind the operation is shown in Figure 22. When the rover is in the stuck state, a counter is increased by one, and the throttle is set to -0.1, with the steering angle set to 0 so the rover will reverse away from the obstacle. The rover will persist in this mode until the counter reaches 300, at which time the rover will change states to the forward state.\\
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{Code snippet showing the operation of the rover in the stuck state}
@@ -710,7 +683,7 @@ The stuck state code snippet can be seen in Listing 16, and the flow diagram exp
 \clearpage
 
 
-Finally, the stop state code snippet can be seen in Listing 17, and the flow diagram explaining the logic behind the operation is shown in Figure 24. When in the stop state, the rover will first check if the velocity is greater than 0.2, in which case it will apply the brake to bring the rover to a rapid stop. The rover will then check the navigable terrain. If there is no navigable terrain, then the rover will turn counter clockwise on the spot, until sufficient navigable terrain is visible. At this point the rover will recommence in the forward state.
+Finally, the stop state code snippet can be seen in Listing 16, and the flow diagram explaining the logic behind the operation is shown in Figure 23. When in the stop state, the rover will first check if the velocity is greater than 0.2, in which case it will apply the brake to bring the rover to a rapid stop. The rover will then check the navigable terrain. If there is no navigable terrain, then the rover will turn counter clockwise on the spot, until sufficient navigable terrain is visible. At this point the rover will recommence in the forward state.
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{Code snippet showing the operation of the rover in the stop state}
@@ -785,6 +758,8 @@ Enhancements could be made by instructing the rover to return back to its origin
 	showstringspaces    = false
 }
 
+The full implementation of the Python code for \verb|perception.py| which provides the rover with the ability to process images.
+
 \tiny
 \lstinputlisting[style=Python]{./code/perception.py}
 
@@ -792,12 +767,16 @@ Enhancements could be made by instructing the rover to return back to its origin
 
 \section{Appendix B}
 
+The full implementation of the Python code for \verb|drive_rover.py| which provides the rover with the ability to function autonomously.
+
 \tiny
 \lstinputlisting[style=Python]{./code/drive_rover.py}
 
 \newpage
 
 \section{Appendix C}
+
+The full implementation of the Python code for \verb|decision.py| which provides the rover with the ability to utilise information determined from the perception step. Principally this function is used to change the rover from state to state.
 
 \tiny
 \lstinputlisting[style=Python]{./code/decision.py}
