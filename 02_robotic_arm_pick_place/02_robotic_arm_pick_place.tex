@@ -14,8 +14,11 @@
 \usepackage{siunitx}
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
+\usepackage{xfrac}
 
 \usetikzlibrary{shapes.geometric}
+
+\newcommand\w[1]{\makebox[3.4em]{$#1$}}
 
 %--------------------------------------------------------------------------
 \graphicspath{{./fig/}}
@@ -53,16 +56,16 @@ Path planning and execution of the desired manoeuvre is largely a solved problem
 
 \begin{figure}[h]
 \centering
-\begin{minipage}{0.45\linewidth}
+\begin{minipage}[t]{0.45\linewidth}
 \centering
-\includegraphics[scale=0.5]{placeholder}
-\caption{Include a picture of the KR210 in Gazebo}
+\frame{\includegraphics[height=4cm]{kuka_gazebo}}
+\caption{A picture of the KR210 in Gazebo}
 \end{minipage}
-\hspace{0.5cm}
-\begin{minipage}{0.45\linewidth}
+\hspace{1cm}
+\begin{minipage}[t]{0.45\linewidth}
 \centering
-\includegraphics[scale=0.5]{placeholder}
-\caption{Include a picture of the KR210 in Rviz}
+\frame{\includegraphics[height=4cm]{kuka_rviz}}
+\caption{A picture of the KR210 in Rviz}
 \end{minipage}
 \end{figure}
 
@@ -90,14 +93,14 @@ $\theta_i$ & Angle between $\hat{x_{i-1}}$ and $\hat{x}_i$, measured about $\hat
 \end{tabular}
 \end{table}
 
-The KR210 has a base link, 6 degrees of freedom, and an end effector. Each of the links require a coordinate frame assignment, making a total requirement of 8 coordinate frames. Each of the joints were systematically labelled from 1 to 6, starting with the joint closest to the \verb|base_link|. Following this, each of the links were assigned a number from 0 to 7. It must be noted that link 0 is actually the \verb|base_link|, and link 7 is the \verb|end_effector|. For the sake of simplicity, the \verb|base_link| and \verb|end_effector| will retain their names throughout this report. Coordinate frames were assigned to the links according to the DH procedure. Each link can be thought of as being associated with a joint. The \verb|base_link| is associated with the fixed ground, link 1 is associated with joint 1, and so on. To assign the coordinate frame to a link, DH requires the $\hat{z}_i$ coordinate axis for link $i$ to pass through the joint $i$ axis of rotation. Finally, starting at the \verb|base_link|, the $\hat{x}_i$ axes are assigned dependent on whether the $\hat{z}_i$, and $\hat{z}_{i+1}$ axes are:
+The KR210 has a base link, 6 degrees of freedom, and an end effector. Each of the links require a coordinate frame assignment, making a total requirement of 8 coordinate frames. Each of the joints were systematically labelled from 1 to 6, starting with the joint closest to the \verb|base_link|. Following this, each of the links were assigned a number from 0 to 7. It must be noted that link 0 is actually the \verb|base_link|, and link 7 is the \verb|end_effector|. For the sake of simplicity, the \verb|base_link| and \verb|end_effector| will retain their names throughout this report. Coordinate frames were assigned to the links according to the DH procedure. Each link can be thought of as being associated with a joint. The \verb|base_link| is associated with the fixed ground, link 1 is associated with joint 1, and so on. To assign the coordinate frame to a link, DH requires the $\hat{z}_i$ coordinate axis for link $i$ to pass through the joint $i$ axis of rotation. To start the DH convention of coordinate frame assignment, the \verb|base| frame is assigned arbitrarily. Each $\hat{x}_i$ axis, for coordinate frame $i$, is determined using $\hat{z}_i$, and $\hat{z}_{1+1}$. The $\hat{x}_i$ axes are assigned dependent on whether the $\hat{z}_i$, and $\hat{z}_{i+1}$ axes are:
 \begin{enumerate}
-\item Skewed; 
-\item Intersecting; or
-\item Coincident
+\item \textbf{Skewed:} if the $\hat{z}_i$ and $\hat{z}_{i+1}$ axes are skewed, then the $\hat{x}_i$ axis is assigned along the normal from $\hat{z}_i$ to $\hat{z}_{i+1}$.
+\item \textbf{Intersecting:} if the $\hat{z}_i$ and $\hat{z}_{i+1}$ axes intersect, then the $\hat{x}_i$ axis is assigned in an arbitrary position such that it is normal to the plane formed by $\hat{z}_i$ and $\hat{z}_{i+1}$
+\item \textbf{Coincident:} if the $\hat{z}_i$ and $\hat{z}_{i+1}$ axes are parallel or coincident, then the $\hat{x}_i$ axis assignment is arbitrary along the $\hat{z}_i axis$
 \end{enumerate}
 
-To reiterate, the $\hat{x}_i$ axis is assigned dependent on the geometric how the $\hat{z}_i$ axis, and the \textbf{next link coordinate frame}, $\hat{z}_{i+1}$, interact with each other geometrically. The full DH coordinate frame assignment can be seen in Figure 4.
+To reiterate, the $\hat{x}_i$ axis is assigned dependent on the geometric orientation of the $\hat{z}_i$, and $\hat{z}_{i+1}$ axes. The $\hat{y}_i$ axis is assigned to complete the right handed coordinate frame assignment. The full DH coordinate frame assignment for the KR210 can be seen in Figure 4.
 
 \begin{figure}[h]
 \centering
@@ -105,36 +108,154 @@ To reiterate, the $\hat{x}_i$ axis is assigned dependent on the geometric how th
 \caption{Sexy robot drawing}
 \end{figure}
 
+The DH parameters, which are used to specify the transformations from one coordinate frame to another, are determined once the coordinate frames have been assigned. The full DH parameter specification can be seen in Table 2. It must be noted that the values for $d_i$ and $a_{i-1}$ were found using the unified robot description format (urdf) file, which contains the model specifications for Gazebo. The full urdf file can be seen in Appendix A. The DH parameter specifications are used in conjunction with equation (1) to specify the transformation matrices from coordinate frame $i-1$ to coordinate frame $i$ - this is further explored in Section 2.2.\\
+
+\begin{equation}
+	^{i-1} T_i =
+	\begin{bmatrix}
+	\cos \theta_i 							& -\sin \theta_i  							& 0 					& a_{i-1}\\
+	\sin \theta_i \cdot \cos \alpha_{i-1}	& \cos \theta_i \cdot \cos \alpha_{i-1}		& -\sin \alpha_{i-1} 	& -d_i \cdot \sin \alpha_{i-1}\\
+	\sin \theta_i \cdot \sin \alpha_{i-1}	& \cos \theta_i \cdot \sin \alpha_{i-1}		& \cos \alpha_{i-1}		& d_i \cdot \cos \alpha_{i-1}\\
+	0										& 0											& 0						& 1
+	\end{bmatrix}
+\end{equation}
+
 \begin{table}
 \centering
-\caption{DH parameter table}
-\begin{tabular}{ll}
+\captionof{table}{DH parameter table}
+\begin{tabular}{ccccc}
 \toprule
-
+$^{i-1} T_i$ 				& $d_i$ 	& $\theta_i$ 					& $\alpha_{i-1}$ 	& $a_{i-1}$\\ 
 \midrule
-
+$^\texttt{base} T_1$ 		& 0.750 	& $\theta_1$ 					& 0 				& 0.000\\
+$^1 T_2$ 					& 0.000 	& $\theta_2 - \frac{\pi}{2}$ 	& $-\sfrac{\pi}{2}$ & 0.350\\
+$^2 T_3$ 					& 0.000 	& $\theta_3$ 					& 0 				& 1.250\\
+$^3 T_4$ 					& 1.500 	& $\theta_4$ 					& $-\sfrac{\pi}{2}$ & -0.054\\
+$^4 T_5$ 					& 0.000 	& $\theta_5$ 					& $\sfrac{\pi}{2}$ 	& 0.000\\
+$^5 T_6$ 					& 0.000 	& $\theta_6$ 					& $-\sfrac{\pi}{2}$ & 0.000\\
+$^6 T_\texttt{end\_eff}$ 	& 0.303 	& 0 							& 0 				& 0.000\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Forward Kinematics}
-Forward kinematics is the transformation of joint angles to an end effector point in space. Provide an in depth description of how each of the transformations and how they were arrived at. Recall this is a simple implementation of the DH parameter matrices and then a simple multiplication (which can be done using sympy)
+The forward kinematics problem is concerned with taking the agular positions of the individual joints and finding the position of the robot's end effector in three dimensional Cartesian space. This section of the report is broken down into three subsections:
+\begin{enumerate}
+	\item Derivation of the transformation matrices, $^{i-1} T_i$
+	\item The correction of transformation matrices NEED TO FINISH THIS DESCRIPTION
+	\item Verification of transformation matrices
+\end{enumerate}
 
-The individual transformation matrices are shown below:
-\begin{align*}
-	^\texttt{base\_link} T_1 &= MATRIX ARRAY\\
-	^1 T_2 &= MATRIX ARRAY\\
-	^2 T_3 &= MATRIX ARRAY\\
-	^3 T_4 &= MATRIX ARRAY\\
-	^4 T_5 &= MATRIX ARRAY\\
-	^5 T_6 &= MATRIX ARRAY\\
-	^5 T_\texttt{end\_effector} &= MATRIX ARRAY
-\end{align*}
+\subsubsection{Derivation of the transformation matrices}
+Using the DH parameters derived in Section 2.1, in addition to equation (1), we can derive a series of matrices, $^{i-1} T_i$, which describe the transformation of a vector in one coordinate frame $i$, to that of another coordinate frame $i-1$.\\
 
-The full transformation from the \verb|base_link| to the \verb|end_effector| is given by simple matrix multiplication as follows:
-\begin{align*}
+The individual transformation matrices are shown below:\\
+
+\small
+\begin{minipage}[t]{0.45\textwidth}
+	\begin{align*}
+	^\texttt{base} T_1 &=
+	\begin{bmatrix}
+	\cos \theta_1 	& -\sin \theta_1 	& 0 	& 0\\
+	\sin \theta_1	& \cos \theta_1		& 0		& 0\\
+	0				& 0					& 1		& 0.75\\
+	\w0				& \w0				& \w0	& \w1\\
+	\end{bmatrix}\\
+	^2 T_3 &=
+	\begin{bmatrix}
+	\cos \theta_3 	& -\sin \theta_3 	& 0 	& 1.25\\
+	\sin \theta_3	& \cos \theta_3		& 0		& 0\\
+	0				& 0					& 1		& 0\\
+	\w0				& \w0				& \w0	& \w1
+	\end{bmatrix}\\
+	^4 T_5 &=
+	\begin{bmatrix}
+	\cos \theta_5	& -\sin \theta_5	& 0		& 0\\
+	0				& 0					& -1	& 0\\
+	\sin \theta_5	& \cos \theta_5		& 0		& 0\\
+	\w0				& \w0				& \w0	& \w1
+	\end{bmatrix}\\
+	^5 T_\texttt{end\_eff} &=
+	\begin{bmatrix}
+	1				& 0					& 0		& 0\\
+	0				& 1					& 0		& 0\\
+	0				& 0					& \w1		& 0.303\\
+	\w0				& \w0				& 0		& \w1
+	\end{bmatrix}
+	\end{align*}
+\end{minipage}
+\hspace{0.2cm}
+\begin{minipage}[t]{0.45\textwidth}
+	\begin{align*}
+	^1 T_2 &=
+	\begin{bmatrix}
+	\sin \theta_2	& \cos \theta_2 	& 0		& 0.35\\
+	0				& 0					& 1		& 0\\
+	\cos \theta_2	& -\sin \theta_2	& 0		& 0\\
+	\w0				& \w0				& \w0	& \w1	
+	\end{bmatrix}\\
+	^3 T_4 &=
+	\begin{bmatrix}
+	\cos \theta_4	& -\sin \theta_4	& 0		& -0.054\\
+	0				& 0					& 1		& 1.5\\
+	-\sin \theta_4 	& -\cos \theta_4	& 0		& 0\\
+	\w0				& \w0				& \w0	& \w1 
+	\end{bmatrix}\\
+	^5 T_6 &=
+	\begin{bmatrix}
+	\cos \theta_6	& -\sin \theta_6	& 0		& 0\\
+	0				& 0					& 1		& 0\\
+	-\sin \theta_6	& -\cos \theta_6	& 0		& 0\\
+	\w0				& \w0				& \w0	& \w1
+	\end{bmatrix}
+	\end{align*}
+\end{minipage}
+
+\vspace{0.5cm}
+\normalsize
+The full transformation from the \verb|base_link| to the \verb|end_effector| is determined by matrix multiplication, shown in equation.
+\begin{align}
 	^{\texttt{base\_link}} T_{\texttt{end\_effector}} &= ^{\texttt{base\_link}} T_{1} \cdot ^{1} T_{2} \cdot ^{2} T_{3} \cdot ^{3} T_{4} \cdot ^{4} T_{5} \cdot ^{5} T_{6} \cdot ^{6} T_{\texttt{end\_effector}}
-\end{align*}
+\end{align}
+
+For the sake of brevity, the full specification for equation (2), which is $^\texttt{base\_link} T_\texttt{end\_effector}$, has not been shown - showing this transformation matrix without evaluating $\theta_i$ would take several paragraphs.
+
+\subsubsection{Correction of Transformation Matrices}
+The orientation of the DH base frame, shown in Figure 3, has been selected so that it aligns with the world simulation frame (defined in the urdf file). It must be noted, however, that the final DH frame for the gripper does not have the same orientation as the urdf file since the DH algorithm was employed to assign the frames. This has ramifications for any forward kinematic analysis we perform using transformation matrices defined with DH parameters. The difference in frame orientation can be better understood by comparing Figures 5 and 6.
+
+\begin{figure}[h]
+	\centering
+	\begin{minipage}[b]{0.45\textwidth}
+		\centering
+		\begin{tikzpicture}
+		\draw[thick,->] (0,0,0) -- (1.5,0,0) node[anchor = north]{$z$};
+		\draw[thick,->] (0,0,0) -- (0,1.5,0) node[anchor = east]{$x$};
+		\draw[thick,->] (0,0,0) -- (0,0,2) node[anchor = north]{$y$};
+		\end{tikzpicture}
+		\caption{The orientation of the DH frame with respect to the world frame which is located at the base of the robot, shown in Figure 6}
+	\end{minipage}
+	\begin{minipage}[b]{0.45\textwidth}
+		\centering
+		\begin{tikzpicture}
+		\draw[thick,->] (0,0,0) -- (1.8,0,0) node[anchor = north]{$x$};
+		\draw[thick,->] (0,0,0) -- (0,1.8,0) node[anchor = east]{$z$};
+		\draw[thick,->] (0,0,0) -- (0,0,-2) node[anchor = west]{$y$};
+		\end{tikzpicture}
+		\caption{The orientation of thhe world coordinate frame.}
+	\end{minipage}
+\end{figure}
+
+
+\subsubsection{Verification of Transformation Matrices}
+To provide some assurance that the Python implementation is correct, analysis was undertaken using a script called \verb|forwardKinematics.py|, which can be found in Appendix B. The ROS launch script, \verb|forward_kinematics.launch|, provided a simulation of the robot in which the joint angles could be manually adjusted, and the position and orientation of the robot's frames observed. This is shown in Figure 5.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.2]{rviz_fk_debug}
+	\caption{text}
+\end{figure}
+
+The postion of the gripper frame was directly reported as a position vector, however, the gripper orientation was reported in Quarternions, which was then converted to a rotation matrix. The Python script \verb|forwardKinematics.py| 
 
 \subsection{Inverse Kinematics}
 Inverse kinematics is the process of determining the joint angles for each of the degrees of freedom. In the case of the Kuka XXXX there are 6 degrees of freedom, and hence, there are 6 joint angles which need to be determined. The anthropomorphic arm design allows us to exploit the fact that the last 3 joints are a spherical wrist (their axes of rotation intersect?), which means that these joints do not have an influence on the position of the wrist centre. This allow us to kinematically decouple the the first three joints and the last three joints, providing the ability to find a closed form solution to the problem. The closed form solution is presented below, in two parts: first three joint angles, and final three joint angles
@@ -145,12 +266,26 @@ Mathematics to show the derivation of the first three angles
 \subsubsection{Final Three Joint Angles ($\theta_4$, $\theta_5$, and $\theta_6$)}
 Mathematics to show the derivation of the final three angles
 
-%--------------------------------------------------------------------------
+%------------------------------------------------------------
 \section{Results \& Conclusion}
 Discussion of the results of the robot kinematics.
 
-%--------------------------------------------------------------------------
+%------------------------------------------------------------
 \section{Further Enhancements}
 The wrist turns around a bit - need to make sure that this doesn't happen and why this is happening. It happens because the wrist has more that 360 twist capability, however, the way it is set up does not allow for this (it has hard clamps at $-\pi$ and $\pi$). Also an error tracking capability would be nice on the project also.
+
+%------------------------------------------------------------
+\section{Appendix A}
+
+\lstset{
+	frame=single,
+	basicstyle=\ttfamily,
+	numbers=left,
+	showstringspaces=false,
+}
+
+\tiny
+\lstinputlisting{./code/kr210.urdf.xacro}
+
 
 \end{document}
