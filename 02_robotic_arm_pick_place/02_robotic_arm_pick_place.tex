@@ -19,7 +19,7 @@
 \usetikzlibrary{shapes.geometric}
 
 \newcommand\w[1]{\makebox[3.4em]{$#1$}}
-
+\DeclareMathOperator{\atantwo}{atan2}
 %--------------------------------------------------------------------------
 \graphicspath{{./fig/}}
 
@@ -35,6 +35,10 @@
 \title{Udacity: Robotic Arm Pick \& Place Report}
 \author{Shane Reynolds}
 \maketitle
+
+\tableofcontents
+
+\newpage
 
 %--------------------------------------------------------------------------
 \section{Introduction \& Background}
@@ -68,6 +72,8 @@ Path planning and execution of the desired manoeuvre is largely a solved problem
 \caption{A picture of the KR210 in Rviz}
 \end{minipage}
 \end{figure}
+
+\newpage
 
 %--------------------------------------------------------------------------
 \section{Methods \& Implementation}
@@ -150,7 +156,6 @@ The forward kinematics problem is concerned with taking the agular positions of 
 Using the DH parameters derived in Section 2.1, in addition to equation (1), we can derive a series of matrices, $^{i-1} T_i$, which describe the transformation of a vector in one coordinate frame $i$, to that of another coordinate frame $i-1$.\\
 
 The individual transformation matrices are shown below:\\
-
 \small
 \begin{minipage}[t]{0.45\textwidth}
 	\begin{align*}
@@ -225,7 +230,7 @@ The orientation of the DH base frame, shown in Figure 3, has been selected so th
 
 \begin{figure}[h]
 	\centering
-	\begin{minipage}[b]{0.45\textwidth}
+	\begin{minipage}[t]{0.45\textwidth}
 		\centering
 		\begin{tikzpicture}
 		\draw[thick,->] (0,0,0) -- (1.5,0,0) node[anchor = north]{$z$};
@@ -234,7 +239,8 @@ The orientation of the DH base frame, shown in Figure 3, has been selected so th
 		\end{tikzpicture}
 		\caption{The orientation of the DH frame with respect to the world frame which is located at the base of the robot, shown in Figure 6}
 	\end{minipage}
-	\begin{minipage}[b]{0.45\textwidth}
+	\hspace{1cm}
+	\begin{minipage}[t]{0.45\textwidth}
 		\centering
 		\begin{tikzpicture}
 		\draw[thick,->] (0,0,0) -- (1.8,0,0) node[anchor = north]{$x$};
@@ -245,9 +251,14 @@ The orientation of the DH base frame, shown in Figure 3, has been selected so th
 	\end{minipage}
 \end{figure}
 
+To provide a correction to the transformation matrix, $^\texttt{base} T_{\texttt{end\_eff}}$, two steps need to be taken:
+\begin{enumerate}
+	\item 
+	\item 
+\end{enumerate}
 
 \subsubsection{Verification of Transformation Matrices}
-To provide some assurance that the Python implementation is correct, analysis was undertaken using a script called \verb|forwardKinematics.py|, which can be found in Appendix B. The ROS launch script, \verb|forward_kinematics.launch|, provided a simulation of the robot in which the joint angles could be manually adjusted, and the position and orientation of the robot's frames observed. This is shown in Figure 5.
+To provide some assurance that the Python implementation is correct, analysis was undertaken using a script called \verb|forwardKinematics.py|, which can be found in Appendix B. The ROS launch script, \verb|forward_kinematics.launch|, provides a simulation of the robot in which the joint angles could be manually adjusted, and the position and orientation of the robot's frames observed. This is shown in Figure 5.
 
 \begin{figure}[h]
 	\centering
@@ -255,16 +266,170 @@ To provide some assurance that the Python implementation is correct, analysis wa
 	\caption{text}
 \end{figure}
 
-The postion of the gripper frame was directly reported as a position vector, however, the gripper orientation was reported in Quarternions, which was then converted to a rotation matrix. The Python script \verb|forwardKinematics.py| 
+Rviz reports the postion of the gripper frame as a position vector, however, the gripper orientation is reported in Quarternions, which have to be converted to a rotation matrix in order to compare this to the calculated results from \verb|forwardKinematics.py|. The Python script \verb|forwardKinematics.py| contains four test cases with varying angles $\theta_i$, such that $i \in \{1,2,3,4,5,6\}$. These test cases can be seen in Table 3.
+
+\begin{table}[h]
+	\centering
+	\caption{Test cases for the joint angles, which were entered into the ROS similation to observe the end effector position and orientation.}
+	\begin{tabular}{ccccccc}
+		\toprule
+		\textbf{Test Case} & $\theta_1$ & $\theta_2$ & $\theta_3$ & $\theta_4$ & $\theta_5$ & $\theta_6$\\
+		\midrule
+		Case 1 & 0 & 0 & 0 & 0 & 0 & 0\\
+		Case 2 & -0.65 & 0.45 & -0.37 & 0.96 & 0.78 & 0.46\\
+		Case 3 & -0.79 & -0.11 & -2.34 & 1.96 & 1.14 & -3.69\\
+		Case 4 & -2.99 & -0.12 & 0.94 & 4.06 & 1.29 & -4.15\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+Each case was entered into the simulation, and the position vector was recorded, along with the orientation Quaternion. The recorded Qaternion was converted to a rotation matrix from which roll, pitch, and yaw can be read from the main diagonal of the matrix. The results of this process can be seen in Table 4.
+
+\begin{table}[h]
+	\centering
+	\caption{Position vector, Quaternion, and rotation matrix observered from the manual simulation of the KR210.}
+	\begin{tabular}{clll}
+		\toprule
+		\textbf{Case} & \textbf{Position Vector} & \textbf{Quaternion} & \textbf{Rotation Matrix}\\
+		\midrule
+		 & & & \\
+		1 & $\begin{bmatrix}2.153 & 0.000 & 1.946\end{bmatrix}$ & $\begin{bmatrix}0 & 0 & 0 & 1\end{bmatrix}$ & $\begin{bmatrix}1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1\end{bmatrix}$\\
+		 & & & \\
+		2 & $\begin{bmatrix}2.167 & -1.429 & 1.560\end{bmatrix}$ & $\begin{bmatrix}0.698 & 0.183 & -0.153 & 0.674\end{bmatrix}$ & $\begin{bmatrix}0.886 & 0.462 & 0.033 \\ 0.049 & -0.022 & -0.998 \\ -0.461 & 0.886 & -0.043\end{bmatrix}$\\
+		 & & & \\
+		3 & $\begin{bmatrix}-0.566 & 0.940 & 2.993\end{bmatrix}$ & $\begin{bmatrix}0.612 & 0.488 & 0.388 & 0.485\end{bmatrix}$ & $\begin{bmatrix}0.221 & 0.221 & 0.949 \\ 0.975 & -0.051 & -0.215 \\ 0.001 & 0.973 & -0.227\end{bmatrix}$\\
+		 & & & \\
+		4 & $\begin{bmatrix}-1.393 & 0.017 & 0.915\end{bmatrix}$ & $\begin{bmatrix}0.013 & -0.229 & 0.901 & 0.368\end{bmatrix}$ & $\begin{bmatrix}-0.728 & -0.669 & -0.145 \\ 0.657 & -0.623 & -0.423 \\ 0.192 & -0.403 & 0.895\end{bmatrix}$\\
+		 & & & \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+Running the \verb|forwardKinematics.py| script outputs the numerical, corrected transformation matrix, $^{\texttt{i-1}} T_{\texttt{i}}$, for each of the four test cases. The results can be seen in Table 5. Comparing the simulation results shown in Table 4 with the calcuated results from the transformation matrix, shown in Table 5, we see that position vecotrs and rotation matrices are almost identical for all four test cases. There are some small variations, however, this can be, in part, attributed to numerical truncation when performing calculations. 
+
+\begin{table}[h]
+	\centering
+	\caption{Calculated position vector and orientation matrix using the matrix transfrom from the end effector to the base link.}
+	\begin{tabular}{cll}
+		\toprule
+		\textbf{Case} & \textbf{Position Vector} & \textbf{Rotation Matrix}\\
+		\midrule
+		& & \\
+		1 & $\begin{bmatrix}2.153 & 0 & 1.946\end{bmatrix}$ & $\begin{bmatrix}1 & 0 & 0\\0 & 1 & 0\\0 & 0 & 1\end{bmatrix}$\\
+		& & \\
+		2 & $\begin{bmatrix}2.167 & -1.428 & 1.562\end{bmatrix}$ & $\begin{bmatrix}0.887 & 0.460 & 0.030\\0.049 & -0.029 & -0.998\\-0.458 & 0.887 & -0.049\end{bmatrix}$\\
+		& & \\
+		3 & $\begin{bmatrix}-0.573 & 0.941 & 2.99\end{bmatrix}$ & $\begin{bmatrix}0.216 & 0.221 & 0.951\\0.976 & -0.049 & -0.210\\0.001 & 0.974 & -0.227\end{bmatrix}$\\
+		& & \\
+		4 & $\begin{bmatrix}-1.389 & 0.022 & 0.916\end{bmatrix}$ & $\begin{bmatrix}-0.723 & -0.674 & -0.145\\0.662 & -0.619 & -0.423\\0.195 & 0.402 & 0.894\end{bmatrix}$\\
+		& & \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\newpage
 
 \subsection{Inverse Kinematics}
-Inverse kinematics is the process of determining the joint angles for each of the degrees of freedom. In the case of the Kuka XXXX there are 6 degrees of freedom, and hence, there are 6 joint angles which need to be determined. The anthropomorphic arm design allows us to exploit the fact that the last 3 joints are a spherical wrist (their axes of rotation intersect?), which means that these joints do not have an influence on the position of the wrist centre. This allow us to kinematically decouple the the first three joints and the last three joints, providing the ability to find a closed form solution to the problem. The closed form solution is presented below, in two parts: first three joint angles, and final three joint angles
+Inverse kinematics (IK) is the process of determining the joint angles for each degrees of freedom in a robotic system, given the position of the robot's end effector in Cartesian space. The Kuka KR210 has 6 degrees of freedom, and hence, there are 6 joint angles which need to be determined. The anthropomorphic arm design allows us to exploit the geometry in the final 3 joints of the system. It is the intersection of the axes of rotation that is the important geometrical characteristic. This configuration of the final three joints is refered to as a spherecal wrist. This allow kinematic decoupling of the first three joints from the last three joints, providing the facility to find a closed form solution to the problem. The closed form solution is presented below, in two parts: first three joint angles, and final three joint angles
 
 \subsubsection{First Three Joint Angles ($\theta_1$, $\theta_2$, and $\theta_3$)}
-Mathematics to show the derivation of the first three angles
+Consider the first three joints in a pose shown in Figure 8. The point $(\omega_x, \omega_y, \omega_z)$ represents the location of the spherical wrist. Using this information, the first joint angle, $\theta_1$, can be found using basic trigonometry:
+\begin{align}
+\theta_1 = \atantwo \bigg( \frac{\omega_y}{\omega_x} \bigg)
+\end{align}
+
+To determine expressions for $\theta_2$ and $\theta_3$, we focus our attention on joints 2 and 3, as shown in Figure 9. Considering the triangle formed by the vertices at $J_2$, $J_3$, and $W$, we can find an experssion for $\eta$, as follows:
+\begin{align}
+180^o &= \eta + 92.06^o + \theta_3 \nonumber\\
+\eta &= 87.94^o - \theta_3 \nonumber\\
+\eta &= 1.5348 \si{\radian} - \theta_3
+\end{align}
+
+Employing the cosine rule on the triangle formed by vertices $J_2$, $J_3$, and $W$, we note that:
+\begin{align*}
+L^2 = k_1^2 + k_2^2 - 2 \cdot k_1 \cdot k_2 \cdot \cos \eta
+\end{align*}
+
+Rearranging this expression we get the following expression for $\cos \eta$:
+\begin{align}
+\cos \eta = \frac{k_1^2 + k_2^2 - L^2}{2 \cdot k_1 \cdot k_2} := D
+\end{align}
+
+Equation (5), along with Pythagoras' theorem, allows us to determine an expression for $\sin \eta$:
+\begin{align}
+\sin \eta = \sqrt{1 - D^2}
+\end{align}
+
+Using equations (5) and (6), we get:
+\begin{align}
+\tan \eta &= \frac{\sin \eta}{\cos \eta} = \frac{\sqrt{1 - D^2}}{D} \nonumber\\
+\eta &= \atantwo \bigg(\frac{\sqrt{1-D^2}}{D}\bigg)
+\end{align}
+
+Substituting equation (4) into equation (7), we arrive at an expression for $\theta_3$:
+\begin{align}
+\theta_3 = 1.5348\si{\radian} - \atantwo \bigg(\frac{\sqrt{1 - D^2}}{D}\bigg)
+\end{align}
+
+Again, considering the triangle formed by the vertices $J_2$, $J_3$, and $W$, we can use the cosine rule to get the following expression:
+\begin{align*}
+k_2^2 = k_1^2 + L^2 - 2 \cdot k_1 \cdot L \cdot \cos \xi
+\end{align*}
+
+Rearranging the above equation we find an expression for $\cos \xi$:
+\begin{align}
+\cos \xi = \frac{k_1^2 + L^2 - k_2^2}{2 \cdot k_1 \cdot L} := K
+\end{align}
+
+Equation (9), along with Pythagoras' theorem, allows us to determine an expression for $\sin \xi$:
+\begin{align}
+\sin \xi = \sqrt{1 - K^2}
+\end{align}
+
+Using equations (9) and (10), we get:
+\begin{align}
+\tan \xi &= \frac{\sin \xi}{\cos \xi} = \frac{\sqrt{1 - K^2}}{K} \nonumber\\
+\xi &= \atantwo \bigg(\frac{\sqrt{1-K^2}}{K}\bigg)
+\end{align}
+
+Now, considering the right angled triangle formed between the line connecting points $J_2$ and $W$, we can find and expression for $\alpha$:
+\begin{align}
+\alpha = \atantwo \bigg(\frac{s}{r}\bigg)
+\end{align}
+
+Finally, we note that the angle between assigned DH coordinate axes $\hat{x}_1$ and $\hat{x}_2$ is $\sfrac{\pi}{2} - \theta_2$, and hence we get the following expression:
+\begin{align}
+\frac{\pi}{2} - \theta_2 &= \alpha + \xi \nonumber\\
+\theta_2 &= \frac{\pi}{2} - \alpha - \xi
+\end{align}
+
+Substituing equations (11) and (12) into equation (13), we arrive at an expression for $\theta_2$:
+\begin{align}
+\theta_2 = \frac{\pi}{2} - \atantwo \bigg(\frac{s}{r}\bigg) - \atantwo \bigg(\frac{\sqrt{1 - K^2}}{K}\bigg)
+\end{align}
 
 \subsubsection{Final Three Joint Angles ($\theta_4$, $\theta_5$, and $\theta_6$)}
-Mathematics to show the derivation of the final three angles
+To find the final three joint angles, $\theta_4$, $\theta_5$, and $\theta_6$ we expolit the following relationship between the FK rotation matrix $^0 R_6$, and the desired orientation of the end gripper, $R_{rpy}$, which is given in an IK problem. We note that:
+\begin{align}
+^\texttt{base} R_6 = R_{rpy}
+\end{align}
+
+It is important to note that the orientation of the robotic frame at joint 6 will be the same as the \verb|end_effector| orientation, since the \verb|end_effector| is simply a translation from joint 6 , with no rotation. From our FK analysis, we have the ability to break up the rotation matrix, in equation (15), as follows:
+\begin{align}
+^\texttt{base} R_6 = {}^{\texttt{base}}R_3 \cdot {}^{3}R_6 = R_{rpy}
+\end{align}
+
+Hence, rearranging equation (16), we get:
+\begin{align*}
+^3 R_6 = \big({}^{\texttt{base}}R_3\big)^{-1} \cdot R_{rpy}
+\end{align*}
+
+Since any rotation matrix is orthogonal, we can write:
+\begin{align}
+^3 R_6 = \big({}^{\texttt{base}}R_3\big)^{T} \cdot R_{rpy}
+\end{align}
+
+Now, using \verb|SymPy| it is easy to obtain expressions for $^3 R_6$ and $\big( R \big)$
 
 %------------------------------------------------------------
 \section{Results \& Conclusion}
