@@ -16,7 +16,7 @@
 \usepackage{tikz}
 \usepackage{xfrac}
 
-\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{shapes.geometric,angles}
 
 \newcommand\w[1]{\makebox[3.4em]{$#1$}}
 \DeclareMathOperator{\atantwo}{atan2}
@@ -338,6 +338,90 @@ Consider the first three joints in a pose shown in Figure 8. The point $(\omega_
 \theta_1 = \atantwo \bigg( \frac{\omega_y}{\omega_x} \bigg)
 \end{align}
 
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}
+		% Axes
+		\draw[thick,->] (0,0,0) -- (6,0,0) node[anchor = north]{$x$};
+		\draw[thick,->] (0,0,0) -- (0,6,0) node[anchor = east]{$z$};
+		\draw[thick,->] (0,0,0) -- (0,0,-10) node[anchor = west]{$y$};
+		
+		% Robot Frame
+		\draw[line width=2pt,purple] (0,0,0) -- (0,1.5,0);
+		\draw[line width=2pt,purple] (0,1.5,0) -- (1,1.5,-1);
+		\draw[line width=2pt,purple] (1,1.5,-1) -- (2,3,-2);
+		\draw[line width=2pt,purple] (2,3,-2) -- (3,1,-3);
+		
+		% Guidelines
+		\draw[dashed, blue] (0,0,0) -- (3,0,-3);
+		\draw[dashed, blue] (1,1.5,-1) -- (1,0,-1);
+		\draw[dashed, blue] (2,3,-2) -- (2,0,-2);
+		\draw[dashed, blue] (3,1,-3) -- (3,0,-3);
+		\draw[dashed, blue] (3,0,-3) -- (3,0,0);
+		
+		% Joints
+		\node [black] at (0,0.75,0) {\textbullet};
+		\node [black] at (1,1.5,-1) {\textbullet};
+		\node [black] at (2,3,-2) {\textbullet};
+		\node [black] at (3,1,-3) {\textbullet};
+		
+		% Dh frames
+		\draw[line width=1.5pt, green, ->] (0,0,0) -- (2.5,0,0) node[anchor = north]{$\hat{x}_\texttt{base}$};
+		\draw[line width=1.5pt, green, ->] (2,3,-2) -- (2,5,-2) node[anchor = east]{$\hat{x}_1$ rotated by $\pi$};
+		\draw[line width=1.5pt, green, ->] (2,3,-2) -- (3,4.5,-3) node[anchor = south]{$\hat{x}_2$};
+		\draw[line width=1.5pt, green, ->] (2,3,-2) -- (3.3,4,-3.3) node[anchor = south]{$\hat{x}_3$};
+		
+		% Labelling Angles
+		\draw (0,0,0)  arc (0:45:1cm);
+	\end{tikzpicture}
+	\caption{text}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}
+	% Axes
+	\draw[thick, ->] (0,0) -- (8,0) node[anchor=north] {$x$};
+	\draw[thick, ->] (0,0) -- (0,7) node[anchor=east] {$y$};
+	
+	% Robot
+	\draw[line width=2pt, purple] (0,0) -- (3,4.5);
+	\draw[line width=2pt, purple] (3,4.5) -- (4.5,2);
+	
+	% Completing triangle
+	\draw[line width=2pt, orange] (0,0) -- (4.5,2);
+	
+	% Dh Axes
+	\draw[line width=1.5pt, green, ->] (3,4.5) -- (4.5,6.75) node[anchor=south] {$\hat{x}_2$};
+	\draw[line width=1.5pt, green, ->] (3,4.5) -- (5.3,5.9) node[anchor=south] {$\hat{x}_3$};
+	\draw[line width=1.5pt, green, ->] (0,0) -- (6,0) node[anchor=south] {$\hat{x}_1$};
+	
+	% Joints
+	\node [black] at (0,0) {\textbullet};
+	\node [black] at (3,4.5) {\textbullet};
+	\node [black] at (4.5,2) {\textbullet};
+	
+	% Guidance lines
+	\draw[dashed, blue] (4.5,2) -- (4.5,0);
+	
+	% Drawing Arcs
+	\draw[<->] (1,0) arc (0:22:1);
+	\draw[<->] (0.927,0.375) arc (22:54:1);
+	\draw[<->] (2,0) arc (0:55:2);
+	\draw[<->] (1.14,1.638) arc (55:90:2);
+	\draw[<->] [domain=32:55] plot ({cos(\x)+3}, {sin(\x)+4.5});
+	\draw[<->] [domain=-57:32] plot ({cos(\x)+3}, {sin(\x)+4.5});
+	
+	% Labelling Arcs
+	\node [black] at (1.2,0.25) {$\alpha$};
+	\node [black] at (0.95,0.8) {$\xi$};
+	\node [black] at (2.6,0.45) {$\frac{\pi}{2} - \theta_2$};
+	\node [black] at (0.7,2.3) {$\theta_2$};
+	\node [black] at (4,5.5) {$\theta_3$};
+	\node [black] at (4.7,4.3) {92.06$^o$};
+	\end{tikzpicture}
+\end{figure}
+
 To determine expressions for $\theta_2$ and $\theta_3$, we focus our attention on joints 2 and 3, as shown in Figure 9. Considering the triangle formed by the vertices at $J_2$, $J_3$, and $W$, we can find an experssion for $\eta$, as follows:
 \begin{align}
 180^o &= \eta + 92.06^o + \theta_3 \nonumber\\
@@ -429,11 +513,174 @@ Since any rotation matrix is orthogonal, we can write:
 ^3 R_6 = \big({}^{\texttt{base}}R_3\big)^{T} \cdot R_{rpy}
 \end{align}
 
-Now, using \verb|SymPy| it is easy to obtain expressions for $^3 R_6$ and $\big( R \big)$
+Now, using \verb|SymPy| it is easy to obtain an expression for $^3 R_6$. For the sake of brevity, and ease of reading, $\cos \theta_i$ will be expressed as $c_i$, and $\sin \theta_i$ will similarly be expressed as $s_i$. The expression is as follows:
+\begin{align}
+^3 R_6 =
+\begin{bmatrix}
+c_4 \cdot c_5 \cdot c_6 - s_4 \cdot s_6 & -s_4 \cdot c_6 - s_6 \cdot c_4 \cdot c_5 & -s_5 \cdot c_4\\
+s_5 \cdot c_6 & -s_5 \cdot s_6 & c_5\\
+-s_4 \cdot c_5 \cdot c_6 - s_6 \cdot c_4 & s_4 \cdot s_6 \cdot c_5 - c_4 \cdot c_6 & s_4 \cdot s_5
+\end{bmatrix}
+\end{align}
+
+The rotation matrix $\big({}^{\texttt{base}}R_3\big)^{T}$ could be expressed in a similar way, but at this stage of solving thhe problem we have explicit expressions for $\theta_1$, $\theta_2$, and $\theta_3$, which means this matrix would have some numerical expression. Further to this, the matrix $R_{rpy}$ is specificed at the beginning of an IK problem. Hence, the resultant matrix from the multiplicaiton of $\big({}^{\texttt{base}}R_3\big)^{T}$ and $R_{rpy}$ is numerical. We express the resultant matrix elements with $r_{ij}$, that is assume the following:
+\begin{align}
+\big({}^{\texttt{base}}R_3\big)^{T} \cdot R_{rpy} =
+\begin{bmatrix}
+r_{11} & r_{12} & r_{13}\\
+r_{21} & r_{22} & r_{23}\\
+r_{31} & r_{32} & r_{33}
+\end{bmatrix}
+\end{align}
+
+Using matrix equality with equation (19), we note that:
+\begin{align}
+c_5 = r_{23}
+\end{align}
+
+Which we can also write as:
+\begin{align}
+s_5 = \sqrt{1 - r_{23}^2}
+\end{align}
+
+Hence, using equations (20) and (21) we solve for $\theta_5$ as follows:
+\begin{align}
+\theta_5 = \atantwo \bigg(\frac{\sqrt{1 - r_{23}^2}}{r_{23}}\bigg)
+\end{align}
+
+We can use a similar approach to solve for both $\theta_4$ and $\theta_6$. Using matrix equality with equation (19), we get that:
+\begin{align}
+s_5 \cdot c_6 &= r_{21}\\ -s_5 \cdot s_6 &= r_{22}
+\end{align}
+
+Hence, dividing (24) by (23), we get that:
+\begin{align}
+\theta_6 = \atantwo \bigg(-\frac{r_{22}}{r_{21}}\bigg)
+\end{align}
+
+Finally, we get that:
+\begin{align}
+-s_5 \cdot c_4 &= r_{13}\\
+s_4 \cdot s_5 &= r_{33}
+\end{align}
+
+Hence, dividing equation (27) by (26) we solve for the final joint angles:
+\begin{align}
+\theta_4 = \atantwo \bigg(-\frac{r_{33}}{r_{13}}\bigg)
+\end{align}
+
+\subsubsection{Implementation of IK Server}
+The main objective of this paper is to implement the \verb|IK_server.py|. This server waits to recieve a list of required poses, which is a list containing a series of Cartesian positions, along with orientations for the end effector. The full \verb|IK_server.py| implementation can be found in Appendix B. This section of the report will explain each step of the implementation, providing code snippets to aid understanding. The main body of the \verb|IK_server.py| is contained in the callback function \verb|handle_calculate_IK|. Once a list of poses is received, the transformation matrix $^\texttt{base} T_3$, is determined and stored in the variable \verb|T0_3|. This process is composed of a number of steps which include defining symbols for the DH parameters, and assigning them values as determined in Section 2.1. Further, the rotation correction matrix found in Section 2.2.2 is specified, and the rotation matrix $^\texttt{base} R_3$ is extracted from the $^\texttt{base} T_3$ transformation. The code snippet showing these steps can be found in Listing 1. The transformation matrices are built using the function \verb|transMat(q, alpha, d, a)|, which takes the DH parameters specified earlier as arguements. The \verb|transMat| function can be seen in Listing 2. 
+
+\begin{figure}[h]\footnotesize
+	\begin{sexylisting}{Initialsation of variables and specification of transformation matrices}
+### Your FK code here
+# Create symbols
+q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
+d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
+a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')
+alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')
+
+# Create Modified DH parameters
+s = {alpha0:     0,    a0:      0,    d1: 0.75,
+     alpha1: -pi/2,    a1:   0.35,    d2:    0,    q2: (q2 - pi/2),
+     alpha2:     0,    a2:   1.25,    d3:    0}
+
+# Define Modified DH Transformation matrix
+T0_1 = transMat(q1, alpha0, d1, a0)
+T1_2 = transMat(q2, alpha1, d2, a1)
+T2_3 = transMat(q3, alpha2, d3, a2)
+
+T0_1 = T0_1.subs(s)
+T1_2 = T1_2.subs(s)
+T2_3 = T2_3.subs(s)
+
+# Create individual transformation matrices
+T0_2 = T0_1*T1_2
+T0_3 = T0_2*T2_3
+
+# Specify the intrinsic rotation matrix for correcting from DH to urdf
+R_corr = Matrix([[0,  0, 1],
+[0, -1, 0],
+[1,  0, 0]])
+
+# Extract rotation matrices from the transformation matrices
+R0_3 = T0_3[0:3,0:3]	
+	\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]\footnotesize
+	\begin{sexylisting}{The function used to build transformation matrices}
+def transMat(q, alpha, d, a):
+   T = Matrix([[           cos(q),           -sin(q),           0,             a],
+               [sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+               [sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
+               [                 0,                0,           0,             1]])
+   return T	
+	\end{sexylisting}
+\end{figure}
+
+The next part of the code extracts the position in three dimensional Cartesian space and stores the values in the variables \verb|px|, \verb|py|, and \verb|pz|. Similarly, the orientation is stored in the variables \verb|roll|, \verb|pitch|, and \verb|yaw|. Using these 6 variables, position of the spherical wrist is determined and stored in \verb|wx|, \verb|wy|, and \verb|wz|. This is shown in Listing 3
+
+\begin{figure}[h]\footnotesize
+	\begin{sexylisting}{Position/orientation is extracted and used to calculate spherical wrist position}
+# Extract end-effector position and orientation from request
+# px,py,pz = end-effector position
+# roll, pitch, yaw = end-effector orientation
+px = req.poses[x].position.x
+py = req.poses[x].position.y
+pz = req.poses[x].position.z
+
+(roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
+[req.poses[x].orientation.x, req.poses[x].orientation.y,
+req.poses[x].orientation.z, req.poses[x].orientation.w])
+# Define Modified DH Transformation matrix
+
+### Your IK code here
+# Compensate for rotation discrepancy between DH parameters and Gazebo
+Rrpy = R_z(yaw) * R_y(pitch) * R_x(roll) * R_corr
+#
+# Calculate spherical wrist position
+wx = px - (0.303) * Rrpy[0,2] # x-coord of wrist position
+wy = py - (0.303) * Rrpy[1,2] # y-coord of wrist position
+wz = pz - (0.303) * Rrpy[2,2] # z-coord of wrist position
+	\end{sexylisting}
+\end{figure}
+
+Finally, the callback function calculates the joint angles. To do this, the code first establishes variables $r$, $ss$, $k1$, $k2$, $D$, and $K$, which were calculated based on the robot's geometry. The first three joint angles $\theta_1$, $\theta_2$, and $\theta_3$ are then calculated using implementations of equations (3), (14), and (8) respectively. The numerical evaluation of $\big({}^{\texttt{base}}R_3 \big)^T \cdot R_{rpy}$ is based on recently determined values of $\theta_1$, $\theta_2$, and $\theta_3$. Finally, $\theta_4$, $\theta_5$, and $\theta_6$ are determined using an implementation of equations (28), (22), and (25) respectively. Listing 4 shows the implementation of this code.
+
+\begin{figure}[h]\footnotesize
+	\begin{sexylisting}{Code snippet showing the evaluation of the joint angles for a given position and orientation}
+r = sqrt(wx**2 + wy**2) - 0.35 #implemented okay
+ss = wz - 0.75 #implemented okay
+
+k1 = 1.25 #implemented okay
+k2 = 1.5 #implemented okay
+
+D = (k1**2 + k2**2 - (r**2 + ss**2))/(2 * k1 * k2) #implemented okay
+K = (k1**2 + (r**2 + ss**2) - k2**2)/(2*sqrt(r**2 + ss**2)*k1) #implemented okay
+
+# First three joint variables
+theta1 = atan2(wy,wx).evalf()
+theta2 = (pi/2 - atan2(ss,r) - atan2(sqrt(1 - K**2), K)).evalf()
+theta3 = 1.53484 - atan2(sqrt(1 - D**2), D).evalf()
+
+R36rpy = (R0_3.transpose() * Rrpy).evalf(subs={q1: theta1, q2: theta2, q3: theta3})
+
+# Second three joint variables
+theta4 = atan2(R36rpy[2,2], -R36rpy[0,2]).evalf()
+theta5 = atan2(sqrt(1 - R36rpy[1,2]**2), R36rpy[1,2]).evalf()
+theta6 = atan2(-R36rpy[1,1], R36rpy[1,0]).evalf()
+	\end{sexylisting}
+\end{figure}
+
+\newpage
 
 %------------------------------------------------------------
 \section{Results \& Conclusion}
-Discussion of the results of the robot kinematics.
+The FK determination of the transformation matrices held some small numerical errors, however, implementation of the \verb|IK_server.py| worked as intended. The pick and place operation can be seen in Figures XXXX and XXXX. A full video of the Kuka KR210 pick and place operation can be seen on the YouTube link provided below.
+
+
 
 %------------------------------------------------------------
 \section{Further Enhancements}
