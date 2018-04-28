@@ -159,7 +159,7 @@ put {scale(0.5)}
                                 put{scale([3.5,3.5,7.5])}
                                 {
                                     {coordsys}
-                                    special |\path #1 node[above] {$\hat{z}_4$}
+                                    special |\path #1 node[above] {$\hat{z}_5$}
                                                    #2 node[above] {$\hat{x}_4$, $\hat{x}_5$, $\hat{x}_6$}
                                                    #3 node[below] {$\hat{y}_4$};|(z)(x)(y)(o)
                                 }
@@ -191,7 +191,7 @@ put {scale(0.5)}
                                         {coordsys}
                                         special |\path #1 node[label={[shift={(0.3,-0.8)}]$\hat{z}_4$, $\hat{z}_6$, $\hat{z}_\texttt{end\_effector}$}] {}
                                                        #2 node[right] {$\hat{x}_\texttt{end\_effector}$}
-                                                       #3 node[below] {$\hat{y}_6$};|(z)(x)(y)(o)
+                                                       #3 node[below] {$\hat{y}_6$, $\hat{y}_\texttt{end\_effector}$};|(z)(x)(y)(o)
                                     }
                                 }
                             }

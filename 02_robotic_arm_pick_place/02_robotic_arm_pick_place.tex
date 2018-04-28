@@ -69,7 +69,7 @@ The Amazon Pick and Place Robotics Challenge is a competition designed to help i
 \caption{Kuka KR210 anthropomorphic industrial robot with 6 degrees of freedom}
 \end{figure}
 
-Path planning and execution of the desired manoeuvre is largely a solved problem. The move execution is dependent on a field of robotics called inverse kinematics. The inverse kinematics (IK) of a robot is the mathematical conversion of position in Cartesian space to the joint angles which allows the robot end effector to reach the desired position. Briefly, the end effector position in space can be thought of in 2 separate domains: Cartesian world coordinates, or Joint Angle space. Typically, analytical work is done in Cartesian space - three dimensional space is the native environment that humans live in and is easier to conceptualise. Robots, however, position themselves by making adjustments to electrical or hydraulic actuators - these actuators receive instructions based on Joint Angle. This project explores the IK derivation, and implementation, for the Kuka KR210. The KR210 is a 6 degree of freedom (dof) anthropomorphic robotic arm shown in Figure 1. The project culminates with the implementation of an IK server, which is a ROS service receiving a series of points in Cartesian space (world coordinate frame), and returning a vector of Joint Angles after applying the IK transform. The implementation will be undertaken in ROS, which utilises simulation engines Rviz and Gazebo. Figures 2 and 3 show the Kuka KR210 in simulation.
+Path planning and execution of the desired manoeuvre is largely a solved problem. The move execution is dependent on inverse kinematics. The inverse kinematics (IK) of a robot is the mathematical conversion of position in Cartesian space to the joint angles which allows the robot end effector to reach the desired position. The end effector position in space can be thought of in 2 separate domains: Cartesian world coordinates, or Joint Angle space. Typically, analytical work is done in Cartesian space - three dimensional space is the native environment that humans live in and is easier to conceptualise. Robots, however, position themselves by making adjustments to electrical or hydraulic actuators - these actuators receive instructions based on Joint Angle. This project explores the IK derivation, and implementation, for the Kuka KR210. The KR210 is a 6 degree of freedom (dof) anthropomorphic robotic arm shown in Figure 1. The project culminates with the implementation of an IK server, which is a ROS service receiving a series of points in Cartesian space (world coordinate frame), and returning a vector of Joint Angles after applying the IK transform. The implementation will be undertaken in ROS, which utilises simulation engines Rviz and Gazebo. Figures 2 and 3 show the Kuka KR210 in simulation.
 
 \begin{figure}[h]
 \centering
@@ -127,7 +127,7 @@ To reiterate, the $\hat{x}_i$ axis is assigned dependent on the geometric orient
 \caption{Sexy robot drawing}
 \end{figure}
 
-The DH parameters, which are used to specify the transformations from one coordinate frame to another, are determined once the coordinate frames have been assigned. The full DH parameter specification can be seen in Table 2. It must be noted that the values for $d_i$ and $a_{i-1}$ were found using the unified robot description format (urdf) file, which contains the model specifications for Gazebo. The full urdf file can be seen in Appendix A. The dimensions taken from the urdf file are marked up on Figure 4, with one notable exception: $a_3$. The DH parameter for $a_3$ is the orthogonal distance between $\hat{y}_3$ and $\hat{y}_4$, and is -0.054$\si{\meter}$ - this was omitted from the diagram to avoid cluttering the picture. The DH parameter specifications are used in conjunction with equation (1) to specify the transformation matrices from coordinate frame $i-1$ to coordinate frame $i$ - this is further explored in Section 2.2.\\
+The DH parameters, which are used to specify the transformations from one coordinate frame to another, are determined once the coordinate frames have been assigned. The full DH parameter specification can be seen in Table 2. It must be noted that the values for $d_i$ and $a_{i-1}$ were found using the unified robot description format (urdf) file, which contains the model specifications for Gazebo. The partial urdf file can be seen in Appendix A, which shows the joint angle information. The dimensions taken from the urdf file are marked up on Figure 4, with one notable exception: $a_3$. The DH parameter for $a_3$ is the orthogonal distance between $\hat{y}_3$ and $\hat{y}_4$, and is -0.054$\si{\meter}$. This was omitted from the diagram to avoid cluttering the picture. The DH parameter specifications are used in conjunction with equation (1) to specify the transformation matrices from coordinate frame $i-1$ to coordinate frame $i$. This is further explored in Section 2.2.\\
 
 \begin{equation}
 	^{i-1} T_i =
@@ -179,8 +179,8 @@ This angle of 2.06$^o$ has been added to the 90$^o$ formed by $\hat{x}_3$ and $\
 \subsection{Forward Kinematics}
 The forward kinematics problem is concerned with taking the agular positions of the individual joints and finding the position of the robot's end effector in three dimensional Cartesian space. This section of the report is broken down into three subsections:
 \begin{enumerate}
-	\item Derivation of the transformation matrices, $^{i-1} T_i$;
-	\item Derivation of transformation correction matrix; and 
+	\item Derivation of the transformation matrices, $^{i-1} T_i$
+	\item Derivation of transformation correction matrix 
 	\item Verification of transformation matrices
 \end{enumerate}
 
@@ -212,7 +212,7 @@ The individual transformation matrices are shown below:\\
 	\sin \theta_5	& \cos \theta_5		& 0		& 0\\
 	\w0				& \w0				& \w0	& \w1
 	\end{bmatrix}\\
-	^5 T_\texttt{end\_eff} &=
+	^6 T_\texttt{end\_eff} &=
 	\begin{bmatrix}
 	1				& 0					& 0		& 0\\
 	0				& 1					& 0		& 0\\
@@ -743,7 +743,7 @@ theta6 = atan2(-R36rpy[1,1], R36rpy[1,0]).evalf()
 
 %------------------------------------------------------------
 \section{Results \& Conclusion}
-The FK determination of the transformation matrices held some small numerical errors, however, implementation of the \verb|IK_server.py| worked as intended. The pick and place operation can be seen in Figures 10 and 11. A full video of the Kuka KR210 pick and place operation can be seen on the YouTube link provided below. Note the simulation execution is slow and you may like to watch this at 2 $\times$ speed.
+The FK verification of the transformation matrices revealed some small numerical errors, however, implementation of the \verb|IK_server.py| worked as intended. The pick and place operation can be seen in Figures 10 and 11. A full video of the Kuka KR210 pick and place operation can be seen on the YouTube link provided below. Note the simulation execution is slow and you may like to watch this at 2 $\times$ speed.
 
 \begin{center}
 	\url{https://youtu.be/F2vZQHOaYb8}
