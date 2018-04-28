@@ -15,15 +15,28 @@
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
 \usepackage{xfrac}
+\usepackage{hyperref}
 
 \usetikzlibrary{shapes.geometric,angles}
 
 \newcommand\w[1]{\makebox[3.4em]{$#1$}}
 \DeclareMathOperator{\atantwo}{atan2}
-%--------------------------------------------------------------------------
+%------------------------------------------------------------
 \graphicspath{{./fig/}}
 
-%--------------------------------------------------------------------------
+%------------------------------------------------------------
+\setlength{\parindent}{0in}
+
+\lstdefinestyle{Python}{
+	language        = Python,
+	basicstyle      = \ttfamily,
+	keywordstyle    = \color{blue},
+	keywordstyle    = [2] \color{teal}, % just to check that it works
+	stringstyle     = \color{green},
+	commentstyle    = \color{red}\ttfamily
+}
+
+%------------------------------------------------------------
 
 \newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
     fonttitle=\bfseries, colframe=gray, listing only, 
@@ -114,7 +127,7 @@ To reiterate, the $\hat{x}_i$ axis is assigned dependent on the geometric orient
 \caption{Sexy robot drawing}
 \end{figure}
 
-The DH parameters, which are used to specify the transformations from one coordinate frame to another, are determined once the coordinate frames have been assigned. The full DH parameter specification can be seen in Table 2. It must be noted that the values for $d_i$ and $a_{i-1}$ were found using the unified robot description format (urdf) file, which contains the model specifications for Gazebo. The full urdf file can be seen in Appendix A. The DH parameter specifications are used in conjunction with equation (1) to specify the transformation matrices from coordinate frame $i-1$ to coordinate frame $i$ - this is further explored in Section 2.2.\\
+The DH parameters, which are used to specify the transformations from one coordinate frame to another, are determined once the coordinate frames have been assigned. The full DH parameter specification can be seen in Table 2. It must be noted that the values for $d_i$ and $a_{i-1}$ were found using the unified robot description format (urdf) file, which contains the model specifications for Gazebo. The full urdf file can be seen in Appendix A. The dimensions taken from the urdf file are marked up on Figure 4, with one notable exception: $a_3$. The DH parameter for $a_3$ is the orthogonal distance between $\hat{y}_3$ and $\hat{y}_4$, and is -0.054$\si{\meter}$ - this was omitted from the diagram to avoid cluttering the picture. The DH parameter specifications are used in conjunction with equation (1) to specify the transformation matrices from coordinate frame $i-1$ to coordinate frame $i$ - this is further explored in Section 2.2.\\
 
 \begin{equation}
 	^{i-1} T_i =
@@ -126,29 +139,48 @@ The DH parameters, which are used to specify the transformations from one coordi
 	\end{bmatrix}
 \end{equation}
 
-\begin{table}
-\centering
-\captionof{table}{DH parameter table}
-\begin{tabular}{ccccc}
-\toprule
-$^{i-1} T_i$ 				& $d_i$ 	& $\theta_i$ 					& $\alpha_{i-1}$ 	& $a_{i-1}$\\ 
-\midrule
-$^\texttt{base} T_1$ 		& 0.750 	& $\theta_1$ 					& 0 				& 0.000\\
-$^1 T_2$ 					& 0.000 	& $\theta_2 - \frac{\pi}{2}$ 	& $-\sfrac{\pi}{2}$ & 0.350\\
-$^2 T_3$ 					& 0.000 	& $\theta_3$ 					& 0 				& 1.250\\
-$^3 T_4$ 					& 1.500 	& $\theta_4$ 					& $-\sfrac{\pi}{2}$ & -0.054\\
-$^4 T_5$ 					& 0.000 	& $\theta_5$ 					& $\sfrac{\pi}{2}$ 	& 0.000\\
-$^5 T_6$ 					& 0.000 	& $\theta_6$ 					& $-\sfrac{\pi}{2}$ & 0.000\\
-$^6 T_\texttt{end\_eff}$ 	& 0.303 	& 0 							& 0 				& 0.000\\
-\bottomrule
-\end{tabular}
-\end{table}
+\vspace{0.25cm}
+
+\begin{minipage}{0.45\textwidth}
+One final note of importance is the calculation of the angle between the axis $\hat{y}_3$ and the line formed by $J_3$ and $J_5$. Whilst it is not immediately clear why we need this value, it will be important for Section 2.3.1 when analysing the robot geometries. We note that the horizontal distance along $\hat{y}_3$, between $J_3$ and $J_5$, is 1.5$\si{\meter}$.
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+	\centering
+	\captionof{table}{DH parameter table}
+	\begin{tabular}{ccccc}
+		\toprule
+		$^{i-1} T_i$ 				& $d_i$ 	& $\theta_i$ 					& $\alpha_{i-1}$ 	& $a_{i-1}$\\ 
+		\midrule
+		$^\texttt{base} T_1$ 		& 0.750 	& $\theta_1$ 					& 0 				& 0.000\\
+		$^1 T_2$ 					& 0.000 	& $\theta_2 - \frac{\pi}{2}$ 	& $-\sfrac{\pi}{2}$ & 0.350\\
+		$^2 T_3$ 					& 0.000 	& $\theta_3$ 					& 0 				& 1.250\\
+		$^3 T_4$ 					& 1.500 	& $\theta_4$ 					& $-\sfrac{\pi}{2}$ & -0.054\\
+		$^4 T_5$ 					& 0.000 	& $\theta_5$ 					& $\sfrac{\pi}{2}$ 	& 0.000\\
+		$^5 T_6$ 					& 0.000 	& $\theta_6$ 					& $-\sfrac{\pi}{2}$ & 0.000\\
+		$^6 T_\texttt{end\_eff}$ 	& 0.303 	& 0 							& 0 				& 0.000\\
+		\bottomrule
+	\end{tabular}
+\end{minipage}
+
+\vspace{0.5cm}
+
+The vertical distance, along $\hat{x}_3$, is 0.054$\si{\meter}$. Hence it follows that:
+\begin{align*}
+\tan \beta 	&= \frac{0.054}{1.5}\\
+\beta 		&= \arctan \frac{0.054}{1.5}\\
+\beta		&= 2.06^o
+\end{align*}  
+
+This angle of 2.06$^o$ has been added to the 90$^o$ formed by $\hat{x}_3$ and $\hat{y}_3$, and has been included in Figure 9.
+
+\newpage
 
 \subsection{Forward Kinematics}
 The forward kinematics problem is concerned with taking the agular positions of the individual joints and finding the position of the robot's end effector in three dimensional Cartesian space. This section of the report is broken down into three subsections:
 \begin{enumerate}
-	\item Derivation of the transformation matrices, $^{i-1} T_i$
-	\item The correction of transformation matrices NEED TO FINISH THIS DESCRIPTION
+	\item Derivation of the transformation matrices, $^{i-1} T_i$;
+	\item Derivation of transformation correction matrix; and 
 	\item Verification of transformation matrices
 \end{enumerate}
 
@@ -250,20 +282,30 @@ The orientation of the DH base frame, shown in Figure 3, has been selected so th
 		\caption{The orientation of thhe world coordinate frame.}
 	\end{minipage}
 \end{figure}
-
+ \newpage
 To provide a correction to the transformation matrix, $^\texttt{base} T_{\texttt{end\_eff}}$, two steps need to be taken:
 \begin{enumerate}
-	\item 
-	\item 
+	\item A rotation about the $z$-axis by $\pi$: $R_z(\pi)$; and
+	\item A rotation about the $y$-axis by $-\sfrac{\pi}{2}$: $R_y(-\sfrac{\pi}{2})$
 \end{enumerate}
+
+The correction matrix, $R_{correction}$, is defined mathematically as follows:
+\begin{align}
+R_{correction} 	&= R_z(\pi) R_y(-\sfrac{\pi}{2})				
+\end{align}
+
+Evaluating equation (3) allows the static implementation of this correction matrix, which saves on computational resources required to run the IK server. The implemented resultant correction can be seen in Listing 1, and the matrix is as follows:
+\begin{align}
+R_{correction} = \begin{bmatrix}-1 & 0 & 0\\0 & -1 & 0\\0 & 0 & 1\end{bmatrix} \begin{bmatrix}0 & 0 & -1\\0 & 1 & 0\\1 & 0 & 0\end{bmatrix} = \begin{bmatrix}0 & 0 & 1\\0 & -1 & 0\\1 & 0 & 0\end{bmatrix}
+\end{align}
 
 \subsubsection{Verification of Transformation Matrices}
 To provide some assurance that the Python implementation is correct, analysis was undertaken using a script called \verb|forwardKinematics.py|, which can be found in Appendix B. The ROS launch script, \verb|forward_kinematics.launch|, provides a simulation of the robot in which the joint angles could be manually adjusted, and the position and orientation of the robot's frames observed. This is shown in Figure 5.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.2]{rviz_fk_debug}
-	\caption{text}
+	\frame{\includegraphics[scale=0.15]{rviz_fk_debug}}
+	\caption{The Gazebo simulation of the robot using ROS, which allows the user to input joint angles, and get pose information as output. This was used to confirm that the the DH frames had been correctly assigned, and that the DH parameters were correctly determined resulting in accurate transformation matrices.}
 \end{figure}
 
 Rviz reports the postion of the gripper frame as a position vector, however, the gripper orientation is reported in Quarternions, which have to be converted to a rotation matrix in order to compare this to the calculated results from \verb|forwardKinematics.py|. The Python script \verb|forwardKinematics.py| contains four test cases with varying angles $\theta_i$, such that $i \in \{1,2,3,4,5,6\}$. These test cases can be seen in Table 3.
@@ -288,6 +330,7 @@ Each case was entered into the simulation, and the position vector was recorded,
 \begin{table}[h]
 	\centering
 	\caption{Position vector, Quaternion, and rotation matrix observered from the manual simulation of the KR210.}
+	\small
 	\begin{tabular}{clll}
 		\toprule
 		\textbf{Case} & \textbf{Position Vector} & \textbf{Quaternion} & \textbf{Rotation Matrix}\\
@@ -310,6 +353,7 @@ Running the \verb|forwardKinematics.py| script outputs the numerical, corrected 
 \begin{table}[h]
 	\centering
 	\caption{Calculated position vector and orientation matrix using the matrix transfrom from the end effector to the base link.}
+	\small
 	\begin{tabular}{cll}
 		\toprule
 		\textbf{Case} & \textbf{Position Vector} & \textbf{Rotation Matrix}\\
@@ -338,9 +382,34 @@ Consider the first three joints in a pose shown in Figure 8. The point $(\omega_
 \theta_1 = \atantwo \bigg( \frac{\omega_y}{\omega_x} \bigg)
 \end{align}
 
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}
+To determine expressions for $\theta_2$ and $\theta_3$, we focus our attention on joints 2 and 3, as shown in Figure 9. We note that this Figure uses the existing $z$-axis, however, to help with the analysis a new axis is established: $(xy)'$. This is done since joints $J_2$ and $J_3$ operate in the same 2D plane, which simplifies the analysis. This allows the re-expression of the spherical wrist coordinates as $(r,s)$, where:
+\begin{align}
+r &= \sqrt{\omega_x^2 + \omega_y^2} - 0.35\\
+s &= \omega_z - 0.75 
+\end{align}
+
+\begin{minipage}{0.45\textwidth}
+	Considering the triangle formed by the vertices at $J_2$, $J_3$, and $W$, we can find an experssion for $\eta$, as follows:
+	\begin{align}
+	180^o &= \eta + 92.06^o + \theta_3 \nonumber\\
+	\eta &= 87.94^o - \theta_3 \nonumber\\
+	\eta &= 1.5348 \si{\radian} - \theta_3
+	\end{align}
+	
+	Employing the cosine rule on the triangle formed by vertices $J_2$, $J_3$, and $W$, we note that:
+	\begin{align*}
+	L^2 = k_1^2 + k_2^2 - 2 \cdot k_1 \cdot k_2 \cdot \cos \eta
+	\end{align*}
+	
+	Rearranging this expression we get the following expression for $\cos \eta$:
+	\begin{align}
+	\cos \eta = \frac{k_1^2 + k_2^2 - L^2}{2 \cdot k_1 \cdot k_2} := D
+	\end{align}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+		\centering
+		\begin{tikzpicture}
 		% Axes
 		\draw[thick,->] (0,0,0) -- (6,0,0) node[anchor = north]{$x$};
 		\draw[thick,->] (0,0,0) -- (0,6,0) node[anchor = east]{$z$};
@@ -353,36 +422,39 @@ Consider the first three joints in a pose shown in Figure 8. The point $(\omega_
 		\draw[line width=2pt,purple] (2,3,-2) -- (3,1,-3);
 		
 		% Guidelines
-		\draw[dashed, blue] (0,0,0) -- (3,0,-3);
+		\draw[->,dashed, blue] (0,0,0) -- (3.5,0,-3.5) node[anchor=west]{$(xy)'$};
 		\draw[dashed, blue] (1,1.5,-1) -- (1,0,-1);
 		\draw[dashed, blue] (2,3,-2) -- (2,0,-2);
 		\draw[dashed, blue] (3,1,-3) -- (3,0,-3);
 		\draw[dashed, blue] (3,0,-3) -- (3,0,0);
 		
-		% Joints
-		\node [black] at (0,0.75,0) {\textbullet};
-		\node [black] at (1,1.5,-1) {\textbullet};
-		\node [black] at (2,3,-2) {\textbullet};
-		\node [black] at (3,1,-3) {\textbullet};
-		
 		% Dh frames
 		\draw[line width=1.5pt, green, ->] (0,0,0) -- (2.5,0,0) node[anchor = north]{$\hat{x}_\texttt{base}$};
-		\draw[line width=1.5pt, green, ->] (2,3,-2) -- (2,5,-2) node[anchor = east]{$\hat{x}_1$ rotated by $\pi$};
+		\draw[line width=1.5pt, green, ->] (2,3,-2) -- (2,5,-2) node[anchor = east]{$\hat{x}_1$ rotated by $\frac{\pi}{2}$};
 		\draw[line width=1.5pt, green, ->] (2,3,-2) -- (3,4.5,-3) node[anchor = south]{$\hat{x}_2$};
 		\draw[line width=1.5pt, green, ->] (2,3,-2) -- (3.3,4,-3.3) node[anchor = south]{$\hat{x}_3$};
 		
 		% Labelling Angles
-		\draw (0,0,0)  arc (0:45:1cm);
-	\end{tikzpicture}
-	\caption{text}
-\end{figure}
-
+		\draw[<->] (2,0,0)  arc (0:31:1cm);
+		\node [black] at (1.7,0.2) {$\theta_1$};
+		
+		% Joints
+		\node [black, label=left:{$J_1$}] at (0,0.75,0) {\textbullet};
+		\node [black, label=above:{$J_2$}] at (1,1.5,-1) {\textbullet};
+		\node [black, label=left:{$J_3$}] at (2,3,-2) {\textbullet};
+		\node [black, label=right:{$W(\omega_x,\omega_y,\omega_z)$}] at (3,1,-3) {\textbullet};
+		
+		% Putting in wrist coordinate/Joint Labelling
+		\end{tikzpicture}
+		\captionof{figure}{Robot geometry showing the first three joints, and the spherical wrist in 3D space.}
+\end{minipage}
+\vspace{1cm}
 \begin{figure}[h]
 	\centering
 	\begin{tikzpicture}
 	% Axes
-	\draw[thick, ->] (0,0) -- (8,0) node[anchor=north] {$x$};
-	\draw[thick, ->] (0,0) -- (0,7) node[anchor=east] {$y$};
+	\draw[thick, ->] (0,0) -- (8,0) node[anchor=north] {$(xy)'$};
+	\draw[thick, ->] (0,0) -- (0,7) node[anchor=east] {$z$};
 	
 	% Robot
 	\draw[line width=2pt, purple] (0,0) -- (3,4.5);
@@ -397,9 +469,9 @@ Consider the first three joints in a pose shown in Figure 8. The point $(\omega_
 	\draw[line width=1.5pt, green, ->] (0,0) -- (6,0) node[anchor=south] {$\hat{x}_1$};
 	
 	% Joints
-	\node [black] at (0,0) {\textbullet};
-	\node [black] at (3,4.5) {\textbullet};
-	\node [black] at (4.5,2) {\textbullet};
+	\node [black, label=left:{$J_2$}] at (0,0) {\textbullet};
+	\node [black, label=left:{$J_3$}] at (3,4.5) {\textbullet};
+	\node [black, label=right:{$W(r, s)$}] at (4.5,2) {\textbullet};
 	
 	% Guidance lines
 	\draw[dashed, blue] (4.5,2) -- (4.5,0);
@@ -411,6 +483,7 @@ Consider the first three joints in a pose shown in Figure 8. The point $(\omega_
 	\draw[<->] (1.14,1.638) arc (55:90:2);
 	\draw[<->] [domain=32:55] plot ({cos(\x)+3}, {sin(\x)+4.5});
 	\draw[<->] [domain=-57:32] plot ({cos(\x)+3}, {sin(\x)+4.5});
+	\draw[<->] [domain=-122:-60] plot ({cos(\x)+3}, {sin(\x)+4.5});
 	
 	% Labelling Arcs
 	\node [black] at (1.2,0.25) {$\alpha$};
@@ -419,38 +492,28 @@ Consider the first three joints in a pose shown in Figure 8. The point $(\omega_
 	\node [black] at (0.7,2.3) {$\theta_2$};
 	\node [black] at (4,5.5) {$\theta_3$};
 	\node [black] at (4.7,4.3) {92.06$^o$};
+	\node [black] at (3,3.8) {$\eta$};
+	\node [black] at (1.5,3) {$k_1$};
+	\node [black] at (4.3,3) {$k_2$};
+	\node [black] at (2.8,1.5) {$L$};
 	\end{tikzpicture}
+	\caption{Roboto goemetry focusing on joints 2 and 3, which operate in the same plane allowing for analysis in 2D.}
 \end{figure}
 
-To determine expressions for $\theta_2$ and $\theta_3$, we focus our attention on joints 2 and 3, as shown in Figure 9. Considering the triangle formed by the vertices at $J_2$, $J_3$, and $W$, we can find an experssion for $\eta$, as follows:
-\begin{align}
-180^o &= \eta + 92.06^o + \theta_3 \nonumber\\
-\eta &= 87.94^o - \theta_3 \nonumber\\
-\eta &= 1.5348 \si{\radian} - \theta_3
-\end{align}
 
-Employing the cosine rule on the triangle formed by vertices $J_2$, $J_3$, and $W$, we note that:
-\begin{align*}
-L^2 = k_1^2 + k_2^2 - 2 \cdot k_1 \cdot k_2 \cdot \cos \eta
-\end{align*}
 
-Rearranging this expression we get the following expression for $\cos \eta$:
-\begin{align}
-\cos \eta = \frac{k_1^2 + k_2^2 - L^2}{2 \cdot k_1 \cdot k_2} := D
-\end{align}
-
-Equation (5), along with Pythagoras' theorem, allows us to determine an expression for $\sin \eta$:
+Equation (9), along with Pythagoras' theorem, allows us to determine an expression for $\sin \eta$:
 \begin{align}
 \sin \eta = \sqrt{1 - D^2}
 \end{align}
 
-Using equations (5) and (6), we get:
+Using equations (9) and (10), we get:
 \begin{align}
 \tan \eta &= \frac{\sin \eta}{\cos \eta} = \frac{\sqrt{1 - D^2}}{D} \nonumber\\
 \eta &= \atantwo \bigg(\frac{\sqrt{1-D^2}}{D}\bigg)
 \end{align}
 
-Substituting equation (4) into equation (7), we arrive at an expression for $\theta_3$:
+Substituting equation (11) into equation (8), we arrive at an expression for $\theta_3$:
 \begin{align}
 \theta_3 = 1.5348\si{\radian} - \atantwo \bigg(\frac{\sqrt{1 - D^2}}{D}\bigg)
 \end{align}
@@ -465,12 +528,12 @@ Rearranging the above equation we find an expression for $\cos \xi$:
 \cos \xi = \frac{k_1^2 + L^2 - k_2^2}{2 \cdot k_1 \cdot L} := K
 \end{align}
 
-Equation (9), along with Pythagoras' theorem, allows us to determine an expression for $\sin \xi$:
+Equation (13), along with Pythagoras' theorem, allows us to determine an expression for $\sin \xi$:
 \begin{align}
 \sin \xi = \sqrt{1 - K^2}
 \end{align}
 
-Using equations (9) and (10), we get:
+Using equations (13) and (14), we get:
 \begin{align}
 \tan \xi &= \frac{\sin \xi}{\cos \xi} = \frac{\sqrt{1 - K^2}}{K} \nonumber\\
 \xi &= \atantwo \bigg(\frac{\sqrt{1-K^2}}{K}\bigg)
@@ -487,13 +550,13 @@ Finally, we note that the angle between assigned DH coordinate axes $\hat{x}_1$ 
 \theta_2 &= \frac{\pi}{2} - \alpha - \xi
 \end{align}
 
-Substituing equations (11) and (12) into equation (13), we arrive at an expression for $\theta_2$:
+Substituing equations (15) and (16) into equation (17), we arrive at an expression for $\theta_2$:
 \begin{align}
 \theta_2 = \frac{\pi}{2} - \atantwo \bigg(\frac{s}{r}\bigg) - \atantwo \bigg(\frac{\sqrt{1 - K^2}}{K}\bigg)
 \end{align}
 
 \subsubsection{Final Three Joint Angles ($\theta_4$, $\theta_5$, and $\theta_6$)}
-To find the final three joint angles, $\theta_4$, $\theta_5$, and $\theta_6$ we expolit the following relationship between the FK rotation matrix $^0 R_6$, and the desired orientation of the end gripper, $R_{rpy}$, which is given in an IK problem. We note that:
+To find the final three joint angles, $\theta_4$, $\theta_5$, and $\theta_6$ we expolit the following relationship between the FK rotation matrix $^\texttt{base} R_6$, and the desired orientation of the end gripper, $R_{rpy}$, which is given in an IK problem. We note that:
 \begin{align}
 ^\texttt{base} R_6 = R_{rpy}
 \end{align}
@@ -523,7 +586,7 @@ s_5 \cdot c_6 & -s_5 \cdot s_6 & c_5\\
 \end{bmatrix}
 \end{align}
 
-The rotation matrix $\big({}^{\texttt{base}}R_3\big)^{T}$ could be expressed in a similar way, but at this stage of solving thhe problem we have explicit expressions for $\theta_1$, $\theta_2$, and $\theta_3$, which means this matrix would have some numerical expression. Further to this, the matrix $R_{rpy}$ is specificed at the beginning of an IK problem. Hence, the resultant matrix from the multiplicaiton of $\big({}^{\texttt{base}}R_3\big)^{T}$ and $R_{rpy}$ is numerical. We express the resultant matrix elements with $r_{ij}$, that is assume the following:
+The rotation matrix $\big({}^{\texttt{base}}R_3\big)^{T}$ could be expressed in a similar way, but at this stage of solving the problem we have explicit expressions for $\theta_1$, $\theta_2$, and $\theta_3$. Evaluating these expressions allows the calculation of a numerical matrix expression for $\big({}^{\texttt{base}}R_3\big)^{T}$. Further to this, since the desired orientation of the end effector is specificed at the beginning of an IK problem, we can use the given $\theta_{roll}$, $\theta_{pitch}$, and $\theta_{yaw}$ to evaluate the matrix $R_{rpy}$. Hence, the resultant matrix from the multiplicaiton of $\big({}^{\texttt{base}}R_3\big)^{T}$ and $R_{rpy}$ is numerical. We express the resultant matrix elements with $r_{ij}$, and assume the following:
 \begin{align}
 \big({}^{\texttt{base}}R_3\big)^{T} \cdot R_{rpy} =
 \begin{bmatrix}
@@ -533,7 +596,7 @@ r_{31} & r_{32} & r_{33}
 \end{bmatrix}
 \end{align}
 
-Using matrix equality with equation (19), we note that:
+Using matrix equality with equation (22) and (23), we note that:
 \begin{align}
 c_5 = r_{23}
 \end{align}
@@ -543,17 +606,17 @@ Which we can also write as:
 s_5 = \sqrt{1 - r_{23}^2}
 \end{align}
 
-Hence, using equations (20) and (21) we solve for $\theta_5$ as follows:
+Hence, using equations (24) and (25) we solve for $\theta_5$ as follows:
 \begin{align}
 \theta_5 = \atantwo \bigg(\frac{\sqrt{1 - r_{23}^2}}{r_{23}}\bigg)
 \end{align}
 
-We can use a similar approach to solve for both $\theta_4$ and $\theta_6$. Using matrix equality with equation (19), we get that:
+We can use a similar approach to solve for both $\theta_4$ and $\theta_6$. Using matrix equality with equation (22) and (23), we get that:
 \begin{align}
 s_5 \cdot c_6 &= r_{21}\\ -s_5 \cdot s_6 &= r_{22}
 \end{align}
 
-Hence, dividing (24) by (23), we get that:
+Hence, dividing (28) by (27), we get that:
 \begin{align}
 \theta_6 = \atantwo \bigg(-\frac{r_{22}}{r_{21}}\bigg)
 \end{align}
@@ -564,13 +627,13 @@ Finally, we get that:
 s_4 \cdot s_5 &= r_{33}
 \end{align}
 
-Hence, dividing equation (27) by (26) we solve for the final joint angles:
+Hence, dividing equation (31) by (30) we solve for the final joint angles:
 \begin{align}
 \theta_4 = \atantwo \bigg(-\frac{r_{33}}{r_{13}}\bigg)
 \end{align}
 
 \subsubsection{Implementation of IK Server}
-The main objective of this paper is to implement the \verb|IK_server.py|. This server waits to recieve a list of required poses, which is a list containing a series of Cartesian positions, along with orientations for the end effector. The full \verb|IK_server.py| implementation can be found in Appendix B. This section of the report will explain each step of the implementation, providing code snippets to aid understanding. The main body of the \verb|IK_server.py| is contained in the callback function \verb|handle_calculate_IK|. Once a list of poses is received, the transformation matrix $^\texttt{base} T_3$, is determined and stored in the variable \verb|T0_3|. This process is composed of a number of steps which include defining symbols for the DH parameters, and assigning them values as determined in Section 2.1. Further, the rotation correction matrix found in Section 2.2.2 is specified, and the rotation matrix $^\texttt{base} R_3$ is extracted from the $^\texttt{base} T_3$ transformation. The code snippet showing these steps can be found in Listing 1. The transformation matrices are built using the function \verb|transMat(q, alpha, d, a)|, which takes the DH parameters specified earlier as arguements. The \verb|transMat| function can be seen in Listing 2. 
+The main objective of this paper is to implement the \verb|IK_server.py|. This server waits to recieve a list of required poses, with each pose consisting of a Cartesian position in 3D space, along with roll, pitch and yaw orientation angles for the end effector. The full \verb|IK_server.py| implementation can be found in Appendix C. This section of the report will explain each step of the implementation, providing code snippets to aid understanding. The main body of the \verb|IK_server.py| is contained in the callback function \verb|handle_calculate_IK|. Once a list of poses is received, \verb|handle_calculate_IK| is called, and transformation matrix $^\texttt{base} T_3$, is evaluated and stored in the variable \verb|T0_3|. This process includes defining symbols for the DH parameters, and assigning them values - determined in Section 2.1. Further, the rotation correction matrix, found in Section 2.2.2, is specified, and the rotation matrix $^\texttt{base} R_3$ is extracted from the $^\texttt{base} T_3$ transformation. The code snippet showing these steps can be found in Listing 1. 
 
 \begin{figure}[h]\footnotesize
 	\begin{sexylisting}{Initialsation of variables and specification of transformation matrices}
@@ -608,6 +671,8 @@ R_corr = Matrix([[0,  0, 1],
 R0_3 = T0_3[0:3,0:3]	
 	\end{sexylisting}
 \end{figure}
+
+The transformation matrices are built using the function \verb|transMat(q, alpha, d, a)|, which takes the DH parameters specified earlier as arguements. The \verb|transMat| function can be seen in Listing 2.
 
 \begin{figure}[h]\footnotesize
 	\begin{sexylisting}{The function used to build transformation matrices}
@@ -647,7 +712,7 @@ wz = pz - (0.303) * Rrpy[2,2] # z-coord of wrist position
 	\end{sexylisting}
 \end{figure}
 
-Finally, the callback function calculates the joint angles. To do this, the code first establishes variables $r$, $ss$, $k1$, $k2$, $D$, and $K$, which were calculated based on the robot's geometry. The first three joint angles $\theta_1$, $\theta_2$, and $\theta_3$ are then calculated using implementations of equations (3), (14), and (8) respectively. The numerical evaluation of $\big({}^{\texttt{base}}R_3 \big)^T \cdot R_{rpy}$ is based on recently determined values of $\theta_1$, $\theta_2$, and $\theta_3$. Finally, $\theta_4$, $\theta_5$, and $\theta_6$ are determined using an implementation of equations (28), (22), and (25) respectively. Listing 4 shows the implementation of this code.
+Finally, the callback function calculates the joint angles. To do this, the code first establishes variables $\texttt{r}$, $\texttt{ss}$, $\texttt{k1}$, $\texttt{k2}$, $\texttt{D}$, and $\texttt{K}$, which were calculated based on the robot's geometry - outlined in Section 2.3.1. The first three joint angles $\theta_1$, $\theta_2$, and $\theta_3$ are calculated using implementations of equations (5), (18), and (12) respectively. The numerical evaluation of $\big({}^{\texttt{base}}R_3 \big)^T \cdot R_{rpy}$ is based on recently determined values of $\theta_1$, $\theta_2$, and $\theta_3$, and the desired roll, pitch, and yaw orientation angles. Finally, $\theta_4$, $\theta_5$, and $\theta_6$ are determined using an implementation of equations (32), (26), and (29) respectively. Listing 4 shows the implementation of this code. The call back function calculates and returns the required joint angles for each of the desired poses in the input list.
 
 \begin{figure}[h]\footnotesize
 	\begin{sexylisting}{Code snippet showing the evaluation of the joint angles for a given position and orientation}
@@ -678,17 +743,41 @@ theta6 = atan2(-R36rpy[1,1], R36rpy[1,0]).evalf()
 
 %------------------------------------------------------------
 \section{Results \& Conclusion}
-The FK determination of the transformation matrices held some small numerical errors, however, implementation of the \verb|IK_server.py| worked as intended. The pick and place operation can be seen in Figures XXXX and XXXX. A full video of the Kuka KR210 pick and place operation can be seen on the YouTube link provided below.
+The FK determination of the transformation matrices held some small numerical errors, however, implementation of the \verb|IK_server.py| worked as intended. The pick and place operation can be seen in Figures 10 and 11. A full video of the Kuka KR210 pick and place operation can be seen on the YouTube link provided below. Note the simulation execution is slow and you may like to watch this at 2 $\times$ speed.
 
+\begin{center}
+	\url{https://youtu.be/F2vZQHOaYb8}
+\end{center}
 
+\begin{figure}[h]
+	\centering
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[scale=0.1]{pick}
+		\caption{Kuka KR210 completing a pick trajectory.}
+	\end{minipage}
+	\hspace{1cm}
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[scale=0.1]{place}
+		\caption{Kuka KR210 completing a place trajectory.}
+	\end{minipage}
+\end{figure}
+
+\newpage
 
 %------------------------------------------------------------
 \section{Further Enhancements}
-The wrist turns around a bit - need to make sure that this doesn't happen and why this is happening. It happens because the wrist has more that 360 twist capability, however, the way it is set up does not allow for this (it has hard clamps at $-\pi$ and $\pi$). Also an error tracking capability would be nice on the project also.
+Since the joint angles are bound to $-\pi$ and $\pi$, this can lead to a complication in the arm movements when traversing from one reference point to another. The complication arises when the robot needs to make a small adjustment beyond $-\pi$ or $\pi$ when it is at either of these boundries. The resulting movement sees the robot execute a full joint revolution, which can appear awkward, especially for the wrist joints. A simple example of this phenomena would be if the robot needed to move a joint to -182$^o$. Instead of performing this movement, the robot would instead send the joint to +178$^o$ causing a full joint revolution.\\
 
+Another bug that can be observed in the continuous mode of robot motion is that execution doesn't allow the robot enough time to actually grip the object, resulting in the object being left on the shelf in some instances. The final two improvements that could be undertaken are adding an error tracking visualisation, and speeding up the simulation, though these are not essential.
+%------------------------------------------------------------
+\section{References}
+ Denavit, J., Hartenberg, R. (1955). "A kinematic notation for lower-pair mechanisms based on matrices". Trans ASME J. Appl. Mech. 23: 215–221.
+\newpage
 %------------------------------------------------------------
 \section{Appendix A}
-
+A section of the KR210 urdf which lists the incremental information of the joint locations with respect to the base. This information was used to determine the DH parameter values of $d_i$ and $a_{i-1}$.
 \lstset{
 	frame=single,
 	basicstyle=\ttfamily,
@@ -697,7 +786,21 @@ The wrist turns around a bit - need to make sure that this doesn't happen and wh
 }
 
 \tiny
-%\lstinputlisting{./code/kr210.urdf.xacro}
+\lstinputlisting{./code/kr210.urdf.xacro}
 
+\newpage
 
+%------------------------------------------------------------
+\section{Appendix B}
+\normalsize The code used to help verify that the DH coordinate frames had been applied correctly, and the DH parameters correctly determined. The script calculates the transformation matrices, and the final end effector pose, which can be compared with actual results from a simulator to ensure that the FK calculations match.
+\tiny
+\lstinputlisting[style=Python]{./code/forwardKinematics.py}
+
+\newpage
+
+%------------------------------------------------------------
+\section{Appendix C}
+\normalsize The final inverse kinematics server implementation.
+\tiny
+\lstinputlisting[style=Python]{./code/IK_server.py}
 \end{document}
