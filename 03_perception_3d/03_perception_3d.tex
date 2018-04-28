@@ -369,11 +369,18 @@ Potential problems with this method. This method encounters problems if the obje
 \end{figure}
 
 \subsection{Object Recognition}
+Object recognition allows a robot to correctly locate an object of interest in the environment. The first step to achieving this is for the robot to distinguish between point cloud data which belong to objects, as opposed to pcl data belonging to the environment. This has largely been achieved using Passthrough filtering, and RANSAC plane segmentation. The next step is to identify the set of pcl data points actually belonging to an individual object - this has been achieved using Euclidean Clustering (DBSCAN). With these two things achieved, the task of identifying an object, can be simplified to identifying a set of features in the object point cloud data, which  match the object of interest.\\
 
-%--------------------------------------------------------------------------
+This task requires the robot to be able to distinguish between \textbf{XXXX} different objects that may be present in a scene. A typical set of objects placed in a scene is shown in Figure XXXX.
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{placeholder}
+\caption{text}
+\end{figure}
+%----------------------------------------------
 \section{Results \& Conclusion}
 
-%--------------------------------------------------------------------------
+%----------------------------------------------
 \section{Further Enhancements}
 
 
