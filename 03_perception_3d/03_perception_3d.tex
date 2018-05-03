@@ -14,13 +14,26 @@
 \usepackage{siunitx}
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
+\usepackage{epstopdf} %converting to PDF
 
 \usetikzlibrary{shapes.geometric}
 
-%--------------------------------------------------------------------------
+%------------------------------------------------------------
 \graphicspath{{./fig/}}
 
-%--------------------------------------------------------------------------
+%------------------------------------------------------------
+\setlength{\parindent}{0in}
+
+\lstdefinestyle{Python}{
+	language        = Python,
+	basicstyle      = \ttfamily,
+	keywordstyle    = \color{blue},
+	keywordstyle    = [2] \color{teal}, % just to check that it works
+	stringstyle     = \color{green},
+	commentstyle    = \color{red}\ttfamily
+}
+
+%------------------------------------------------------------
 \newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
     fonttitle=\bfseries, colframe=gray, listing only, 
     listing options={basicstyle=\ttfamily,language=Python}, 
@@ -31,6 +44,8 @@
 \title{Udacity: 3D Perception Report}
 \author{Shane Reynolds}
 \maketitle
+\tableofcontents
+\newpage
 \section{Introduction \& Background}
 In order for a robot to perform meaningful actions it requires some capacity to perceive its environment - the devices used to capture data about an environment are called sensors. There are two main categories into which sensors fall into: active, and passive. The principal distinction between these two types of sensors are that passive sensors measure energy which is already present in the environment, whilst active sensors emit some form of energy and measure the reactions of this energy with the environment. Table 1 (over the page) shows some examples of the more common sensors which are used for robotic perception. Generally, robotic perception systems are comprised of both active and passive sensors. In fact, both active and passive sensors are often combined into a single sensor to create a hybrid sensor. An example of a widely used hybrid sensor which features in many households is the Microsoft Kinect, shown in Figure 1.
 
@@ -89,9 +104,9 @@ These activities are applied to the captured point cloud data, and will be explo
 \newpage
 
 %--------------------------------------------------------------------------
-\section{Methods \& Implementation}
-\subsection{Segmentation}
-\subsubsection{Statistical Filtering to Remove Image Noise}
+
+\section{Segmentation}
+\subsection{Statistical Filtering to Remove Image Noise}
 As previously mentioned, the point cloud is obtained using an RGBD camera to capture a 2D image which consists of three feature maps, and a depth representation. The three feature maps represent the individual Red, Green, and Blue (RBG) channels for colour image. Each discrete pixel in the 2D array is also assigned an image depth. There are a total of 4 dimensions for each individual point in the point cloud which is assembled in the ROS environment by the \verb|pcl| library. The captured point cloud is not a perfect representation of the environment, rather, there are elements of noise introduced through dust, humidity, and light sources in the environment. Further, often instrumentation and transmission channels are imperfect which produce noise in the signal. The noisy signal can be seen in Figure 4 - the noise are the stochastic particles throughout the image. To remove the noise, a statistical outlier filter is used. This employs a Gaussian method to remove statistical outlier from the pointcloud. The implementation in the \verb|pcl_callback| function can be seen in Listing 1. A signal which has had noise removed can be seen in Figure 5. The successful implementation of the object recognition relies on clean segmentation of objects in a frame. The presence of noise results in the confusion of the Euclidean clustering method which provides segmentation, so it is important to apply this statistical filter prior to any further processing.
 
 \vspace{1cm}
@@ -132,7 +147,7 @@ As previously mentioned, the point cloud is obtained using an RGBD camera to cap
 
 \newpage
 
-\subsubsection{Voxel Downsampling}
+\subsection{Voxel Downsampling}
 Point clouds often provide more data than necessary to achieve an accurate representation of the physical environment. The processing of this data, left unchecked, is computationally expensive. Downsampling is the process of removing data points in a systematic fashion, and is a technique that is often employed in the field of image processing. Voxel downsampling is analogous to the 2D process, that is, points in the three dimensional point cloud model are removed in a systematic fashion. Care needs to be taken when adjusting the parameters for the Voxel downsampling - if the downsampling is too aggressive, too much information may be removed compromising the ability to provide effective segmentation. The implementation of the Voxel downsampling can be seen in Listing 2. Figure 6 shows the pointcloud before Voxel downsampling, and Figure 7 shows the pointcloud after downsampling.
 
 \vspace{1cm}
@@ -175,7 +190,7 @@ Point clouds often provide more data than necessary to achieve an accurate repre
 
 \newpage
 
-\subsubsection{Passthrough Filtering}
+\subsection{Passthrough Filtering}
 A pass through filter is a simply designed to remove points from the point cloud which fall outside a spatially bounded region. This filter is very basic in its implementation, and does not rely on any statistical filters to achieve the results. The implementation can be seen in Listing 4. In this instance, we remove points which don't fall within an area bounded by a rectangular prism. Whilst this filtering is not essential, it helps stops the robot from segmenting points which belong to the boxes which lie to the left and right of the robot's work space. It also removes the robot's arms from the point cloud. Figure 8 shows the unfiltered pointcloud, and Figure 9 shows the pointcloud after the passthrough filter has been applied.
 
 \vspace{1cm}
@@ -232,7 +247,7 @@ A pass through filter is a simply designed to remove points from the point cloud
 
 \newpage
 
-\subsubsection{RANSAC Plane Segmentation}
+\subsection{RANSAC Plane Segmentation}
 Random sample consensus (RANSAC) is an segmentation algorithm which detects statistical outliers which do not fit a geometrical mathematical model. The mathematical model is specified depending on the filtering requirement. In this instance the mathematical model being used is a plane, which closely resembles the table which the objects sit on in the point cloud image. The model outliers, that is those points which don't statistically fit the mathematical representation of a plane, are filtered from the point cloud. Filtered points which fit the model are stored in the variable \verb|could_table|, and those that don't fit the model are stored in the variable \verb|cloud_objects|. This processing helps to isolate the objects in the image, ready for segmentation and object recognition. The implementation can be seen in Listing 4. The filtered could points which fit the model can be seen in Figure 10 - the table has been extracted. The remaining points, the outliers, can be seen in Figure 11. Including the table in the pointcloud image creates a potential opportunity to confuse the Euclidean clustering algorithm since the segmentation is based on spatial proximity. Further benefits include the decreased computation cost for processing the remainder of the point cloud.
 
 \vspace{0.25cm}
@@ -286,12 +301,12 @@ Random sample consensus (RANSAC) is an segmentation algorithm which detects stat
 
 \newpage
 
-\subsubsection{Euclidean Clustering (DBSCAN)}
+\subsection{Euclidean Clustering (DBSCAN)}
 Segmentation is undertaken using a Euclidean clustering algorithm called DBSCAN - the implementation can be seen in Listing 5. The algorithm is a density based spatial clustering algorithm. Typically this algorithm is employed when k-means clustering is not appropriate, that is,  points in the point cloud together based on their proximity to each other.
 
 Potential problems with this method. This method encounters problems if the objects are too close to each other. If the objects are too close to each other, then the Euclidean clustering method fails - the algorithm will think that the objects 
 
-\vspace{1cm}
+\vspace{0.5cm}
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{Apply Euclidean clustering to the pointcloud}
@@ -328,7 +343,7 @@ Potential problems with this method. This method encounters problems if the obje
 \end{sexylisting}
 \end{figure}
 
-\vspace{1cm}
+\vspace{0.5cm}
 
 \begin{figure}[h]
 \centering
@@ -368,20 +383,270 @@ Potential problems with this method. This method encounters problems if the obje
 \end{sexylisting}
 \end{figure}
 
-\subsection{Object Recognition}
+
+\section{Object Recognition}
 Object recognition allows a robot to correctly locate an object of interest in the environment. The first step to achieving this is for the robot to distinguish between point cloud data which belong to objects, as opposed to pcl data belonging to the environment. This has largely been achieved using Passthrough filtering, and RANSAC plane segmentation. The next step is to identify the set of pcl data points actually belonging to an individual object - this has been achieved using Euclidean Clustering (DBSCAN). With these two things achieved, the task of identifying an object, can be simplified to identifying a set of features in the object point cloud data, which  match the object of interest.\\
 
 This task requires the robot to be able to distinguish between \textbf{XXXX} different objects that may be present in a scene. A typical set of objects placed in a scene is shown in Figure XXXX.
-\begin{figure}
+\begin{figure}[h]
 \centering
-\includegraphics[scale=0.5]{placeholder}
+\includegraphics[scale=0.15]{object_layout}
 \caption{text}
 \end{figure}
+
+Need to talk about a support vector machine
+\newpage
+\subsection{Object Features}
+\begin{minipage}{0.66\textwidth}
+The object shown in Figure XXXX has two useful data sets that we can expoit for a machine learning application: colour, and object shape. Capturing colour data requires an understanding of how colour is represented digitally. There are many choices for representing colour spaces, however, normally either Red, Green, and Blue (RGB), or Hue, Saturation, and Value (HSV) are chosen for computer vision applications. The main reason for these choices are due to a well established code base for RGB and HSV. Also there are many packages providing conversion between the two, making for easy implementation. RGB and HSV colour spaces are shown in Figures XXXX and XXXX, respectively. Which colour space is best for this application? Both would suffice, however, there is an advantage of choosing HSV. The HSV colour space separates the \textit{luma} (colour intensity), from the \textit{chroma} (colour information). This is desirable because it makes colour data less susceptible to changes in lighting, or shadows, resulting in more robust performance from machine learning models.
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+		\centering
+		\includegraphics[scale=0.5]{can_image}
+		\captionof{figure}{text}
+\end{minipage}
+	
+\vspace{0.5cm}
+ 
+\begin{figure}[h]
+	\centering
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[height=5cm]{RGB_colour_space}
+		\caption{text}
+	\end{minipage}
+	\hspace{1cm}
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[height=5cm]{HSV_colour_space}
+		\caption{text}
+	\end{minipage}
+\end{figure}
+
+Shape based data allows for the description of the object surface. Whilst there are many mathematical descriptions for manifold surfaces which we may employ, a simple idea to capture this information uses surface normals discretely distributed over the object surface.
+
+\begin{minipage}{0.45\textwidth}
+Figure XXXX shows a surface with a series of normal vectors located at discrete points over the surface as described. Finally, deciding on the type data to capture is only one part of the problem when considering model features. Once we have the data, how should it be represented. One effective way used in computer vision applications is to build histograms of the HSV colours and surface normals profiles to obtain an estimate of the distributio. Section 3.2 and Section 3.3 discuss the process of using histograms to create features in more detail.
+\end{minipage}
+	\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+	\centering
+	\includegraphics[height=5.5cm]{surface_normals}
+	\captionof{figure}{text}
+\end{minipage}
+
+
+\subsection{Colour Histograms}
+Once the RGB image data has been captured from the RGBD camera, it is converted into HSV values for each pixel in the image. A histogram is then created for the HSV data using bin ranges from 0 to 256, with approximately 70 bins. An example of a continuous HSV histogram can be seen in Figure XXXX. The function implementation used to create colour histograms for the PR2 can be seen in Listing XXXX.
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=4.5cm]{hsv_histo}
+	\caption{text}
+\end{figure}
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{insert text}
+def compute_color_histograms(cloud, using_hsv=False):
+
+	# Compute histograms for the clusters
+	point_colors_list = []
+
+	# Step through each point in the point cloud
+	for point in pc2.read_points(cloud, skip_nans=True):
+		rgb_list = float_to_rgb(point[3])
+		if using_hsv:
+			point_colors_list.append(rgb_to_hsv(rgb_list) * 255)
+		else:
+			point_colors_list.append(rgb_list)
+
+	# Populate lists with color values
+	channel_1_vals = []
+	channel_2_vals = []
+	channel_3_vals = []
+
+	for color in point_colors_list:
+		channel_1_vals.append(color[0])
+		channel_2_vals.append(color[1])
+		channel_3_vals.append(color[2])
+
+	# TODO: Compute histograms
+	h_hist = np.histogram(channel_1_vals, bins=70, range=(0, 256))
+	s_hist = np.histogram(channel_2_vals, bins=70, range=(0, 256))
+	v_hist = np.histogram(channel_3_vals, bins=70, range=(0, 256))
+
+	# TODO: Concatenate and normalize the histograms
+	features = np.concatenate((h_hist[0], s_hist[0], v_hist[0])).astype(np.float64)
+	# Generate random features for demo mode.
+	# Replace normed_features with your feature vector
+	normed_features = features/np.sum(features)
+
+	return normed_features		
+\end{sexylisting}
+\end{figure}
+
+\newpage
+
+\subsection{Surface Normal Histograms}
+Once the surface normal data has been captured a histogram is created using bin ranges from -1.1 to 1.1, given that the surface normals are confined to this range. The function implementation used to create surface normal histograms for the PR2 can be seen in Listing XXXX.
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{insert text}
+def compute_normal_histograms(normal_cloud):
+	norm_x_vals = []
+	norm_y_vals = []
+	norm_z_vals = []
+
+	for norm_component in pc2.read_points(normal_cloud,
+	field_names = ('normal_x', 'normal_y', 'normal_z'),
+	skip_nans=True):
+		norm_x_vals.append(norm_component[0])
+		norm_y_vals.append(norm_component[1])
+		norm_z_vals.append(norm_component[2])
+
+	# TODO: Compute histograms of normal values (just like with color)
+	x_hist = np.histogram(norm_x_vals, bins=50, range=(-1.1,1.1))
+	y_hist = np.histogram(norm_y_vals, bins=50, range=(-1.1,1.1))
+	z_hist = np.histogram(norm_z_vals, bins=50, range=(-1.1,1.1))
+
+	# TODO: Concatenate and normalize the histograms
+	features = np.concatenate((x_hist[0], y_hist[0], z_hist[0])).astype(np.float64)
+	# Generate random features for demo mode.
+	# Replace normed_features with your feature vector
+	normed_features = features/np.sum(features)
+
+	return normed_features	
+\end{sexylisting}
+\end{figure}
+
+\subsection{Capturing Data}
+In order to generate enough meaningful data for our SVM classifier model, a script called \verb|capture_feature.py| was implemented. This script, in conjunction with a ROS simulation of the RGBD camera, removes gravity so that a known object model floats in front of the RGBD sensor. The object is assigned randomised Roll, Pitch, and Yaw configurations for a set number of iterations. At each new orientation, the simulated RGBD sensor will capture point cloud data. From each of these point clouds we extract RGB, and surface normals to create histogram features. The object model label (e.g. biscuits) is saved, along with the HSV and surface normal histogram features. The full implementation of \verb|capture_features.py| can be found in Appendix XXXX. Figure XXXX shows an example of data being captured for an object model.
+\begin{figure}[h]
+	\centering
+	\frame{\includegraphics[scale=0.17]{capture_features}}
+	\caption{text}
+\end{figure}
+
+\subsection{Training the SVM}
+Once the dataset has been captured the Python library \verb|sklearn| was used to create a SVM classification model. This was implemented in a script called \verb|train_svm.py|, which can be seen in full in Appendix XXXX. There are a couple of choices that can be made when optimising SVM performance. The first choice is between RGB or HSV colour spaces for our colour histogram feature (this choice is actually implemented in \verb|capture_features.py|, but discussion of this choice is more suited to this section). Table XXXX shows reported model accuracy for two identical scenarios - the iterations was kept small at five, and the kernel for the SVM was linear, however,  one scenario used RGB and the other HSV. There is an observable performance increase to the SVM classifier when using HSV.
+\begin{table}[h]
+	\centering
+	\caption{text}
+	\begin{tabular}{cccc}
+		\toprule
+		\textbf{Iterations} & \textbf{Colour Space} & \textbf{Kernel} & \textbf{Accuracy}\\
+		\midrule
+		5 & RGB & Linear & 57.5\%\\
+		5 & HSV & Linear & 77.5\%\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+The other choice to make is the kernel function that is used for the SVM. Python library \verb|sklearn| provides four off-the-shelf choices of kernel: linear, polynomial, rbf, and sigmoid. The best choice of kernel is not immediately clear. Figure XXXX shows the performance of the four kernels for for an increasing number of iterations.  
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{kernels}
+	\caption{text}
+\end{figure}
+
+At 100 iterations for each object, there is no immediate distinction between the linear, rbf, and sigmoid models - most likely due to overfitting. One avenue to improve the performance further would be the use of regularisation, however, this has not been used in this instance. Experimentation with the PR2 robot implementation of the sensor revealed that the sigmoid kernel provided the most reliable performance. The normalised confusion matrix for 100 iterations using the sigmoid kernel can be seen in Figure XXXX. Notably, the model finds it difficult to distinguish between the box of snack and the book.
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{normalised_confusion_matrix}
+	\caption{text}
+\end{figure}
+\newpage
+
+\section{PR2 Implementation \& YAML File Output}
+The full implementation of the \verb|object detection.py| Python script, which is designed to be run in conjunction with a ROS simulation of the PR2 robot, can be found in Appendix C. The first part of the code to be executed initialises the publishers and subscribers to ROS topics, loads the trained SVM model, and puts ROS into a persistant loop with \verb|rospy.spin()|. The ROS subscriber that is set up makes a call to the \verb|pcl_callback()| function everytime it receives point cloud data. This section of the code is shown  Listing XXXX. The initial part of the \verb|pcl_callback()| function simply implements to segmentation demonstrated in Section XXXX. Once the final stage of segmentation is completed, the processed point cloud data is published to the previously established topics ready for object recognition - this is shown in Listing XXXX.\\
+
+The object recognition part of the code receives 
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{text}
+if __name__ == '__main__':
+
+    # TODO: ROS node initialization
+    rospy.init_node('classification')
+
+    # TODO: Create Subscribers
+    pcl_sub = rospy.Subscriber('/pr2/world/points', pc2.PointCloud2, pcl_callback, queue_size=1)
+
+    # TODO: Create Publishers
+    pcl_table_pub = rospy.Publisher('/pcl_table', PointCloud2, queue_size=1)
+    pcl_objects_pub = rospy.Publisher('/pcl_objects', PointCloud2, queue_size=1)
+    pcl_cluster_pub = rospy.Publisher("/pcl_cluster", PointCloud2, queue_size=1)
+    object_markers_pub = rospy.Publisher("/object_markers", Marker, queue_size=1)
+    detected_objects_pub = rospy.Publisher("/detected_objects",
+						 DetectedObjectsArray, queue_size=1)
+
+    # TODO: Load Model From disk
+    model = pickle.load(open('model.sav', 'rb'))
+    clf = model['classifier']
+    encoder = LabelEncoder()
+    encoder.classes_ = model['classes']
+    scaler = model['scaler']
+
+    # Initialize color_list
+    get_color_list.color_list = []
+
+    # TODO: Spin while node is not shutdown
+    while not rospy.is_shutdown():
+        rospy.spin()
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[]\scriptsize
+\begin{sexylisting}{text}
+##############################################################################
+# TODO: Create Cluster-Mask Point Cloud to visualize each cluster separately
+##############################################################################
+    #Assign a color corresponding to each segmented object in scene
+    cluster_color = get_color_list(len(cluster_indices))
+
+    color_cluster_point_list = []
+
+    for j, indices in enumerate(cluster_indices):
+        for i, indice in enumerate(indices):
+            color_cluster_point_list.append([white_cloud[indice][0],
+                           white_cloud[indice][1],
+                           white_cloud[indice][2],
+                           rgb_to_float(cluster_color[j])])
+
+    #Create new cloud containing all clusters, each with unique color
+    cluster_cloud = pcl.PointCloud_PointXYZRGB()
+    cluster_cloud.from_list(color_cluster_point_list)
+
+
+##############################################################################
+# TODO: Convert PCL data to ROS messages
+##############################################################################
+    ros_cloud_table = pcl_to_ros(cloud_table)
+    ros_cloud_objects = pcl_to_ros(cloud_objects)
+    ros_cluster_cloud = pcl_to_ros(cluster_cloud)
+
+
+##############################################################################
+# TODO: Publish ROS messages
+##############################################################################
+    pcl_table_pub.publish(ros_cloud_table)
+    pcl_objects_pub.publish(ros_cloud_objects)
+    pcl_cluster_pub.publish(ros_cluster_cloud)
+\end{sexylisting}
+\end{figure}
+
+\subsection{Test Case 1}
+\subsection{Test Case 2}
+\subsection{Test Case 3}
+
 %----------------------------------------------
 \section{Results \& Conclusion}
 
 %----------------------------------------------
 \section{Further Enhancements}
-
-
+\clearpage
+\section{Appendix XXXX}
+\tiny
+\lstinputlisting[style=Python]{./code/capture_features.py}
+\clearpage
+\section{Appendix XXXX}
+\tiny
+\lstinputlisting[style=Python]{./code/train_svm.py}
 \end{document}
