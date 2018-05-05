@@ -15,6 +15,7 @@
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
 \usepackage{epstopdf} %converting to PDF
+\usepackage{hyperref}
 
 \usetikzlibrary{shapes.geometric}
 
@@ -51,7 +52,7 @@ In order for a robot to perform meaningful actions it requires some capacity to 
 
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.3]{image1}
+\includegraphics[scale=0.4]{image1}
 \caption{The Microsoft Kinect is an example of a hybrid sensor called an RGBD camera. It captures 2D pixel arrays in 3 colour channels, in addition to capturing depth information using structured infra-red light pattern.}
 \end{figure}
 
@@ -61,13 +62,13 @@ This project explores the perception of an environment using a hybrid sensor cal
 \centering
 \begin{minipage}[t]{0.45\linewidth}
 \centering
-\frame{\includegraphics[height=3.3cm]{image2}}
+\frame{\includegraphics[height=4cm]{image2}}
 \caption{A picture of the WillowGarage PR2 robot.}
 \end{minipage}
 \hspace{0.5cm}
 \begin{minipage}[t]{0.45\linewidth}
 \centering
-\frame{\includegraphics[height=3.3cm]{image3}}
+\frame{\includegraphics[height=4cm]{image3}}
 \caption{A close up of the PR2's RGBD camera which captures image and depth data, and is used to create point clouds.}
 \end{minipage}
 \end{figure}
@@ -99,7 +100,9 @@ The captured sensor information is processed into a point cloud using the \verb|
 \item Euclidean clustering (DBSCAN)
 \end{enumerate}
 
-These activities are applied to the captured point cloud data, and will be explored in more detail in Section 2.1. Object recognition is a similarly complex activity, which employs the uses of machine learning. There are numerous machine learning schemes that may be implemented in this instance, to varying degrees of effectiveness and computational cost. Irrespective of which machine learning algorithm is used, features which will be important to the developed model will need to be selected, and data captured which is used to train the model. This project employs the use of a supervised learning algorithm called a support vector machine and will be explored in more detail in Section 2.2.
+These activities are applied to the captured point cloud data, and will be explored in more detail in Section 2. Object recognition is a similarly complex activity, which employs the uses of machine learning. There are numerous machine learning schemes that may be implemented in this instance, to varying degrees of effectiveness and computational cost. Irrespective of which machine learning algorithm is used, features which will be important to the developed model will need to be selected, and data captured which is used to train the model. This project employs the use of a supervised learning algorithm called a support vector machine and will be explored in more detail in Section 3.\\
+
+The principal outcome from implementation of the segmentation and object recognition pipelines is to correctly classify objects on a table in front of the robot in a simulated environment. The objects will be household items varying in nature. The robot will need to segment the point cloud data into distinct clusters of points, and correctly classify each cluster of points. Success has been classified as receiving 100\% accuracy in test world one containing three objects; 80\% accuracy in test world two containing five objects; and 75\% accuracy in test world three containing eight objects.
 
 \newpage
 
@@ -385,25 +388,26 @@ Potential problems with this method. This method encounters problems if the obje
 
 
 \section{Object Recognition}
-Object recognition allows a robot to correctly locate an object of interest in the environment. The first step to achieving this is for the robot to distinguish between point cloud data which belong to objects, as opposed to pcl data belonging to the environment. This has largely been achieved using Passthrough filtering, and RANSAC plane segmentation. The next step is to identify the set of pcl data points actually belonging to an individual object - this has been achieved using Euclidean Clustering (DBSCAN). With these two things achieved, the task of identifying an object, can be simplified to identifying a set of features in the object point cloud data, which  match the object of interest.\\
+Object recognition allows a robot to correctly locate an object of interest in the environment. The first step in this process is to distinguish between point cloud data which belong to objects, from point cloud data belonging to the environment. This has been achieved using Passthrough filtering, and RANSAC plane segmentation. Following this, the set of point cloud data points belonging to an individual object need to be identified - this has been achieved using Euclidean Clustering (DBSCAN). Once these two steps are correctly implemented, the task of identifying an object can be simplified to identifying a set of features in the object point cloud data which  match the object of interest.\\
 
-This task requires the robot to be able to distinguish between \textbf{XXXX} different objects that may be present in a scene. A typical set of objects placed in a scene is shown in Figure XXXX.
+The robot is required to distinguish between different household items, with each scene containing no more than eight objects at a time. The objects are laid out on the table in front of the robot in randomised configurations. A typical set of objects placed in a scene is shown in Figure 14.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.15]{object_layout}
-\caption{text}
+\caption{An example of a typical object layout scenario. The PR2 robot can be seen with its arms raised, and the objects are laid out on the table in front of it.}
 \end{figure}
 
-Need to talk about a support vector machine
+This project sees the implementation of a machine learning application as the main instrument the robot will use to distinguish between objects. There are many competing models that could be used, but a supervised learning model called a Support Vector Machine (SVM) has been chosen for ease of implementation and a demonstrated reliability in simple tasks like this one. It is not the intention of this paper to discuss the mathematical underpinnings of SVM, however, the central mechanism for classification is achieved by fitting hyperplanes to the feature space such that there is a maximum `boundry' between the data and the hyperplanes for each object region.
 \newpage
 \subsection{Object Features}
 \begin{minipage}{0.66\textwidth}
-The object shown in Figure XXXX has two useful data sets that we can expoit for a machine learning application: colour, and object shape. Capturing colour data requires an understanding of how colour is represented digitally. There are many choices for representing colour spaces, however, normally either Red, Green, and Blue (RGB), or Hue, Saturation, and Value (HSV) are chosen for computer vision applications. The main reason for these choices are due to a well established code base for RGB and HSV. Also there are many packages providing conversion between the two, making for easy implementation. RGB and HSV colour spaces are shown in Figures XXXX and XXXX, respectively. Which colour space is best for this application? Both would suffice, however, there is an advantage of choosing HSV. The HSV colour space separates the \textit{luma} (colour intensity), from the \textit{chroma} (colour information). This is desirable because it makes colour data less susceptible to changes in lighting, or shadows, resulting in more robust performance from machine learning models.
+The object shown in Figure 15 has two useful data sets that we can expoit for a machine learning application: colour, and object shape. Capturing colour data requires an understanding of how colour is represented digitally. There are many choices for representing colour spaces, however, normally either Red, Green, and Blue (RGB), or Hue, Saturation, and Value (HSV) are chosen for computer vision applications. The main reason for these choices are due to a well established code base for RGB and HSV. Also there are many packages providing conversion between the two, making for easy implementation. RGB and HSV colour spaces are shown in Figures 16 and 17, respectively. Which colour space is best for this application? Both would suffice, however, there is an advantage of choosing HSV. The HSV colour space separates the \textit{luma} (colour intensity), from the \textit{chroma} (colour information). This is desirable because it makes colour data less susceptible to changes in lighting, or shadows, resulting in more robust performance from machine learning models.
 \end{minipage}
+\hspace{0.5cm}
 \begin{minipage}{0.33\textwidth}
 		\centering
 		\includegraphics[scale=0.5]{can_image}
-		\captionof{figure}{text}
+		\captionof{figure}{An example of a simulated object.}
 \end{minipage}
 	
 \vspace{0.5cm}
@@ -413,39 +417,39 @@ The object shown in Figure XXXX has two useful data sets that we can expoit for 
 	\begin{minipage}{0.45\textwidth}
 		\centering
 		\includegraphics[height=5cm]{RGB_colour_space}
-		\caption{text}
+		\caption{Red, Green, and Blue colour space.}
 	\end{minipage}
 	\hspace{1cm}
 	\begin{minipage}{0.45\textwidth}
 		\centering
 		\includegraphics[height=5cm]{HSV_colour_space}
-		\caption{text}
+		\caption{Hue, Saturation, and Value colour space.}
 	\end{minipage}
 \end{figure}
 
 Shape based data allows for the description of the object surface. Whilst there are many mathematical descriptions for manifold surfaces which we may employ, a simple idea to capture this information uses surface normals discretely distributed over the object surface.
 
 \begin{minipage}{0.45\textwidth}
-Figure XXXX shows a surface with a series of normal vectors located at discrete points over the surface as described. Finally, deciding on the type data to capture is only one part of the problem when considering model features. Once we have the data, how should it be represented. One effective way used in computer vision applications is to build histograms of the HSV colours and surface normals profiles to obtain an estimate of the distributio. Section 3.2 and Section 3.3 discuss the process of using histograms to create features in more detail.
+Figure 18 shows a surface with a series of normal vectors located at discrete points over the surface as described. Finally, deciding on the type data to capture is only one part of the problem when considering model features. Once we have the data, how should it be represented. One effective way used in computer vision applications is to build histograms of the HSV colours and surface normals profiles to obtain an estimate of the distributio. Section 3.2 and Section 3.3 discuss the process of using histograms to create features in more detail.
 \end{minipage}
 	\hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 	\centering
 	\includegraphics[height=5.5cm]{surface_normals}
-	\captionof{figure}{text}
+	\captionof{figure}{Surface normals on a surface.}
 \end{minipage}
 
 
 \subsection{Colour Histograms}
-Once the RGB image data has been captured from the RGBD camera, it is converted into HSV values for each pixel in the image. A histogram is then created for the HSV data using bin ranges from 0 to 256, with approximately 70 bins. An example of a continuous HSV histogram can be seen in Figure XXXX. The function implementation used to create colour histograms for the PR2 can be seen in Listing XXXX.
+Once the RGB image data has been captured from the RGBD camera, it is converted into HSV values for each pixel in the image. A histogram is then created for the HSV data using bin ranges from 0 to 256, with approximately 70 bins. An example of a continuous HSV histogram can be seen in Figure 19. The function implementation used to create colour histograms for the PR2 can be seen in Listing 7.
 \begin{figure}[h]
 	\centering
 	\includegraphics[height=4.5cm]{hsv_histo}
-	\caption{text}
+	\caption{A HSV histogram of the can object shown in Figure 15.}
 \end{figure}
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{insert text}
+\begin{sexylisting}{A function which returns a colour histogram for a point cloud}
 def compute_color_histograms(cloud, using_hsv=False):
 
 	# Compute histograms for the clusters
@@ -487,9 +491,9 @@ def compute_color_histograms(cloud, using_hsv=False):
 \newpage
 
 \subsection{Surface Normal Histograms}
-Once the surface normal data has been captured a histogram is created using bin ranges from -1.1 to 1.1, given that the surface normals are confined to this range. The function implementation used to create surface normal histograms for the PR2 can be seen in Listing XXXX.
+Once the surface normal data has been captured a histogram is created using bin ranges from -1.1 to 1.1, given that the surface normals are confined to this range. The function implementation used to create surface normal histograms for the PR2 can be seen in Listing 8.
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{insert text}
+\begin{sexylisting}{A function which returns a surface normal histogram for a given point cloud}
 def compute_normal_histograms(normal_cloud):
 	norm_x_vals = []
 	norm_y_vals = []
@@ -518,18 +522,18 @@ def compute_normal_histograms(normal_cloud):
 \end{figure}
 
 \subsection{Capturing Data}
-In order to generate enough meaningful data for our SVM classifier model, a script called \verb|capture_feature.py| was implemented. This script, in conjunction with a ROS simulation of the RGBD camera, removes gravity so that a known object model floats in front of the RGBD sensor. The object is assigned randomised Roll, Pitch, and Yaw configurations for a set number of iterations. At each new orientation, the simulated RGBD sensor will capture point cloud data. From each of these point clouds we extract RGB, and surface normals to create histogram features. The object model label (e.g. biscuits) is saved, along with the HSV and surface normal histogram features. The full implementation of \verb|capture_features.py| can be found in Appendix XXXX. Figure XXXX shows an example of data being captured for an object model.
+In order to generate enough meaningful data for our SVM classifier model, a script called\\ \verb|capture_feature.py| was implemented. This script, in conjunction with a ROS simulation of the RGBD camera, removes gravity so that a known object model floats in front of the RGBD sensor. The object is assigned randomised Roll, Pitch, and Yaw configurations for a set number of iterations. At each new orientation, the simulated RGBD sensor will capture point cloud data. From each of these point clouds we extract RGB, and surface normals to create histogram features. The object model label (e.g. biscuits) is saved, along with the HSV and surface normal histogram features. The full implementation of \verb|capture_features.py| can be found in Appendix A. Figure 20 shows an example of data being captured for an object model.
 \begin{figure}[h]
 	\centering
 	\frame{\includegraphics[scale=0.17]{capture_features}}
-	\caption{text}
+	\caption{The RGBD sensor is elevated in the world, placed on top of a stick. The object is flashed in at randomised orientations and point cloud data is captured.}
 \end{figure}
 
 \subsection{Training the SVM}
-Once the dataset has been captured the Python library \verb|sklearn| was used to create a SVM classification model. This was implemented in a script called \verb|train_svm.py|, which can be seen in full in Appendix XXXX. There are a couple of choices that can be made when optimising SVM performance. The first choice is between RGB or HSV colour spaces for our colour histogram feature (this choice is actually implemented in \verb|capture_features.py|, but discussion of this choice is more suited to this section). Table XXXX shows reported model accuracy for two identical scenarios - the iterations was kept small at five, and the kernel for the SVM was linear, however,  one scenario used RGB and the other HSV. There is an observable performance increase to the SVM classifier when using HSV.
+Once the dataset has been captured the Python library \verb|sklearn| was used to create a SVM classification model. This was implemented in a script called \verb|train_svm.py|, which can be seen in full in Appendix B. There are a couple of choices that can be made when optimising SVM performance. The first choice is between RGB or HSV colour spaces for our colour histogram feature (this choice is actually implemented in \verb|capture_features.py|, but discussion of this choice is more suited to this section). Table 2 shows reported model accuracy for two identical scenarios - the iterations was kept small at five, and the kernel for the SVM was linear, however,  one scenario used RGB and the other HSV. There is an observable performance increase to the SVM classifier when using HSV.
 \begin{table}[h]
 	\centering
-	\caption{text}
+	\caption{Accuracy of SVM using RGB and HSV colour spaces, holding other variables constant}
 	\begin{tabular}{cccc}
 		\toprule
 		\textbf{Iterations} & \textbf{Colour Space} & \textbf{Kernel} & \textbf{Accuracy}\\
@@ -540,27 +544,26 @@ Once the dataset has been captured the Python library \verb|sklearn| was used to
 	\end{tabular}
 \end{table}
 
-The other choice to make is the kernel function that is used for the SVM. Python library \verb|sklearn| provides four off-the-shelf choices of kernel: linear, polynomial, rbf, and sigmoid. The best choice of kernel is not immediately clear. Figure XXXX shows the performance of the four kernels for for an increasing number of iterations.  
+The other choice to make is the kernel function that is used for the SVM. Python library \verb|sklearn| provides four off-the-shelf choices of kernel: linear, polynomial, rbf, and sigmoid. The best choice of kernel is not immediately clear. Figure 21 shows the performance of the four kernels for for an increasing number of iterations.  
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.6]{kernels}
-	\caption{text}
+	\caption{The accuracy of each kernel for the SVM improves as the number of observations increases. Most kernels converge on 93\%.}
 \end{figure}
 
-At 100 iterations for each object, there is no immediate distinction between the linear, rbf, and sigmoid models - most likely due to overfitting. One avenue to improve the performance further would be the use of regularisation, however, this has not been used in this instance. Experimentation with the PR2 robot implementation of the sensor revealed that the sigmoid kernel provided the most reliable performance. The normalised confusion matrix for 100 iterations using the sigmoid kernel can be seen in Figure XXXX. Notably, the model finds it difficult to distinguish between the box of snack and the book.
+At 100 iterations for each object, there is no immediate distinction between the linear, rbf, and sigmoid models - most likely due to overfitting. One avenue to improve the performance further would be the use of regularisation, however, this has not been used in this instance. Experimentation with the PR2 robot implementation of the sensor revealed that the sigmoid kernel provided the most reliable performance. The normalised confusion matrix for 100 iterations using the sigmoid kernel can be seen in Figure 22. Notably, the model finds it difficult to distinguish between the box of snack and the book.
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.6]{normalised_confusion_matrix}
-	\caption{text}
+	\includegraphics[scale=0.55]{normalised_confusion_matrix}
+	\caption{Confusion matrix for the sigmoid kernal, with HSV colour space, and 100 observations per object. Figure shows the probabilities that a given object will be classified correctly. Additionally, the matrix shows what the probabilities are for misclassification.}
 \end{figure}
 \newpage
 
 \section{PR2 Implementation \& YAML File Output}
-The full implementation of the \verb|object detection.py| Python script, which is designed to be run in conjunction with a ROS simulation of the PR2 robot, can be found in Appendix C. The first part of the code to be executed initialises the publishers and subscribers to ROS topics, loads the trained SVM model, and puts ROS into a persistant loop with \verb|rospy.spin()|. The ROS subscriber that is set up makes a call to the \verb|pcl_callback()| function everytime it receives point cloud data. This section of the code is shown  Listing XXXX. The initial part of the \verb|pcl_callback()| function simply implements to segmentation demonstrated in Section XXXX. Once the final stage of segmentation is completed, the processed point cloud data is published to the previously established topics ready for object recognition - this is shown in Listing XXXX.\\
+The full implementation of the \verb|object detection.py| Python script, which is designed to be run in conjunction with a ROS simulation of the PR2 robot, can be found in Appendix C. The first part of the executed code initialises the publishers and subscribers, loads the perviously trained SVM model, and puts ROS into a persistant loop with \verb|rospy.spin()|. The ROS subscriber makes a call to the \verb|pcl_callback()| function everytime it receives point cloud data. This section of the code is shown  Listing 9. The initial part of the \verb|pcl_callback()| function implements the segmentation pipeline demonstrated in Section 2. The \verb|cluster_indices| output from this process is a list containing a list of points for each segmented object. On completion of segmentation, the segmeted point cloud data is assigned a random colour for each object cluster cluster of points, and published ready for object recognition - this is shown in Listing 10.\\
 
-The object recognition part of the code receives 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{text}
+\begin{sexylisting}{Part of the main object recognition script which establishes publisher and subscribers}
 if __name__ == '__main__':
 
     # TODO: ROS node initialization
@@ -575,7 +578,7 @@ if __name__ == '__main__':
     pcl_cluster_pub = rospy.Publisher("/pcl_cluster", PointCloud2, queue_size=1)
     object_markers_pub = rospy.Publisher("/object_markers", Marker, queue_size=1)
     detected_objects_pub = rospy.Publisher("/detected_objects",
-						 DetectedObjectsArray, queue_size=1)
+    DetectedObjectsArray, queue_size=1)
 
     # TODO: Load Model From disk
     model = pickle.load(open('model.sav', 'rb'))
@@ -593,8 +596,12 @@ if __name__ == '__main__':
 \end{sexylisting}
 \end{figure}
 
+The object recognition pipeline receives the \verb|cluster_indices|. For point cloud data is extracted for each segmented object. Colour and surface normal histogram features are created for each point cloud cluster, and an object label prediction is made using the SVM classification model loaded earlier. The set of detected objects are packaged together in a list, called \verb|detected_objects|, which holds the predicted label and point cloud data. The \verb|detected_object| list is published and input as an argument for a call to \verb|pr2_mover()|. This section of the code can be seen in Listing 11. The \verb|pr2_mover()| function call creates the required yaml file output - this can be seen in Appendix C where the full \verb|object_recognition.py| script is located.\\
+
+There are three test worlds, which contain different items with different layouts in front of the robot. A demonstration of the working segmentation and object recognition can be found in Sections 4.1, 4.2, and 4.3.
+
 \begin{figure}[]\scriptsize
-\begin{sexylisting}{text}
+\begin{sexylisting}{Part of the object recognition script which publishes processed segmentation point cloud data}
 ##############################################################################
 # TODO: Create Cluster-Mask Point Cloud to visualize each cluster separately
 ##############################################################################
@@ -632,21 +639,128 @@ if __name__ == '__main__':
 \end{sexylisting}
 \end{figure}
 
-\subsection{Test Case 1}
-\subsection{Test Case 2}
-\subsection{Test Case 3}
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{Part of the object recognition script which performs the object recognition task using the SVM model loaded earlier}
+# Exercise-3 TODOs:
 
+    # Classify the clusters! (loop through each detected cluster one at a time)
+    detected_objects_labels = []
+    detected_objects = []
+
+    # Grab the points for the cluster
+    for index, pts_list in enumerate(cluster_indices):
+        # Grab the points for the cluster from the extracted outliers (cloud_objects)
+        pcl_cluster = cloud_objects.extract(pts_list)
+
+        # Convert the cluster from pcl to ROS using helper functions
+        ros_cluster = pcl_to_ros(pcl_cluster)
+
+        # Extract histogram features
+        chists = compute_color_histograms(ros_cluster, using_hsv=True)
+        normals = get_normals(ros_cluster)
+        nhists = compute_normal_histograms(normals)
+
+        # Compute the associated feature vector
+        feature = np.concatenate((chists, nhists))
+
+        # Make the prediction
+        prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
+        label = encoder.inverse_transform(prediction)[0]
+        detected_objects_labels.append(label)
+
+        # Publish a label into RViz
+        label_pos = list(white_cloud[pts_list[0]])
+        label_pos[2] += .4
+        object_markers_pub.publish(make_label(label,label_pos, index))
+
+        # Add the detected object to the list of detected objects.
+        do = DetectedObject()
+        do.label = label
+        do.cloud = ros_cluster
+        detected_objects.append(do)
+
+        # Publish the list of detected objects
+        detected_objects_pub.publish(detected_objects)
+
+        # Suggested location for where to invoke your pr2_mover() function within pcl_callback()
+        # Could add some logic to determine whether or not your object detections are robust
+        # before calling pr2_mover()
+
+    try:
+        pr2_mover(detected_objects)
+    except rospy.ROSInterruptException:
+        pass
+\end{sexylisting}
+\end{figure}
+\clearpage
+\subsection{Test World One}
+Test world one has three objects located on the table and represents the easiest of three scenarios. The objects are a packet of biscuits, and two different types of soap. The \verb|object_recognition.py| script correctly identifies 100\% of the objects on the table and the \verb|pr2_mover()| function correctly outputs the required yaml file. The object recognition in operation can be seen in Figure 23. A YouTube video of the robot in operation can be found at the following link:
+\begin{center}
+	\url{https://youtu.be/7muTGIdhV7w}
+\end{center}
+
+\begin{figure}[h]
+	\centering
+	\frame{\includegraphics[scale=0.6]{test_case_1}}
+	\caption{Test world one has three objects on the table, and \texttt{object\_recognition.py} correctly identifies 100\% of the items.}
+\end{figure}
+
+\subsection{Test World Two}
+Test world two has five objects located on the table. The objects are a packet of biscuits, two different types of soap, a book, and some glue. The \verb|object_recognition.py| script correctly identifies all of the objects, except the book. The book is misclassified as snacks, meaning that only \%80 of the items are correctly classified. The \verb|pr2_mover()| function correctly outputs the required yaml file, which contains an error for the location of the book since it was unable to classify the object properly. The object recognition in operation can be seen in Figure 24. A YouTube video of the robot in operation can be found at the following link:
+\begin{center}
+	\url{https://youtu.be/E6hnXJOZiGc}
+\end{center}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{test_case_2}
+	\caption{Test world two has five objects on the table, and \texttt{object\_recognition.py} correctly identifies 80\% of the items.}
+\end{figure}
+
+\newpage
+\subsection{Test World Three}
+Test world two has five objects located on the table. The objects are sticky notes, a book, snacks, biscuits, an eraser, two types of soap, and some glue. The \verb|object_recognition.py| script correctly identifies all of the objects, except the book. The book is misclassified as snacks, meaning that only 87.5\% of the items are correctly classified. The \verb|pr2_mover()| function correctly outputs the required yaml file, which contains an error for the location of the book since it was unable to classify the object properly. The object recognition in operation can be seen in Figure 25. A YouTube video of the robot in operation can be found at the following link:
+\begin{center}
+	\url{https://youtu.be/5yA5dLXLfVs}
+\end{center}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{test_case_3}
+	\caption{Test world three has three objects on the table, and \texttt{object\_recognition.py} correctly identifies 87.5\% of the items.}
+\end{figure}
 %----------------------------------------------
 \section{Results \& Conclusion}
+The robot performed well in the segmentation section of the code filtering away the statistical noise, and separating the objects from the environment. Further, the robot correctly correctly assigned a set of points to each discrete object. The robot experienced some difficulty in the object recognition distinguishing between the snacks and the book. This may be due the similar shape, or more seriously, represent a shortfalling in the machine learning model chosen to perform object recognition. Despite this error, the robot was able to outperform the required benchmark outlined earlier: 100\% for test world one; 80\% for test world two; and 75\% for test world three.
 
 %----------------------------------------------
 \section{Further Enhancements}
+To improve the object recognition a different machine learning model could be explored to provide more robust classification performance. Alternatively, there is the ability to modify the parameters for kernels such as rbf, or develop a custom kernel, which may improve the performance of the object recognition. Finally, it would be nice to have the robot pick and place each identified object, using either the left or right arm, however, this will be a future expansion of this project.
 \clearpage
-\section{Appendix XXXX}
+
+%----------------------------------------------
+\section{Appendix A}
+\lstset{
+	frame=single,
+	basicstyle=\ttfamily,
+	numbers=left,
+	showstringspaces=false,
+}
+The script used to capture feature data. The script works in conjunction with the ROS sensor stick environment in which the RGBD sensor for the PR2 robot is mounted on a stick. Gravity in the environment is disabled and the each object of interest is assigned random orientations in front of the sensor. RGBD point cloud data is captured for each of these orientations.
 \tiny
 \lstinputlisting[style=Python]{./code/capture_features.py}
 \clearpage
-\section{Appendix XXXX}
+
+%----------------------------------------------
+\section{Appendix B}
+\normalsize The script trains the Support Vector Machine using the feature and label data captured from the capture feature script shown in Appendix A. The trained model is saved for use with the PR2 robot object classification task.
 \tiny
 \lstinputlisting[style=Python]{./code/train_svm.py}
+\newpage
+
+%----------------------------------------------
+\section{Appendix C}
+\normalsize The function is called in the \verb|object_recognition.py| to output the yaml file in the directory from which the \verb|object_recognition.py| is run. 
+\tiny
+\lstinputlisting[style=Python]{./code/pr2_mover.py}
 \end{document}
