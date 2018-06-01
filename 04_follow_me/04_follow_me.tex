@@ -77,7 +77,7 @@ There are many sub-fields of computer vision such as scene reconstruction, event
 \end{minipage}
 \end{figure}
 
-The agent was tasked with the identification (and subsequent tracking) of an individual, known as the \textit{hero}, in a 3D simulated environment built with Unity. The 3D simulated environment is a small city consisting of buildings, roads, elevated highways, and vegetation. The robotic agent is an unmanned aerial vehicle (UAV), as shown in Figure 2, which is fitted with a panning optical camera. The agent roams the simulation until it is able to locate the hero using the trained FCN, at which point the UAV will track the hero. The hero is a simulated person, as seen in Figure 3.
+The agent was tasked with the identification (and subsequent tracking) of an individual, known as the \textit{hero}, in a 3D simulated environment built with Unity. The 3D simulated environment is a small city consisting of buildings, roads, elevated highways, and vegetation. The robotic agent is an unmanned aerial vehicle (UAV), as shown in Figure 2, which is fitted with a panning optical camera. The agent roams the simulation until it is able to locate the hero using the trained FCN, at which point the UAV will track the hero. The hero is a simulated person, as seen in Figure 3. To satisfy the assignment criteria, the proposed FCN model must achieve above a 40\% benchmark for an intersection over union metric. 
 
 \section{Network Architecture}
 FCNs are widely used for computer vision applications, and are a type of Artificial Neural Network (ANN). ANNs are computational models which, once trained on a dataset, can be used to make classification predictions, or  value estimations, based on a set of feature inputs that the model has been trained on. A typical fully connected feed-forward ANN consists of an input layer, one or more hidden layers, and an output layer, as shown in Figure 4. Hidden layers are made up of multiple nodes. The nodes themselves contain a non-linear activation function, such as a sigmoid or ReLU, and receive weighted input from the previous layers in the model. The inputs from the previous layer, and the non-linear activation of a node form a computational element called a neuron (also known as a perceptron) - these can be loosely thought of as decision making elements. An example of a neuron can seen in Figure 5.
@@ -196,10 +196,24 @@ FCNs are often built with a 1 $\times$ 1 convolution bridging the gap between th
 \item \textbf{Increase network depth without incurring spatial deformation}: 
 \end{enumerate}
 
+%Talk about skip connections
+
+%What is the other main advantage of using FCNs??
 
 
 \subsection{Proposed Architectures \& Implementation}
-The
+The information presented so far makes a compelling case for the use of FCNs to perform the semantic segmentation task, however, there is some uncertainty as to what model architecture should be employed. State of the art FCNs involve multiple 2D convolution layers interspersed with pooling layers in the encoder. The decoder consists of up-sampling layers interspersed with un-pooling layers. Additionally, these state of the art networks make use of 1 $\times$ 1 convolutions, and skip connections. %What are the state of the art networks? Papers that use these networks?
+
+% The main issue with this is that these networks were built for real world semantice segmentation with lots and lots of data and lots and lots of compute - the problem that we are dealing with does not have this level of complexity in the image data, nor does it have a comparable dataset or compute for training - so we have to make sure that the model is orders of magnitude simpler.
+
+% The benchmark that needs to be satisfied - how does this work?
+
+% With this in mind propose the following models for experimentation...
+
+Three different FCN architectures are proposed for investigation to satisfy the 40\% intersection over union benchmark assignment criteria: a deep model with 1 $\times$ 1 convolutions; a shallow model with 1 $\times$ 1 convolutions; and a shallow model without 1 $\times$ 1 convolutions. These models are discussed in more detail in Sections 2.3.2, 2.3.3, and 2.3.4 respectively.
+
+\subsubsection{Tensorflow Implementation}
+% Talk about the code listings presented here
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{text}
@@ -296,28 +310,38 @@ Talk about the use of hyperparameters for training the network
 %Talk about the 
 
 \subsection{Batch Size}
+\begin{minipage}{0.45\textwidth}
 The batch size defines the number of 
-\begin{figure}[h]
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
 \centering
 \includegraphics[scale=0.5]{hyp_par_1}
-\caption{text}
-\end{figure}
+\captionof{figure}{text}
+\end{minipage}
 
 \subsection{Epochs}
+\begin{minipage}{0.45\textwidth}
 Epochs are 
-\begin{figure}[h]
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
 \centering
 \includegraphics[scale=0.5]{hyp_par_2}
-\caption{text}
-\end{figure}
+\captionof{figure}{text}
+\end{minipage}
+
 
 \subsection{Learning Rate}
+\begin{minipage}{0.45\textwidth}
 Talk about the learning rate being critical to 
-\begin{figure}[h]
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
 \centering
 \includegraphics[scale=0.5]{hyp_par_3}
-\caption{text}
-\end{figure}
+\captionof{figure}{text}
+\end{minipage}
+
 
 \section{Performance \& Model Generalisation}
 
