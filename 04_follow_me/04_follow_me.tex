@@ -169,7 +169,7 @@ A Convolutional Neural Network (CNN) is a class of ANN, which has an underlying 
 
 The convolving filter, which contains the model weights, is the small patch which is incident on the raw input image surface. The image section in contact with the filter is called the receptive field - this changes as the filter convolves an image. Filter width and height are parameters chosen as part of the network architecture, and filter depth is identical to the input image depth. The filter is moved around the image according to the number of pixels in each stride. After each movement, the filter weights are multiplied by the receptive field and added together - this makes up a single entry in the 2D activation map which forms part of the output volume. The width and height of the output volume are dependent on the stride, and the type of padding used during the convolution. Finally, the output depth is dependent on the number of filters specified in the network architecture - typically this parameter is denoted as $K$. The output volume is simply the stacked 2D activation maps from each filter. It is the convolutional process, whereby the filter weights are used over an entire image, that provide the weight sharing seen in CNNs. Figure 10 provides a simple example of how this works. In this example, the filter is a 1D array (shown in blue), and the input image is also a 1D array (shown in white). The filter (blue) is convolved over the input image (white) with a stride of 2. The filter weights are multiplied with the image values, and added together to form the output volume - a 1D array (shown in yellow).\\
 
-CNNs provide superior performance over DNNs in the image classification domain. This was demonstrated on the MNIST dataset by LeCun (XXXX) with his LeNet (pictured in Figure 11), and again by Krizhevsky (XXXX) on the ImageNet dataset with AlexNet (shown in Figure 12). Whilst CNNs can achieve noteworthy performance in the task of image classification, there is a notable performance loss when they are re-tasked with pixel by pixel classification known as semantic segmentation. This is due to the fact that fully connected layers (the network classifiers) don't preserve spatial information.
+CNNs provide superior performance over DNNs in the image classification domain. This was demonstrated on the MNIST dataset by LeCun (XXXX) with his LeNet (pictured in Figure 11), and again by Krizhevsky (XXXX) on the ImageNet dataset with AlexNet (shown in Figure 12). Whilst CNNs can achieve noteworthy performance in the task of image classification, there is a notable performance loss when they are re-tasked with pixel by pixel classification known as semantic segmentation. This is due to the fact that fully connected layers don't preserve spatial information.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.45]{lenet5}
@@ -181,6 +181,8 @@ CNNs provide superior performance over DNNs in the image classification domain. 
 \includegraphics[scale=0.25]{alexnet}
 \caption{text}
 \end{figure}
+
+\clearpage
 
 \subsection{Fully Convolutional Neural Networks}
 FCNs preserve spatial information, and represent a state-of-the-art approach to semantic segmentation. Structurally, they can be thought of as two distinct parts: encoders and decoders. This is shown in Figure 13. The encoder is comprised of several convolutional layers, which are typically arranged to progressively concentrate the spatial domain, and increase the number of channels in the image. These different layers of spatial compression are useful for training the model on different image resolutions. The decoder, in contrast, upsamples encoder compressions, restoring the spatial information to the output - typically the final layer restores the output to the initial input image dimensions, before being passed to a convolutional layer with a softmax activation function.
@@ -202,7 +204,9 @@ FCNs are often built with a 1 $\times$ 1 convolution bridging the gap between th
 
 
 \subsection{Proposed Architectures \& Implementation}
-The information presented so far makes a compelling case for the use of FCNs to perform the semantic segmentation task, however, there is some uncertainty as to what model architecture should be employed. State of the art FCNs involve multiple 2D convolution layers interspersed with pooling layers in the encoder. The decoder consists of up-sampling layers interspersed with un-pooling layers. Additionally, these state of the art networks make use of 1 $\times$ 1 convolutions, and skip connections. %What are the state of the art networks? Papers that use these networks?
+The information presented so far makes a compelling case for the use of FCNs to perform the semantic segmentation task, however, there is some uncertainty as to what model architecture should be employed. State of the art FCNs involve multiple 2D convolution layers interspersed with pooling layers in the encoder. The decoder consists of up-sampling layers interspersed with un-pooling layers. Additionally, these state of the art networks make use of 1 $\times$ 1 convolutions, and skip connections.
+
+% What are the state of the art networks? Papers that use these networks?
 
 % The main issue with this is that these networks were built for real world semantice segmentation with lots and lots of data and lots and lots of compute - the problem that we are dealing with does not have this level of complexity in the image data, nor does it have a comparable dataset or compute for training - so we have to make sure that the model is orders of magnitude simpler.
 
@@ -245,7 +249,7 @@ def encoder_block(input_layer, filters, strides):
 \end{sexylisting}
 \end{figure}
 
-
+The \verb|decoder_block()| function takes three arguements, two of them being layers. The smallest input layer is upsampled using the \verb|bilinear_upsample()| function. WHAT DOES THIS DO?? The second layer input is a skip connection which comes from the encoder section of the FCN. The upsampled layer and the layer from the skip connection are added together using a concatenate function. Note that care must be taken to ensure there is no mismatch in the layer dimensions. The concatenated layers are then passed through a 2D convolution to create the final layer.  
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{text}
@@ -264,11 +268,15 @@ def decoder_block(small_ip_layer, large_ip_layer, filters):
 \end{sexylisting}
 \end{figure}
 
+Both the \verb|encoder_block()| and \verb|decoder_block()| functions use ReLUs as the non-linear activation functions, and both functions employ batch normalisation. Batch normalisation in this instance WHAT DOES THE BATCH NORMALISATION DO??
+
+\clearpage
+
 \subsubsection{Model 1: Deep Model with 1 $\times$ 1 Convolution}
 The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX
-\begin{figure}
+\begin{figure}[h]
 \centering
-\begin{tikzpicture}
+\begin{tikzpicture}[scale=0.83, every node/.style={scale=0.83}]
 \newcommand*\circled[1]{\tikz[baseline=(char.base)]{
             \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
             
@@ -281,6 +289,10 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers,
     \node[] at (10.2,-0.1795) {\circled{5}};
     \node[] at (12,-0.4322) {\circled{6}};
     \node[] at (13.2,-0.6) {\circled{7}};
+    
+    \draw[->, >=stealth] (4,4) to [out=20,in=120] (10.2,3.2);
+    \draw[->, >=stealth] (2.2,4.5) to [out=20,in=120] (12,3.1);
+    \draw[->, >=stealth] (1,4.8) to [out=20,in=120] (13.8,3);
 \end{tikzpicture}
 \caption{text}
 \end{figure}
@@ -293,13 +305,15 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers,
 \textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
 \midrule
  & & & &\\
+Input & 160 & 160 & 3 & Raw image input\\
+ & & & &\\
 1 & 80 & 80 & 32 & Created from 2D convolution of raw image input with 32 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
  & & & &\\
 2 & 40 & 40 & 64 & Created from 2D convolution of layer 1 with 64 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
  & & & &\\
 3 & 20 & 20 & 128 & Created from 2D convolution of layer 2 with 128 filters of patch size 3 $\times$ 3, and the stride is 2 with same padding\\
  & & & &\\
-4 & 20 & 20 & 128 & Created from 2D convolution of layer 3 with 128 filters of patch size 1 $\times$ 1, and the stride is 2 with same padding\\
+4 & 20 & 20 & 128 & Created from 2D convolution of layer 3 with 128 filters of patch size 1 $\times$ 1, and the stride is 1 with same padding\\
  & & & &\\
 5 & 40 & 40 & 64 & Created by adding upsampled layer 4 to layer 2 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3 and stride XXXX\\
  & & & &\\
@@ -312,9 +326,11 @@ Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \end{tabular}
 \end{table}
 
+\newpage
+
 \subsubsection{Model 2: Shallow Model with 1 $\times$ 1 Convolution}
 The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \begin{tikzpicture}
 \newcommand*\circled[1]{\tikz[baseline=(char.base)]{
@@ -327,7 +343,10 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers,
         \node[] at (7.3,0.4) {\circled{3}};
         \node[] at (9.8,0.1) {\circled{4}};
         \node[] at (12.3,-0.2) {\circled{5}};
-    
+	    
+	    \draw[->, >=stealth] (2.8,4.5) to [out=20,in=120] (10.5,3.8);
+	    \draw[->, >=stealth] (1.3,4.9) to [out=20,in=120] (13,3.6);
+	    
 \end{tikzpicture}
 \caption{text}
 \end{figure}
@@ -340,22 +359,28 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers,
 \textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
 \midrule
  & & & &\\
+Input & 160 & 160 & 3 & Raw image input\\
+ & & & &\\
 1 & 80 & 80 & 32 & Created from 2D convolution of raw image input with 32 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
  & & & &\\
 2 & 40 & 40 & 64 & Created from 2D convolution of layer 1 with 64 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
  & & & &\\
-3 & 20 & 20 & 128 & Created from 2D convolution of layer 2 with 128 filters of patch size 3 $\times$ 3, and the stride is 2 with same padding\\
+3 & 40 & 40 & 128 & Created from 2D convolution of layer 2 with 128 filters of patch size 1 $\times$ 3, and the stride is 1 with same padding\\
  & & & &\\
-4 & 20 & 20 & 128 & Created from 2D convolution of layer 3 with 128 filters of patch size 1 $\times$ 1, and the stride is 2 with same padding\\
+4 & 80 & 80 & 64 & Created by adding upsampled layer 3 to layer 1 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3\\
  & & & &\\
-5 & 40 & 40 & 64 & Created by adding upsampled layer 4 to layer 2 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3\\ 
+5 & 160 & 160 & 32 & Created by adding upsampled layer 4 to the raw input with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3\\
+ & & & &\\
+Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\newpage
+
 \subsubsection{Model 3: Shallow Model without 1 $\times$ 1 Convolution}
 The proposed deep model with 1 $\times$ 1 convolutions is comprised of 8 layers, not including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \begin{tikzpicture}
 \newcommand*\circled[1]{\tikz[baseline=(char.base)]{
@@ -368,6 +393,9 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 8 layers,
     \node[] at (7.3,0.4122) {\circled{3}};
     \node[] at (9.8,0.1061) {\circled{4}};
     \node[] at (12.3,-0.199) {\circled{5}};
+    
+    \draw[->, >=stealth] (3,4.3) to [out=20,in=120] (10.5,3.5);
+	\draw[->, >=stealth] (1.3,4.7) to [out=20,in=120] (13,3.4);
 \end{tikzpicture}
 \caption{text}
 \end{figure}
@@ -380,18 +408,24 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 8 layers,
 \textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
 \midrule
  & & & &\\
+Input & 160 & 160 & 3 & Raw image input\\
+ & & & &\\
 1 & 80 & 80 & 32 & Created from 2D convolution of raw image input with 32 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
  & & & &\\
 2 & 40 & 40 & 64 & Created from 2D convolution of layer 1 with 64 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
  & & & &\\
-3 & 20 & 20 & 128 & Created from 2D convolution of layer 2 with 128 filters of patch size 3 $\times$ 3, and the stride is 2 with same padding\\
+3 & 40 & 40 & 64 & Created from 2D convolution of layer 2 with 64 filters of patch size 3 $\times$ 3, and the stride is 1 with same padding\\
  & & & &\\
-4 & 20 & 20 & 128 & Created from 2D convolution of layer 3 with 128 filters of patch size 1 $\times$ 1, and the stride is 2 with same padding\\
+4 & 80 & 80 & 64 & Created by adding upsampled layer 3 to layer 1 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3\\
  & & & &\\
-5 & 40 & 40 & 64 & Created by adding upsampled layer 4 to layer 2 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3\\ 
+5 & 160 & 160 & 32 & Created by adding upsampled layer 4 to raw inputs with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3\\
+& & & &\\
+Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\clearpage
 
 \section{Network Training}
 The initial data set provided with the problem was comprised of XXXX images. There are three rough categories that the images can be placed in:
