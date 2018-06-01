@@ -213,38 +213,27 @@ The information presented so far makes a compelling case for the use of FCNs to 
 Three different FCN architectures are proposed for investigation to satisfy the 40\% intersection over union benchmark assignment criteria: a deep model with 1 $\times$ 1 convolutions; a shallow model with 1 $\times$ 1 convolutions; and a shallow model without 1 $\times$ 1 convolutions. These models are discussed in more detail in Sections 2.3.2, 2.3.3, and 2.3.4 respectively.
 
 \subsubsection{Tensorflow Implementation}
-% Talk about the code listings presented here
+To make the model implementation easier, two functions were developed: \verb|encoder_block()| (shown in Listing 1), and \verb|decoder_block()| (shown in Listing 2). An interesting feature of the \verb|encoder_block()| is that it uses the a seperable 2D convolution. The reason for this is that separable convolutions are more computationally efficient. To see this, consider a 3 $\times$ 3 patch with one filter ($K = 1$) in a single convolution. The number of operations to perform this is XXXX PROVIDE EXPLANATION. A matrix is seperable if it can be written as follows:
+\begin{align}
+\begin{bmatrix}
+A \cdot a & A \cdot b & A \cdot c\\
+B \cdot a & B \cdot b & B \cdot c\\
+C \cdot a & C \cdot b & C \cdot c
+\end{bmatrix}
+=
+\begin{bmatrix}
+A\\
+B\\
+C
+\end{bmatrix}
+\cdot
+\begin{bmatrix}
+a & b & c
+\end{bmatrix}
+\end{align}  
 
-\begin{figure}[h]\scriptsize
-\begin{sexylisting}{text}
-def separable_conv2d_batchnorm(input_layer, filters, strides=1):
-    output_layer = SeparableConv2DKeras(filters=filters,kernel_size=3, strides=strides,
-                             padding='same', activation='relu')(input_layer)
-    
-    output_layer = layers.BatchNormalization()(output_layer) 
-    return output_layer
-\end{sexylisting}
-\end{figure}
-
-\begin{figure}[h]\scriptsize
-\begin{sexylisting}{text}
-def conv2d_batchnorm(input_layer, filters, kernel_size=3, strides=1):
-    output_layer = layers.Conv2D(filters=filters, kernel_size=kernel_size, strides=strides, 
-                      padding='same', activation='relu')(input_layer)
-    
-    output_layer = layers.BatchNormalization()(output_layer) 
-    return output_layer
-\end{sexylisting}
-\end{figure}
-
-\begin{figure}[h]\scriptsize
-\begin{sexylisting}{text}
-def bilinear_upsample(input_layer):
-    output_layer = BilinearUpSampling2D((2,2))(input_layer)
-    return output_layer
-\end{sexylisting}
-\end{figure}
-
+The definition shown in (1) can be used to first undertake a convolution with XXXX, and then convolve the result of the first convolution with XXXX. This results in a total of XXXX operations. Given that FCNs have to perform this type of operation many times to convolve an entire image, there are significant computational savings made by using separable 2D convolutions.
+   
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{text}
 def encoder_block(input_layer, filters, strides):
@@ -255,6 +244,8 @@ def encoder_block(input_layer, filters, strides):
     return output_layer
 \end{sexylisting}
 \end{figure}
+
+
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{text}
@@ -274,58 +265,130 @@ def decoder_block(small_ip_layer, large_ip_layer, filters):
 \end{figure}
 
 \subsubsection{Model 1: Deep Model with 1 $\times$ 1 Convolution}
-The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX 
-\begin{figure}[h]
+The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX
+\begin{figure}
 \centering
-\includegraphics[scale=0.35]{model_3(1_paper)}
+\begin{tikzpicture}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+            
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[scale=0.33]{model_3(1_paper)}};
+    
+    \node[] at (1.8,1) {\circled{1}};
+    \node[] at (3.8,0.718) {\circled{2}};
+    \node[] at (5.8,0.437) {\circled{3}};
+    \node[] at (8,0.1291) {\circled{4}};
+    \node[] at (10.2,-0.1795) {\circled{5}};
+    \node[] at (12,-0.4322) {\circled{6}};
+    \node[] at (13.2,-0.6) {\circled{7}};
+\end{tikzpicture}
 \caption{text}
 \end{figure}
 
 \begin{table}[h]
 \centering
-\caption{text}
-\begin{tabular}{lllllll}
+\caption{text}\scriptsize
+\begin{tabular}{ccccp{8cm}}
 \toprule
-\textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & \textbf{Patch Size} & \textbf{No. Filters (K)} & \textbf{Stride}\\  
+\textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
 \midrule
+ & & & &\\
+1 & 80 & 80 & 32 & Created from 2D convolution of raw image input with 32 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
+ & & & &\\
+2 & 40 & 40 & 64 & Created from 2D convolution of layer 1 with 64 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
+ & & & &\\
+3 & 20 & 20 & 128 & Created from 2D convolution of layer 2 with 128 filters of patch size 3 $\times$ 3, and the stride is 2 with same padding\\
+ & & & &\\
+4 & 20 & 20 & 128 & Created from 2D convolution of layer 3 with 128 filters of patch size 1 $\times$ 1, and the stride is 2 with same padding\\
+ & & & &\\
+5 & 40 & 40 & 64 & Created by adding upsampled layer 4 to layer 2 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3 and stride XXXX\\
+ & & & &\\
+6 & 80 & 80 & 32 & Created by adding upsampled layer 5 to layer 1 with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3 and stride XXXX\\
+ & & & &\\
+7 & 160 & 160 & 3 & Created by adding upsampled layer 6 to the inputs with a skip connection, and passed through a 2D convolution with 3 filters of patch size 3 $\times$ 3 and stride XXXX\\
+& & & &\\
+Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{Model 2: Shallow Model with 1 $\times$ 1 Convolution}
 The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX 
-\begin{figure}[h]
+\begin{figure}
 \centering
-\includegraphics[scale=0.35]{model_2(2_paper)}
+\begin{tikzpicture}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+            
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[scale=0.33]{model_2(2_paper)}};
+    
+        \node[] at (2.3,1) {\circled{1}};
+        \node[] at (4.8,0.7) {\circled{2}};
+        \node[] at (7.3,0.4) {\circled{3}};
+        \node[] at (9.8,0.1) {\circled{4}};
+        \node[] at (12.3,-0.2) {\circled{5}};
+    
+\end{tikzpicture}
 \caption{text}
 \end{figure}
 
 \begin{table}[h]
 \centering
-\caption{text}
-\begin{tabular}{lllllll}
+\caption{text}\scriptsize
+\begin{tabular}{ccccp{8cm}}
 \toprule
-\textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & \textbf{Patch Size} & \textbf{No. Filters (K)} & \textbf{Stride}\\  
+\textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
 \midrule
+ & & & &\\
+1 & 80 & 80 & 32 & Created from 2D convolution of raw image input with 32 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
+ & & & &\\
+2 & 40 & 40 & 64 & Created from 2D convolution of layer 1 with 64 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
+ & & & &\\
+3 & 20 & 20 & 128 & Created from 2D convolution of layer 2 with 128 filters of patch size 3 $\times$ 3, and the stride is 2 with same padding\\
+ & & & &\\
+4 & 20 & 20 & 128 & Created from 2D convolution of layer 3 with 128 filters of patch size 1 $\times$ 1, and the stride is 2 with same padding\\
+ & & & &\\
+5 & 40 & 40 & 64 & Created by adding upsampled layer 4 to layer 2 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3\\ 
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{Model 3: Shallow Model without 1 $\times$ 1 Convolution}
-The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX 
-\begin{figure}[h]
+The proposed deep model with 1 $\times$ 1 convolutions is comprised of 8 layers, not including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX 
+\begin{figure}
 \centering
-\includegraphics[scale=0.35]{model_1(3_paper)}
+\begin{tikzpicture}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+            
+    \node[anchor=south west,inner sep=0] (image) at (0,0) 			{\includegraphics[scale=0.33]{model_1(3_paper)}};
+
+    \node[] at (2.5,1) {\circled{1}};
+    \node[] at (4.8,0.7183) {\circled{2}};
+    \node[] at (7.3,0.4122) {\circled{3}};
+    \node[] at (9.8,0.1061) {\circled{4}};
+    \node[] at (12.3,-0.199) {\circled{5}};
+\end{tikzpicture}
 \caption{text}
 \end{figure}
 
 \begin{table}[h]
 \centering
-\caption{text}
-\begin{tabular}{lllllll}
+\caption{text}\scriptsize
+\begin{tabular}{ccccp{8cm}}
 \toprule
-\textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & \textbf{Patch Size} & \textbf{No. Filters (K)} & \textbf{Stride}\\  
+\textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
 \midrule
+ & & & &\\
+1 & 80 & 80 & 32 & Created from 2D convolution of raw image input with 32 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
+ & & & &\\
+2 & 40 & 40 & 64 & Created from 2D convolution of layer 1 with 64 filters of patch size 3 $\times $ 3, and the stride is 2 with same padding\\
+ & & & &\\
+3 & 20 & 20 & 128 & Created from 2D convolution of layer 2 with 128 filters of patch size 3 $\times$ 3, and the stride is 2 with same padding\\
+ & & & &\\
+4 & 20 & 20 & 128 & Created from 2D convolution of layer 3 with 128 filters of patch size 1 $\times$ 1, and the stride is 2 with same padding\\
+ & & & &\\
+5 & 40 & 40 & 64 & Created by adding upsampled layer 4 to layer 2 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3\\ 
 \bottomrule
 \end{tabular}
 \end{table}
