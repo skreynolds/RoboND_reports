@@ -199,23 +199,82 @@ FCNs are often built with a 1 $\times$ 1 convolution bridging the gap between th
 
 
 \subsection{Proposed Architectures \& Implementation}
-The 
+The
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{text}
+def separable_conv2d_batchnorm(input_layer, filters, strides=1):
+    output_layer = SeparableConv2DKeras(filters=filters,kernel_size=3, strides=strides,
+                             padding='same', activation='relu')(input_layer)
+    
+    output_layer = layers.BatchNormalization()(output_layer) 
+    return output_layer
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{text}
+def conv2d_batchnorm(input_layer, filters, kernel_size=3, strides=1):
+    output_layer = layers.Conv2D(filters=filters, kernel_size=kernel_size, strides=strides, 
+                      padding='same', activation='relu')(input_layer)
+    
+    output_layer = layers.BatchNormalization()(output_layer) 
+    return output_layer
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{text}
+def bilinear_upsample(input_layer):
+    output_layer = BilinearUpSampling2D((2,2))(input_layer)
+    return output_layer
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{text}
+def encoder_block(input_layer, filters, strides):
+    
+    # TODO Create a separable convolution layer using the separable_conv2d_batchnorm() function.
+    output_layer = separable_conv2d_batchnorm(input_layer, filters, strides)
+    
+    return output_layer
+\end{sexylisting}
+\end{figure}
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{text}
+def decoder_block(small_ip_layer, large_ip_layer, filters):
+    
+    # TODO Upsample the small input layer using the bilinear_upsample() function.
+    small_ip_upsample = bilinear_upsample(small_ip_layer)
+    
+    # TODO Concatenate the upsampled and large input layers using layers.concatenate
+    concat_layer = layers.concatenate([small_ip_upsample, large_ip_layer])
+    
+    # TODO Add some number of separable convolution layers
+    output_layer = separable_conv2d_batchnorm(concat_layer, filters)
+    
+    return output_layer
+\end{sexylisting}
+\end{figure}
+
 \subsubsection{Model 1: Deep Model with 1 $\times$ 1 Convolution}
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[scale=0.35]{model_3(1_paper)}
 \caption{text}
 \end{figure}
 
 \subsubsection{Model 2: Shallow Model with 1 $\times$ 1 Convolution}
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[scale=0.35]{model_2(2_paper)}
 \caption{text}
 \end{figure}
 
 \subsubsection{Model 3: Shallow Model without 1 $\times$ 1 Convolution}
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[scale=0.35]{model_1(3_paper)}
 \caption{text}
@@ -223,18 +282,42 @@ The
 
 \section{Network Training}
 The initial data set provided with the problem was comprised of XXXX images. There are three rough categories that the images can be placed in:
+\begin{enumerate}
+\item 
+\item 
+\item 
+\end{enumerate}
+The network is trained with Stochastic Gradient Descent - specifically using the Adam optimizer. How does this optimiser work?
+
+Talk about the use of hyperparameters for training the network
 
 %Talk about the pre-processing of the data set (what does this do?)
 
 %Talk about the 
 
+\subsection{Batch Size}
+The batch size defines the number of 
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{hyp_par_1}
+\caption{text}
+\end{figure}
+
 \subsection{Epochs}
-Talk about epochs contributing to more data being passed through the model - the more epochs the better - post graphic
+Epochs are 
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{hyp_par_2}
+\caption{text}
+\end{figure}
 
 \subsection{Learning Rate}
 Talk about the learning rate being critical to 
-
-\subsection{Batch Size}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{hyp_par_3}
+\caption{text}
+\end{figure}
 
 \section{Performance \& Model Generalisation}
 
