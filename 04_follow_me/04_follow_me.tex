@@ -186,22 +186,26 @@ CNNs provide superior performance over DNNs in the image classification domain. 
 
 \subsection{Fully Convolutional Neural Networks}
 FCNs preserve spatial information, and represent a state-of-the-art approach to semantic segmentation. Structurally, they can be thought of as two distinct parts: encoders and decoders. This is shown in Figure 13. The encoder is comprised of several convolutional layers, which are typically arranged to progressively concentrate the spatial domain, and increase the number of channels in the image. These different layers of spatial compression are useful for training the model on different image resolutions. The decoder, in contrast, upsamples encoder compressions, restoring the spatial information to the output - typically the final layer restores the output to the initial input image dimensions, before being passed to a convolutional layer with a softmax activation function.
+\vspace{0.25cm}
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.25]{FCN}
-\caption{text}
+\caption{Structurally FCNs can be thought of as an encoder (convolutional network) connected to a decoder (deconvolutional network)}
 \end{figure}
 
-FCNs are often built with a 1 $\times$ 1 convolution bridging the gap between the encoder and decoder. A 1 $\times$ 1 convolution The reasons cited for using this architecture:
-\begin{enumerate}
-\item \textbf{Computational efficiency}:
-\item \textbf{Increase network depth without incurring spatial deformation}: 
-\end{enumerate}
+FCNs are often make use of 1 $\times$ 1 convolutions, which are just a 2D convolution of patch size 1 $\times$ 1, and a stride of 1 (NETWORK IN NETWORK). The spatial dimensions of the convolved image are preserved in the output volume, but the desired number of filters ($K$) changes the output volume depth. Indeed this is one of the main incentives to use 1 $\times$ 1 convolutions - they are computationally cheap, and can reduce the image depth making subsequent operations less expensive. One approach that has been used is to intersperse convolutional layers with 1 $\times$ 1 convolutional layers, to reduce the depth of the image being convolved by larger patches (e.g. 3 $\times$ 3, or 5 $\times$ 5). An example of this can be seen in Figure XXXX. Of course, this is not the only way that 1 $\times$ 1 convolutional layers can be used. They can also be used to add more depth to a model, and additional non-linearity since the 1 $times$ 1 layer contains an activation function like ReLU. Using 1 $\times$ 1 convolutions is considered a cheap way of doing this.  
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{1by1}
+\caption{The input is 28 $\times$ 28 $\times$ 192 and the desired 2D convolution is a 5 $\times$ 5 patch using 32 filters. This would result in a total of XXXX multiplications. If a 1 $\times$ 1 convolution is used to reduce the depth of the input image from 192 to 16 before performing the 2D convolution with the 5$\times$5 patch, this reduces the total number of multiplications to XXXX.}
+\end{figure}
 
-%Talk about skip connections
-
-%What is the other main advantage of using FCNs??
-
+Finally, FCNs see an improvement in model performance with the use of something called skip connections. A skip connection attaches a residual output in an FCN architecture to an output occurring later in the network. Their use was originally proposed by XXXX XXXXX and XXXXX (XXXXX) who found that adding more layers to their model \textit{worsened} the performance during training. This work led to the development of the well known Resnet architecture. The skip connections essentially concatenate the 2 layers by adding the outputs - an example of the operation can be seen in Figure XXXX.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{skip}
+\caption{An example of a skip connection - the residual output in the network literally skips a section of the network and is concatenated with a later output of the model.}
+\end{figure}
 
 \subsection{Proposed Architectures \& Implementation}
 The information presented so far makes a compelling case for the use of FCNs to perform the semantic segmentation task, however, there is some uncertainty as to what model architecture should be employed. State of the art FCNs involve multiple 2D convolution layers interspersed with pooling layers in the encoder. The decoder consists of up-sampling layers interspersed with un-pooling layers. Additionally, these state of the art networks make use of 1 $\times$ 1 convolutions, and skip connections.
