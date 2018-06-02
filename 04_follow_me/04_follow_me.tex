@@ -208,9 +208,14 @@ Finally, FCNs see an improvement in model performance with the use of something 
 \end{figure}
 
 \subsection{Proposed Architectures \& Implementation}
-The information presented so far makes a compelling case for the use of FCNs to perform the semantic segmentation task, however, there is some uncertainty as to what model architecture should be employed. State of the art FCNs involve multiple 2D convolution layers interspersed with pooling layers in the encoder. The decoder consists of up-sampling layers interspersed with un-pooling layers. Additionally, these state of the art networks make use of 1 $\times$ 1 convolutions, and skip connections.
+The information presented so far makes a compelling case for the use of FCNs to perform the semantic segmentation task, however, there is some uncertainty as to what model architecture should be employed. State of the art FCNs involve multiple 2D convolution layers interspersed with pooling layers in the encoder. The decoder consists of up-sampling layers interspersed with un-pooling layers. Additionally, these state of the art networks make use of 1 $\times$ 1 convolutions, and skip connections.An example of this can be seen in Figure XXXX, which shows an FCN network called SegNet taken from a paper by XXXX, XXXX, and XXXX (XXXX).
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.6]{segnet}
+\caption{text}
+\end{figure}
 
-% What are the state of the art networks? Papers that use these networks?
+FCN networks with many layers, like the original FCN architecture by XXXX, XXXX, and XXXX (XXXX) and SegNet, are used to provide semantic segmentation on images with high visual complexity taken from the real world. In contrast, the models proposed in this paper are tasked with semantic segmentation of images taken from the 3D environment simulated in Unity. Given this, it may not be appropriate to adopt the depth seen in state-of-the-art FCN architectures since reasonable performance may be achieved with smaller models. Moreover, given that the dataset from the simulation only consists of approximately 4000 images (about half of the 9,993 found in the VOC2012 segmentation data set), a more complex model may result in worse performance.
 
 % The main issue with this is that these networks were built for real world semantice segmentation with lots and lots of data and lots and lots of compute - the problem that we are dealing with does not have this level of complexity in the image data, nor does it have a comparable dataset or compute for training - so we have to make sure that the model is orders of magnitude simpler.
 
