@@ -215,15 +215,7 @@ The information presented so far makes a compelling case for the use of FCNs to 
 \caption{text}
 \end{figure}
 
-FCN networks with many layers, like the original FCN architecture by XXXX, XXXX, and XXXX (XXXX) and SegNet, are used to provide semantic segmentation on images with high visual complexity taken from the real world. In contrast, the models proposed in this paper are tasked with semantic segmentation of images taken from the 3D environment simulated in Unity. Given this, it may not be appropriate to adopt the depth seen in state-of-the-art FCN architectures since reasonable performance may be achieved with smaller models. Moreover, given that the dataset from the simulation only consists of approximately 4000 images (about half of the 9,993 found in the VOC2012 segmentation data set), a more complex model may result in worse performance.
-
-% The main issue with this is that these networks were built for real world semantice segmentation with lots and lots of data and lots and lots of compute - the problem that we are dealing with does not have this level of complexity in the image data, nor does it have a comparable dataset or compute for training - so we have to make sure that the model is orders of magnitude simpler.
-
-% The benchmark that needs to be satisfied - how does this work?
-
-% With this in mind propose the following models for experimentation...
-
-Three different FCN architectures are proposed for investigation to satisfy the 40\% intersection over union benchmark assignment criteria: a deep model with 1 $\times$ 1 convolutions; a shallow model with 1 $\times$ 1 convolutions; and a shallow model without 1 $\times$ 1 convolutions. These models are discussed in more detail in Sections 2.3.2, 2.3.3, and 2.3.4 respectively.
+FCN networks with many layers, like the original FCN architecture by XXXX, XXXX, and XXXX (XXXX) and SegNet, are used to provide semantic segmentation on images with high visual complexity taken from the real world. In contrast, the models proposed in this paper are tasked with semantic segmentation of images taken from the 3D environment simulated in Unity. Given this, it may not be appropriate to adopt the depth seen in state-of-the-art FCN architectures since reasonable performance may be achieved with smaller models. Moreover, given that the dataset from the simulation only consists of approximately 4000 images (about half of the 9,993 found in the VOC2012 segmentation data set), a more complex model may result in worse performance. In this light, three different FCN architectures are proposed for investigation: a deep model with 1 $\times$ 1 convolutions; a shallow model with 1 $\times$ 1 convolutions; and a shallow model without 1 $\times$ 1 convolutions. These models are discussed in more detail in Sections 2.3.2, 2.3.3, and 2.3.4 respectively. 
 
 \subsubsection{Tensorflow Implementation}
 To make the model implementation easier, two functions were developed: \verb|encoder_block()| (shown in Listing 1), and \verb|decoder_block()| (shown in Listing 2). An interesting feature of the \verb|encoder_block()| is that it uses the a seperable 2D convolution. The reason for this is that separable convolutions are more computationally efficient. To see this, consider a 3 $\times$ 3 patch with one filter ($K = 1$) in a single convolution. The number of operations to perform this is XXXX PROVIDE EXPLANATION. A matrix is seperable if it can be written as follows:
@@ -258,7 +250,7 @@ def encoder_block(input_layer, filters, strides):
 \end{sexylisting}
 \end{figure}
 
-The \verb|decoder_block()| function takes three arguements, two of them being layers. The smallest input layer is upsampled using the \verb|bilinear_upsample()| function. WHAT DOES THIS DO?? The second layer input is a skip connection which comes from the encoder section of the FCN. The upsampled layer and the layer from the skip connection are added together using a concatenate function. Note that care must be taken to ensure there is no mismatch in the layer dimensions. The concatenated layers are then passed through a 2D convolution to create the final layer.  
+The \verb|decoder_block()| function takes three arguements, two of them being layers. The smallest input layer is upsampled using the \verb|bilinear_upsample()| function - this simply doubles the size of the small layer, and fills the additional spaces with copies of the small layer rows and columns. The second layer input is a skip connection which comes from the encoder of the FCN. The upsampled layer and the layer from the skip connection are added together using a concatenate function. Note that care must be taken to ensure there is no mismatch in the layer dimensions. The concatenated layers are then passed through a 2D convolution to create the final layer.  
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{text}
@@ -277,7 +269,7 @@ def decoder_block(small_ip_layer, large_ip_layer, filters):
 \end{sexylisting}
 \end{figure}
 
-Both the \verb|encoder_block()| and \verb|decoder_block()| functions use ReLUs as the non-linear activation functions, and both functions employ batch normalisation. Batch normalisation in this instance WHAT DOES THE BATCH NORMALISATION DO??
+Both the \verb|encoder_block()| and \verb|decoder_block()| functions use ReLUs as the non-linear activation functions, and both functions employ batch normalisation. Batch normalisation is a technique proposed by XXXX and XXXX (XXXX) which helps to improve the optimisation process to Stochastic Gradient Descent (SGD), however, it provides some regularisation to the model as well.
 
 \clearpage
 
