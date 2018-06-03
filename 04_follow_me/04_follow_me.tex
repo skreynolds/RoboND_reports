@@ -170,17 +170,17 @@ A Convolutional Neural Network (CNN) is a class of ANN, which has an underlying 
 
 The convolving filter, which contains the model weights, is the small patch which is incident on the raw input image surface. The image section in contact with the filter is called the receptive field - this changes as the filter convolves an image. Filter width and height are parameters chosen as part of the network architecture, and filter depth is identical to the input image depth. The filter is moved around the image according to the number of pixels in each stride. After each movement, the filter weights are multiplied by the receptive field and added together - this makes up a single entry in the 2D activation map which forms part of the output volume. The width and height of the output volume are dependent on the stride, and the type of padding used during the convolution. Finally, the output depth is dependent on the number of filters specified in the network architecture - typically this parameter is denoted as $K$. The output volume is simply the stacked 2D activation maps from each filter. It is the convolutional process, whereby the filter weights are used over an entire image, that provide the weight sharing seen in CNNs. Figure 10 provides a simple example of how this works. In this example, the filter is a 1D array (shown in blue), and the input image is also a 1D array (shown in white). The filter (blue) is convolved over the input image (white) with a stride of 2. The filter weights are multiplied with the image values, and added together to form the output volume - a 1D array (shown in yellow).\\
 
-CNNs provide superior performance over DNNs in the image classification domain. This was demonstrated on the MNIST dataset by LeCun (XXXX) with his LeNet (pictured in Figure 11), and again by Krizhevsky (XXXX) on the ImageNet dataset with AlexNet (shown in Figure 12). Whilst CNNs can achieve noteworthy performance in the task of image classification, there is a notable performance loss when they are re-tasked with pixel by pixel classification known as semantic segmentation. This is due to the fact that fully connected layers don't preserve spatial information.
+CNNs provide superior performance over DNNs in the image classification domain. This was demonstrated on the MNIST dataset by LeCun (1998) with his LeNet (pictured in Figure 11), and again by Krizhevsky (2012) on the ImageNet dataset with AlexNet (shown in Figure 12). Whilst CNNs can achieve noteworthy performance in the task of image classification, there is a notable performance loss when they are re-tasked with pixel by pixel classification known as semantic segmentation. This is due to the fact that fully connected layers don't preserve spatial information.
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.45]{lenet5}
-\caption{text}
+\includegraphics[scale=0.6]{lenet5}
+\caption{The architecture of a CNN called LeNet5, taken from the Lecun (1998), used to classify the MNIST data set.}
 \end{figure}
 
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.25]{alexnet}
-\caption{text}
+\caption{The architecture of a CNN called Alexnet, taken from Krizhevsky (2012), used to classify the image database called ImageNet.}
 \end{figure}
 
 \clearpage
@@ -194,14 +194,14 @@ FCNs preserve spatial information, and represent a state-of-the-art approach to 
 \caption{Structurally FCNs can be thought of as an encoder (convolutional network) connected to a decoder (deconvolutional network)}
 \end{figure}
 
-FCNs are often make use of 1 $\times$ 1 convolutions, which are just a 2D convolution of patch size 1 $\times$ 1, and a stride of 1 (NETWORK IN NETWORK). The spatial dimensions of the convolved image are preserved in the output volume, but the desired number of filters ($K$) changes the output volume depth. Indeed this is one of the main incentives to use 1 $\times$ 1 convolutions - they are computationally cheap, and can reduce the image depth making subsequent operations less expensive. One approach that has been used is to intersperse convolutional layers with 1 $\times$ 1 convolutional layers, to reduce the depth of the image being convolved by larger patches (e.g. 3 $\times$ 3, or 5 $\times$ 5). An example of this can be seen in Figure XXXX. Of course, this is not the only way that 1 $\times$ 1 convolutional layers can be used. They can also be used to add more depth to a model, and additional non-linearity since the 1 $times$ 1 layer contains an activation function like ReLU. Using 1 $\times$ 1 convolutions is considered a cheap way of doing this.  
+FCNs are often make use of 1 $\times$ 1 convolutions, which are just a 2D convolution of patch size 1 $\times$ 1, and a stride of 1 (Lin, Chen, \& Yan, 2014). The spatial dimensions of the convolved image are preserved in the output volume, but the desired number of filters ($K$) changes the output volume depth. Indeed this is one of the main incentives to use 1 $\times$ 1 convolutions - they are computationally cheap, and can reduce the image depth making subsequent operations less expensive. One approach that has been used is to intersperse convolutional layers with 1 $\times$ 1 convolutional layers, to reduce the depth of the image being convolved by larger patches (e.g. 3 $\times$ 3, or 5 $\times$ 5). An example of this can be seen in Figure 14. Of course, this is not the only way that 1 $\times$ 1 convolutional layers can be used. They can also be used to add more depth to a model, and additional non-linearity since the 1 $times$ 1 layer contains an activation function like ReLU. Using 1 $\times$ 1 convolutions is considered a cheap way of doing this.  
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{1by1}
 \caption{The input is 28 $\times$ 28 $\times$ 192 and the desired 2D convolution is a 5 $\times$ 5 patch using 32 filters. This would result in a total of XXXX multiplications. If a 1 $\times$ 1 convolution is used to reduce the depth of the input image from 192 to 16 before performing the 2D convolution with the 5$\times$5 patch, this reduces the total number of multiplications to XXXX.}
 \end{figure}
 
-Finally, FCNs see an improvement in model performance with the use of something called skip connections. A skip connection attaches a residual output in an FCN architecture to an output occurring later in the network. Their use was originally proposed by XXXX XXXXX and XXXXX (XXXXX) who found that adding more layers to their model \textit{worsened} the performance during training. This work led to the development of the well known Resnet architecture. The skip connections essentially concatenate the 2 layers by adding the outputs - an example of the operation can be seen in Figure XXXX.
+Finally, FCNs see an improvement in model performance with the use of something called skip connections. A skip connection attaches a residual output in an FCN architecture to an output occurring later in the network. Their use was originally proposed by He, Zhang, Ren and Sun (2015) who found that adding more layers to their model \textit{worsened} the performance during training. This work led to the development of the well known Resnet architecture. The skip connections essentially concatenate the 2 layers by adding the outputs - an example of the operation can be seen in Figure 15.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{skip}
@@ -209,17 +209,17 @@ Finally, FCNs see an improvement in model performance with the use of something 
 \end{figure}
 
 \subsection{Proposed Architectures \& Implementation}
-The information presented so far makes a compelling case for the use of FCNs to perform the semantic segmentation task, however, there is some uncertainty as to what model architecture should be employed. State of the art FCNs involve multiple 2D convolution layers interspersed with pooling layers in the encoder. The decoder consists of up-sampling layers interspersed with un-pooling layers. Additionally, these state of the art networks make use of 1 $\times$ 1 convolutions, and skip connections.An example of this can be seen in Figure XXXX, which shows an FCN network called SegNet taken from a paper by XXXX, XXXX, and XXXX (XXXX).
+The information presented so far makes a compelling case for the use of FCNs to perform the semantic segmentation task, however, there is some uncertainty as to what model architecture should be employed. State of the art FCNs involve multiple 2D convolution layers interspersed with pooling layers in the encoder. The decoder consists of up-sampling layers interspersed with un-pooling layers. Additionally, these state of the art networks make use of 1 $\times$ 1 convolutions, and skip connections.An example of this can be seen in Figure 16, which shows an FCN network called SegNet taken from a paper by Badrinarayanan, Kendall, and Cipolla (2016).
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.6]{segnet}
-\caption{text}
+\caption{An example of a fully convolutional network with pooling, upsampling, and skip connections}
 \end{figure}
 
-FCN networks with many layers, like the original FCN architecture by XXXX, XXXX, and XXXX (XXXX) and SegNet, are used to provide semantic segmentation on images with high visual complexity taken from the real world. In contrast, the models proposed in this paper are tasked with semantic segmentation of images taken from the 3D environment simulated in Unity. Given this, it may not be appropriate to adopt the depth seen in state-of-the-art FCN architectures since reasonable performance may be achieved with smaller models. Moreover, given that the dataset from the simulation only consists of approximately 4000 images (about half of the 9,993 found in the VOC2012 segmentation data set), a more complex model may result in worse performance. In this light, three different FCN architectures are proposed for investigation: a deep model with 1 $\times$ 1 convolutions; a shallow model with 1 $\times$ 1 convolutions; and a shallow model without 1 $\times$ 1 convolutions. These models are discussed in more detail in Sections 2.3.2, 2.3.3, and 2.3.4 respectively. 
+FCN networks with many layers, like the original FCN architecture by Shelhamer, Long, and Darrell (2014) and SegNet, are used to provide semantic segmentation on images with high visual complexity taken from the real world. In contrast, the models proposed in this paper are tasked with semantic segmentation of images taken from the 3D environment simulated in Unity. Given this, it may not be appropriate to adopt the depth seen in state-of-the-art FCN architectures since reasonable performance may be achieved with smaller models. Moreover, given that the dataset from the simulation only consists of approximately 4000 images (about half of the 9,993 found in the VOC2012 segmentation data set), a more complex model may result in worse performance. In this light, three different FCN architectures are proposed for investigation: a deep model with 1 $\times$ 1 convolutions; a shallow model with 1 $\times$ 1 convolutions; and a shallow model without 1 $\times$ 1 convolutions. These models are discussed in more detail in Sections 2.3.2, 2.3.3, and 2.3.4 respectively. 
 
 \subsubsection{Tensorflow Implementation}
-To make the model implementation easier, two functions were developed: \verb|encoder_block()| (shown in Listing 1), and \verb|decoder_block()| (shown in Listing 2). An interesting feature of the \verb|encoder_block()| is that it uses the a seperable 2D convolution. The reason for this is that separable convolutions are more computationally efficient. To see this, consider a 3 $\times$ 3 patch with one filter ($K = 1$) in a single convolution. The number of operations to perform this is XXXX PROVIDE EXPLANATION. A matrix is seperable if it can be written as follows:
+To make the model implementation easier, two functions were developed: \verb|encoder_block()| (shown in Listing 1), and \verb|decoder_block()| (shown in Listing 2). An interesting feature of the \verb|encoder_block()| is that it uses the a seperable 2D convolution. The reason for this is that separable convolutions are more computationally efficient. To see this, consider a 3 $\times$ 3 patch with one filter ($K = 1$) in a single convolution. The number of operations to perform this is XXXX. A matrix is seperable if it can be written as follows:
 \begin{align}
 \begin{bmatrix}
 A \cdot a & A \cdot b & A \cdot c\\
@@ -241,7 +241,7 @@ a & b & c
 The definition shown in (1) can be used to first undertake a convolution with XXXX, and then convolve the result of the first convolution with XXXX. This results in a total of XXXX operations. Given that FCNs have to perform this type of operation many times to convolve an entire image, there are significant computational savings made by using separable 2D convolutions.
    
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{text}
+\begin{sexylisting}{Implementation of the encoder block for the FCN in TensorFlow}
 def encoder_block(input_layer, filters, strides):
     
     # TODO Create a separable convolution layer using the separable_conv2d_batchnorm() function.
@@ -254,7 +254,7 @@ def encoder_block(input_layer, filters, strides):
 The \verb|decoder_block()| function takes three arguements, two of them being layers. The smallest input layer is upsampled using the \verb|bilinear_upsample()| function - this simply doubles the size of the small layer, and fills the additional spaces with copies of the small layer rows and columns. The second layer input is a skip connection which comes from the encoder of the FCN. The upsampled layer and the layer from the skip connection are added together using a concatenate function. Note that care must be taken to ensure there is no mismatch in the layer dimensions. The concatenated layers are then passed through a 2D convolution to create the final layer.  
 
 \begin{figure}[h]\scriptsize
-\begin{sexylisting}{text}
+\begin{sexylisting}{Implementation of the decoder block for the FCN in TensorFlow}
 def decoder_block(small_ip_layer, large_ip_layer, filters):
     
     # TODO Upsample the small input layer using the bilinear_upsample() function.
@@ -270,12 +270,12 @@ def decoder_block(small_ip_layer, large_ip_layer, filters):
 \end{sexylisting}
 \end{figure}
 
-Both the \verb|encoder_block()| and \verb|decoder_block()| functions use ReLUs as the non-linear activation functions, and both functions employ batch normalisation. Batch normalisation is a technique proposed by XXXX and XXXX (XXXX) which helps to improve the optimisation process which occurs during training. Additionally, it provides some regularisation to the model as well.
+Both the \verb|encoder_block()| and \verb|decoder_block()| functions use ReLUs as the non-linear activation functions, and both functions employ batch normalisation. Batch normalisation is a technique proposed by Ioffe and Szegedy (2015) which helps to improve the optimisation process which occurs during training. Additionally, it provides some regularisation to the model as well.
 
 \clearpage
 
 \subsubsection{Model 1: Deep Model with 1 $\times$ 1 Convolution}
-The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX
+The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure 17, and a detailed description of each layer can be found in Table 2.
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}[scale=0.83, every node/.style={scale=0.83}]
@@ -331,7 +331,7 @@ Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \newpage
 
 \subsubsection{Model 2: Shallow Model with 1 $\times$ 1 Convolution}
-The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX 
+The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers, including the input layer - the network architecture can be seen in Figure 18, and a detailed description of each layer can be found in Table 3.
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}
@@ -381,7 +381,7 @@ Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \newpage
 
 \subsubsection{Model 3: Shallow Model without 1 $\times$ 1 Convolution}
-The proposed deep model with 1 $\times$ 1 convolutions is comprised of 8 layers, not including the input layer - the network architecture can be seen in Figure XXXX, and a detailed description of each layer can be found in Table XXXX 
+The proposed deep model with 1 $\times$ 1 convolutions is comprised of 8 layers, not including the input layer - the network architecture can be seen in Figure 19, and a detailed description of each layer can be found in Table 4.
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}
@@ -436,7 +436,7 @@ The initial data set provided with the problem was comprised of XXXX images. The
 \item Images while the UAV is patrolling, but cannot see the \textit{hero}
 \item Images while the UAV is patrolling and can see the \textit{hero}
 \end{enumerate}
-To provide the network with additional training data, XXXX, XXXX, and XXXX images were captured from the simulator in each of the fields, respectively. These were added to the initial data set to bring it to a total of 5279 images. When an image is captured, pixel label data is also provided in the form of image masks. There are three types of masks that accompany each image: a mask highlighting the hero; a mask highlighting people who are not the hero; and a mask highlighting the background. Examples of these masks can be seen in Figures XXXX, XXXX, and XXXX, respectively. It must be noted that these labels would not be available with real world images, and the masks are able to be extracted only because the image data is collected from a simulation.
+To provide the network with additional training data, XXXX, XXXX, and XXXX images were captured from the simulator in each of the fields, respectively. These were added to the initial data set to bring it to a total of 5279 images. When an image is captured, pixel label data is also provided in the form of image masks. There are three types of masks that accompany each image: a mask highlighting the hero; a mask highlighting people who are not the hero; and a mask highlighting the background. Examples of these masks can be seen in Figures 20, 21, 22, and 23, respectively. It must be noted that these labels would not be available with real world images, and the masks are able to be extracted only because the image data is collected from a simulation.
 \begin{figure}[h]
 \begin{minipage}{0.45\textwidth}
 \centering
@@ -447,7 +447,7 @@ To provide the network with additional training data, XXXX, XXXX, and XXXX image
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4cm]{cam2}}
-\captionof{figure}{A mask of the image seen in Figure XXXX highlighting pixels which contain the \textit{hero}}
+\captionof{figure}{A mask of the image seen in Figure 20 highlighting pixels which contain the \textit{hero}}
 \end{minipage}
 \end{figure}
 
@@ -455,23 +455,23 @@ To provide the network with additional training data, XXXX, XXXX, and XXXX image
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4cm]{cam3}}
-\captionof{figure}{A mask of the image seen in Figure XXXX highlighting pixels which contain people other than the \textit{hero}}
+\captionof{figure}{A mask of the image seen in Figure 20 highlighting pixels which contain people other than the \textit{hero}}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4cm]{cam4}}
-\captionof{figure}{A mask of the image seen in Figure XXXX highlighting pixels which contain the background}
+\captionof{figure}{A mask of the image seen in Figure 20 highlighting pixels which contain the background}
 \end{minipage}
 \end{figure}
 
-Prior to model training, there is some pre-processing which concatenates the mask images into a single image. The network is trained using an optimiser called Adam, which is similar to Stochastic Gradient Descent (SGD). It differs in one important way: SGD typically uses a static learning rate, whereas Adam computes adaptive learning rates for each parameter (XXXX, XXXX). Talk about the use of hyperparameters for training the network
+Prior to model training, there is some pre-processing which concatenates the mask images into a single image. The network is trained using an optimiser called Adam, which is similar to Stochastic Gradient Descent (SGD). It differs in one important way: SGD typically uses a static learning rate, whereas Adam computes adaptive learning rates for each parameter (Ruder, 2017). Talk about the use of hyperparameters for training the network
 
 \newpage
 
 \subsection{Batch Size}
 \begin{minipage}{0.45\textwidth}
-Batch size defines the number of training samples/images propagated through the network in a single pass. Batch size has an upper bound dependent on the amount of RAM in the GPU - we cannot accommodate more images than can be stored in RAM for a pass. A small experiment was conducted to gain some intuition on how batch size affects model performance. Model performance was tested for a series of increasing batch sizes, setting learning rate at 0.01, number of epochs at 5, and number of steps per epoch to 80. Figure XXXX shows the training loss for increasing batch size.
+Batch size defines the number of training samples/images propagated through the network in a single pass. Batch size has an upper bound dependent on the amount of RAM in the GPU - we cannot accommodate more images than can be stored in RAM for a pass. A small experiment was conducted to gain some intuition on how batch size affects model performance. Model performance was tested for a series of increasing batch sizes, setting learning rate at 0.01, number of epochs at 5, and number of steps per epoch to 80. Figure 24 shows the training loss for increasing batch size.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
@@ -486,7 +486,7 @@ Clearly increased batch size allows more training images to pass through the mod
 
 \subsection{Epochs}
 \begin{minipage}{0.45\textwidth}
-Epochs are the number of times the entire data set gets propagated through the network. Intuition would suggest that the more epochs, the more the model would be exposed to the training dataset, resulting in a better performance. Evidence supporting this intuition can be seen in Figure XXXX, which shows a small experiment in which the loss function was measured for an increasing number epochs. Note that the other model hyper-parameters were held constant with learning rate of 0.01, batch size 20, and number of steps 80.
+Epochs are the number of times the entire data set gets propagated through the network. Intuition would suggest that the more epochs, the more the model would be exposed to the training dataset, resulting in a better performance. Evidence supporting this intuition can be seen in Figure 25, which shows a small experiment in which the loss function was measured for an increasing number epochs. Note that the other model hyper-parameters were held constant with learning rate of 0.01, batch size 20, and number of steps 80.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
@@ -520,14 +520,14 @@ The learning rate is perhaps the most important hyper-parameter which impacts on
 
 \vspace{0.2cm}
 
-To develop some intuition on acceptable learning rates for this problem, a small experiment was conducted, looking at model performance for different learning rates, holding other hyper-parameters constant. The results can be seen in Figure XXXX (note that the $x$-axis is in log scale). The experiment shows that an acceptable learning rate for this problem lies around 0.001.
+To develop some intuition on acceptable learning rates for this problem, a small experiment was conducted, looking at model performance for different learning rates, holding other hyper-parameters constant. The results can be seen in Figure 26 (note that the $x$-axis is in log scale). The experiment shows that an acceptable learning rate for this problem lies around 0.001.
 
 \section{Results}
 Models were each trained using a learning rate of 0.001, 50 epochs, with a batch size of 64, and 185 steps per epoch. The results for each of the models are presented in Sections 4.1, 4.2, and 4.3.
 
 \subsection{Model 1 Performance}
 \begin{minipage}{0.45\textwidth}
-Model 1 was a `Deep' FCN Model with a single 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.2. Loss values over time can be seen in Figure XXXX, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.3738, which fails to meet the benchmark of 0.40. Figures XXXX, XXXX, and XXXX demonstrate the effectiveness of model's predictive performance, compared to the ground truth. Each Figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation.
+Model 1 was a `Deep' FCN Model with a single 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.2. Loss values over time can be seen in Figure 27, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.3738, which fails to meet the benchmark of 0.40. Figures 28, 29, and 30 demonstrate the effectiveness of model's predictive performance, compared to the ground truth. Each Figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
@@ -538,7 +538,7 @@ Model 1 was a `Deep' FCN Model with a single 1 $\times$ 1 convolution bridging t
 
 \vspace{0.5cm}
 
-Figure XXXX shows segmentation while the UAV is following the \textit{hero}; Figure XXXX shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure XXXX shows images of the UAV patrolling with the \textit{hero} in sight.
+Figure 28 shows segmentation while the UAV is following the \textit{hero}; Figure 29 shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure 30 shows images of the UAV patrolling with the \textit{hero} in sight.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{model_1_1}
@@ -561,7 +561,7 @@ Figure XXXX shows segmentation while the UAV is following the \textit{hero}; Fig
 
 \subsection{Model 2 Performance}
 \begin{minipage}{0.45\textwidth}
-Model 2 was a `Shallow' FCN Model with a single 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.3. Loss values over time can be seen in Figure XXXX, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.3990, which fails to meet the 0.40 benchmark. Figures XXXX, XXXX, and XXXX demonstrate the effectiveness of model's predictive performance, compared to the ground truth. As with Section 4.1 each figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation.
+Model 2 was a `Shallow' FCN Model with a single 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.3. Loss values over time can be seen in Figure 31, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.3990, which fails to meet the 0.40 benchmark. Figures 32, 33, and 34 demonstrate the effectiveness of model's predictive performance, compared to the ground truth. As with Section 4.1 each figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
@@ -572,7 +572,7 @@ Model 2 was a `Shallow' FCN Model with a single 1 $\times$ 1 convolution bridgin
 
 \vspace{0.5cm}
 
-Figure XXXX shows segmentation while the UAV is following the \textit{hero}; Figure XXXX shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure XXXX shows images of the UAV patrolling with the \textit{hero} in sight.
+Figure 32 shows segmentation while the UAV is following the \textit{hero}; Figure 33 shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure 34 shows images of the UAV patrolling with the \textit{hero} in sight.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{model_2_1}
@@ -593,7 +593,7 @@ Figure XXXX shows segmentation while the UAV is following the \textit{hero}; Fig
 
 \subsection{Model 3 Performance}
 \begin{minipage}{0.45\textwidth}
-Model 3 was a `Shallow' FCN Model without a 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.4. The layer between encoder and decoder a 3 $\times$ 3 convolution meaning there are more trainable parameters in the model. Loss values over time can be seen in Figure XXXX, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.435, which exceeds the required 0.40 benchmark. Figures XXXX, XXXX, and XXXX demonstrate the effectiveness of model's predictive performance, compared to the ground truth.
+Model 3 was a `Shallow' FCN Model without a 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.4. The layer between encoder and decoder a 3 $\times$ 3 convolution meaning there are more trainable parameters in the model. Loss values over time can be seen in Figure 35, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.435, which exceeds the required 0.40 benchmark. Figures 36, 37, and 38 demonstrate the effectiveness of model's predictive performance, compared to the ground truth.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
@@ -604,7 +604,7 @@ Model 3 was a `Shallow' FCN Model without a 1 $\times$ 1 convolution bridging th
 
 \vspace{0.5cm}
 
-Similarly to Section 4.1, each Figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation. Figure XXXX shows segmentation while the UAV is following the \textit{hero}; Figure XXXX shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure XXXX shows images of the UAV patrolling with the \textit{hero} in sight.
+Similarly to Section 4.1, each Figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation. Figure 36 shows segmentation while the UAV is following the \textit{hero}; Figure 37 shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure 38 shows images of the UAV patrolling with the \textit{hero} in sight.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{model_3_1}
@@ -635,12 +635,31 @@ Three separate FCN models were trained to provide pixel by pixel segmentation of
 \item Adding regularisation to the model with dropout
 \end{itemize}
 
+\newpage
+
 \section{References}
 
-\section{Appendix A}
 
-\section{Appendix B}
 
-\section{Appendix C}
+
+Badrinarayanan, V., Kendall, A., \& Cipolla, R. (2016). SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation. \textit{arXiv:1511.00561v3}\\
+
+Ciresan, D. C., Meier, U., Gambardella, L. M., \& Schmidhuber, J. (2010). Deep Big Simple Neural Nets Excel on Handwritten Digit Recognition. \textit{arXiv:1003.0358v1}.\\
+
+He, K., Zhang, X., Ren, S., \& Sun, J. (2015). Deep Residual Learning or Image Recognition. \textit{arXiv:1512.03385v1}\\
+
+Huang, T. S. (1996). Computer Vision: Evolution and Promise, University of Illinois at Urbana-Champaign\\
+
+Ioffe, S., \& Szegedy, C. (2015). Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift. \textit{arXiv:1502.031167v3}\\
+
+Krizhevsky, A., Sutskever, I., \& Hinton, G. E. (2012). ImageNet Classification with Deep Convolutional Neural Networks. \textit{Advances in Neural Information Processing Systems 25 (NIPS 2012)}\\
+
+Lin, M., Chen, Q., \& Yan, S. (2014). Network in Network. \textit{arXiv:1312.4400v3}\\
+
+Long, J., Shelhamer, E., \& Darrell, T. (2014). Fully Convolutions Networks for Semantic Segmentation, 	\textit{arXiv:1411.4038}.\\
+
+Ruder, S. (2017). An overview of gradient descent optimization algorithms. \textit{arXiv:1609:04747v2}\\
+
+Yann, L., Botton, L., Bengio, Y., \& Haffner, P. (1998). Gradient-Based Learning Applied to Document Recognition,\textit{Proceedings of the IEEE}, DOI: 10.1109/5.726791.\\
 
 \end{document}
