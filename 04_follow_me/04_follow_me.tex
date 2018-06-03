@@ -296,12 +296,12 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers,
     \draw[->, >=stealth] (2.2,4.5) to [out=20,in=120] (12,3.1);
     \draw[->, >=stealth] (1,4.8) to [out=20,in=120] (13.8,3);
 \end{tikzpicture}
-\caption{text}
+\caption{Graphical depiction of model 1}
 \end{figure}
 
 \begin{table}[h]
 \centering
-\caption{text}\scriptsize
+\caption{Detailed breakdown of the structure for model 1}\scriptsize
 \begin{tabular}{ccccp{8cm}}
 \toprule
 \textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
@@ -350,12 +350,12 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 9 layers,
 	    \draw[->, >=stealth] (1.3,4.9) to [out=20,in=120] (13,3.6);
 	    
 \end{tikzpicture}
-\caption{text}
+\caption{Graphical depiction of model 2}
 \end{figure}
 
 \begin{table}[h]
 \centering
-\caption{text}\scriptsize
+\caption{Detailed breakdown of the structure for model 2}\scriptsize
 \begin{tabular}{ccccp{8cm}}
 \toprule
 \textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
@@ -399,12 +399,12 @@ The proposed deep model with 1 $\times$ 1 convolutions is comprised of 8 layers,
     \draw[->, >=stealth] (3,4.3) to [out=20,in=120] (10.5,3.5);
 	\draw[->, >=stealth] (1.3,4.7) to [out=20,in=120] (13,3.4);
 \end{tikzpicture}
-\caption{text}
+\caption{Graphical depiction of model 3}
 \end{figure}
 
 \begin{table}[h]
 \centering
-\caption{text}\scriptsize
+\caption{Detailed breakdown of the structure for model 3}\scriptsize
 \begin{tabular}{ccccp{8cm}}
 \toprule
 \textbf{Name} & \textbf{Width (W)} & \textbf{Height (W)} & \textbf{Depth (D)} & Layer Details\\  
@@ -432,22 +432,22 @@ Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \section{Data \& Network Training}
 The initial data set provided with the problem was comprised of XXXX images. There are three rough categories that the images can be placed in:
 \begin{enumerate}
-\item XXXX
-\item XXXX
-\item XXXX
+\item Images while the UAV is following the \textit{hero}
+\item Images while the UAV is patrolling, but cannot see the \textit{hero}
+\item Images while the UAV is patrolling and can see the \textit{hero}
 \end{enumerate}
-To provide the network with additional training data, XXXX, XXXX, and XXXX images were captured from the simulator in each of the fields, respectively. When an image is captured, pixel label data is also provided in the form of image masks. There are three types of masks that accompany each image: a mask highlighting the hero; a mask highlighting people who are not the hero; and a mask highlighting the background. Examples of these masks can be seen in Figures XXXX, XXXX, and XXXX, respectively. It must be noted that these labels would not be available with real world images, and the masks are able to be extracted only because the image data is collected from a simulation.
+To provide the network with additional training data, XXXX, XXXX, and XXXX images were captured from the simulator in each of the fields, respectively. These were added to the initial data set to bring it to a total of 5279 images. When an image is captured, pixel label data is also provided in the form of image masks. There are three types of masks that accompany each image: a mask highlighting the hero; a mask highlighting people who are not the hero; and a mask highlighting the background. Examples of these masks can be seen in Figures XXXX, XXXX, and XXXX, respectively. It must be noted that these labels would not be available with real world images, and the masks are able to be extracted only because the image data is collected from a simulation.
 \begin{figure}[h]
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4cm]{cam1}}
-\captionof{figure}{text}
+\captionof{figure}{An image captured from the simulation}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4cm]{cam2}}
-\captionof{figure}{text}
+\captionof{figure}{A mask of the image seen in Figure XXXX highlighting pixels which contain the \textit{hero}}
 \end{minipage}
 \end{figure}
 
@@ -455,13 +455,13 @@ To provide the network with additional training data, XXXX, XXXX, and XXXX image
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4cm]{cam3}}
-\captionof{figure}{text}
+\captionof{figure}{A mask of the image seen in Figure XXXX highlighting pixels which contain people other than the \textit{hero}}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4cm]{cam4}}
-\captionof{figure}{text}
+\captionof{figure}{A mask of the image seen in Figure XXXX highlighting pixels which contain the background}
 \end{minipage}
 \end{figure}
 
@@ -509,18 +509,138 @@ Setting the steps per epoch equal to the value shown in equation (2) will ensure
 
 \subsection{Learning Rate}
 \begin{minipage}{0.45\textwidth}
-Talk about the learning rate being critical to 
+The learning rate is perhaps the most important hyper-parameter which impacts on model performance. It dictates the step size of the optimiser at each iteration. If the learning rate is `too small', then the model may fail to optimise fast enough. If the learning rate is `too big' then the model may not be able to reach optimal performance, or may fail to converge at all. The main problem in finding an acceptable learning rate is that there is no clear definition of `too big' or `too small' - the optimal learning rate is dependent on the deep learning problem.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[scale=0.5]{hyp_par_3}
-\captionof{figure}{text}
+\includegraphics[height=4.7cm]{hyp_par_3}
+\captionof{figure}{Change in the loss function versus change in the learning rate}
 \end{minipage}
 
+\vspace{0.2cm}
 
-\section{Performance \& Model Generalisation}
+To develop some intuition on acceptable learning rates for this problem, a small experiment was conducted, looking at model performance for different learning rates, holding other hyper-parameters constant. The results can be seen in Figure XXXX (note that the $x$-axis is in log scale). The experiment shows that an acceptable learning rate for this problem lies around 0.001.
 
-\section{Future Enhancements}
-% Collecting addtional datasets and filtering them to only include images of the hero - note that we want data that does not include the 
+\section{Results}
+Models were each trained using a learning rate of 0.001, 50 epochs, with a batch size of 64, and 185 steps per epoch. The results for each of the models are presented in Sections 4.1, 4.2, and 4.3.
+
+\subsection{Model 1 Performance}
+\begin{minipage}{0.45\textwidth}
+Model 1 was a `Deep' FCN Model with a single 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.2. Loss values over time can be seen in Figure XXXX, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.3738, which fails to meet the benchmark of 0.40. Figures XXXX, XXXX, and XXXX demonstrate the effectiveness of model's predictive performance, compared to the ground truth. Each Figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation.
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[scale=0.5]{Model_1}
+\captionof{figure}{Loss function for each epoch during Model 1 training}
+\end{minipage}
+
+\vspace{0.5cm}
+
+Figure XXXX shows segmentation while the UAV is following the \textit{hero}; Figure XXXX shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure XXXX shows images of the UAV patrolling with the \textit{hero} in sight.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_1_1}
+\caption{Model 1 segmentation while the UAV is following the \textit{hero}: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_1_2}
+\caption{Model 1 segmentation while the UAV is patrolling without the \textit{hero} in sight: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_1_3}
+\caption{Model 1 segmentation while the UAV is patrolling with the \textit{hero} in sight: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\clearpage
+
+\subsection{Model 2 Performance}
+\begin{minipage}{0.45\textwidth}
+Model 2 was a `Shallow' FCN Model with a single 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.3. Loss values over time can be seen in Figure XXXX, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.3990, which fails to meet the 0.40 benchmark. Figures XXXX, XXXX, and XXXX demonstrate the effectiveness of model's predictive performance, compared to the ground truth. As with Section 4.1 each figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation.
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[scale=0.5]{Model_2}
+\captionof{figure}{Loss function for each epoch during Model 1 training}
+\end{minipage}
+
+\vspace{0.5cm}
+
+Figure XXXX shows segmentation while the UAV is following the \textit{hero}; Figure XXXX shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure XXXX shows images of the UAV patrolling with the \textit{hero} in sight.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_2_1}
+\caption{Model 2 segmentation while the UAV is following the \textit{hero}: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_2_2}
+\caption{Model 2 segmentation while the UAV is patrolling without the \textit{hero} in sight: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_2_3}
+\caption{Model 2 segmentation while the UAV is patrolling with the \textit{hero} in sight: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\subsection{Model 3 Performance}
+\begin{minipage}{0.45\textwidth}
+Model 3 was a `Shallow' FCN Model without a 1 $\times$ 1 convolution bridging the gap between the encoder and the decoder, shown in Section 2.3.4. The layer between encoder and decoder a 3 $\times$ 3 convolution meaning there are more trainable parameters in the model. Loss values over time can be seen in Figure XXXX, which shows rapid learning, followed by asymptotic convergence as the number of epochs increases. The evaluated intersection over union for the model was 0.435, which exceeds the required 0.40 benchmark. Figures XXXX, XXXX, and XXXX demonstrate the effectiveness of model's predictive performance, compared to the ground truth.
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[scale=0.5]{Model_3}
+\captionof{figure}{Loss function for each epoch during Model 1 training} 
+\end{minipage}
+
+\vspace{0.5cm}
+
+Similarly to Section 4.1, each Figure has three panels: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation. Figure XXXX shows segmentation while the UAV is following the \textit{hero}; Figure XXXX shows segmentation while the UAV is patrolling without the \textit{hero} in sight; and Figure XXXX shows images of the UAV patrolling with the \textit{hero} in sight.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_3_1}
+\caption{Model 3 segmentation while the UAV is following the \textit{hero}: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_3_2}
+\caption{Model 3 segmentation while the UAV is patrolling without the \textit{hero} in sight: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{model_3_3}
+\caption{Model 3 segmentation while the UAV is patrolling with the \textit{hero} in sight: the leftmost panel is the actual input, the middle panel represents perfect segmentation, and the final panel is the model segmentation}
+\end{figure}
+
+\newpage
+
+\section{Discussion \& Future Enhancements}
+Three separate FCN models were trained to provide pixel by pixel segmentation of images from a 3D simulation. All three models were able to provide some level of segmentation, however, only the model which didn't use 1 $\times$ 1 convolutions was able to achieve the required intersection over union benchmark. It is unclear why this may be the case - using a 3 $\times$ 3 convolution instead of a 1 $\times$ 1 convolution adds additional parameters to the models, however, adding additional parameters by making the model deeper (as with Model 1) failed to produce similar results. To better understand how the models work for this task, and to improve model performance, there are a number of areas that could be explored. These include:
+\begin{itemize}
+\item Increasing the patch sizes to include larger patches (e.g. 5 $\times$ 5)
+\item Adding pooling layers in the encoder, and unpooling layers in the decoder
+\item Increasing the depth of the model and getting a larger dataset - additional images could be achieved by flipping all of the current images
+\item Increasing the number of epochs for which the model is trained
+\item Adding regularisation to the model with dropout
+\end{itemize}
+
+\section{References}
+
+\section{Appendix A}
+
+\section{Appendix B}
+
+\section{Appendix C}
+
 \end{document}
