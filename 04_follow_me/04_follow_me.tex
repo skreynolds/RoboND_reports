@@ -19,6 +19,7 @@
 \usepackage{hyperref}
 \usepackage{makecell}
 \usepackage{siunitx}
+\usepackage{wrapfig}
 
 \usetikzlibrary{shapes.geometric}
 
@@ -269,7 +270,7 @@ def decoder_block(small_ip_layer, large_ip_layer, filters):
 \end{sexylisting}
 \end{figure}
 
-Both the \verb|encoder_block()| and \verb|decoder_block()| functions use ReLUs as the non-linear activation functions, and both functions employ batch normalisation. Batch normalisation is a technique proposed by XXXX and XXXX (XXXX) which helps to improve the optimisation process to Stochastic Gradient Descent (SGD), however, it provides some regularisation to the model as well.
+Both the \verb|encoder_block()| and \verb|decoder_block()| functions use ReLUs as the non-linear activation functions, and both functions employ batch normalisation. Batch normalisation is a technique proposed by XXXX and XXXX (XXXX) which helps to improve the optimisation process which occurs during training. Additionally, it provides some regularisation to the model as well.
 
 \clearpage
 
@@ -428,41 +429,77 @@ Output & 160 & 160 & 3 & Created from a 2D convolution\\
 
 \clearpage
 
-\section{Network Training}
+\section{Data \& Network Training}
 The initial data set provided with the problem was comprised of XXXX images. There are three rough categories that the images can be placed in:
 \begin{enumerate}
-\item 
-\item 
-\item 
+\item XXXX
+\item XXXX
+\item XXXX
 \end{enumerate}
-The network is trained with Stochastic Gradient Descent - specifically using the Adam optimizer. How does this optimiser work?
-
-Talk about the use of hyperparameters for training the network
-
-%Talk about the pre-processing of the data set (what does this do?)
-
-%Talk about the 
-
-\subsection{Batch Size}
+To provide the network with additional training data, XXXX, XXXX, and XXXX images were captured from the simulator in each of the fields, respectively. When an image is captured, pixel label data is also provided in the form of image masks. There are three types of masks that accompany each image: a mask highlighting the hero; a mask highlighting people who are not the hero; and a mask highlighting the background. Examples of these masks can be seen in Figures XXXX, XXXX, and XXXX, respectively. It must be noted that these labels would not be available with real world images, and the masks are able to be extracted only because the image data is collected from a simulation.
+\begin{figure}[h]
 \begin{minipage}{0.45\textwidth}
-The batch size defines the number of 
+\centering
+\frame{\includegraphics[height=4cm]{cam1}}
+\captionof{figure}{text}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[scale=0.5]{hyp_par_1}
+\frame{\includegraphics[height=4cm]{cam2}}
 \captionof{figure}{text}
 \end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+\begin{minipage}{0.45\textwidth}
+\centering
+\frame{\includegraphics[height=4cm]{cam3}}
+\captionof{figure}{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\frame{\includegraphics[height=4cm]{cam4}}
+\captionof{figure}{text}
+\end{minipage}
+\end{figure}
+
+Prior to model training, there is some pre-processing which concatenates the mask images into a single image. The network is trained using an optimiser called Adam, which is similar to Stochastic Gradient Descent (SGD). It differs in one important way: SGD typically uses a static learning rate, whereas Adam computes adaptive learning rates for each parameter (XXXX, XXXX). Talk about the use of hyperparameters for training the network
+
+\newpage
+
+\subsection{Batch Size}
+\begin{minipage}{0.45\textwidth}
+Batch size defines the number of training samples/images propagated through the network in a single pass. Batch size has an upper bound dependent on the amount of RAM in the GPU - we cannot accommodate more images than can be stored in RAM for a pass. A small experiment was conducted to gain some intuition on how batch size affects model performance. Model performance was tested for a series of increasing batch sizes, setting learning rate at 0.01, number of epochs at 5, and number of steps per epoch to 80. Figure XXXX shows the training loss for increasing batch size.
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=4.7cm]{hyp_par_1}
+\captionof{figure}{Change in loss function as batch size is increased}
+\end{minipage}
+
+\vspace{0.3cm}
+
+Clearly increased batch size allows more training images to pass through the model resulting in better performance - which is in line with intuition. This relationship is most likely follows a law of diminishing returns, with increases in performance reaching some asymptotic limit as batch size increases further.
 
 \subsection{Epochs}
 \begin{minipage}{0.45\textwidth}
-Epochs are 
+Epochs are the number of times the entire data set gets propagated through the network. Intuition would suggest that the more epochs, the more the model would be exposed to the training dataset, resulting in a better performance. Evidence supporting this intuition can be seen in Figure XXXX, which shows a small experiment in which the loss function was measured for an increasing number epochs. Note that the other model hyper-parameters were held constant with learning rate of 0.01, batch size 20, and number of steps 80.
 \end{minipage}
+\hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[scale=0.5]{hyp_par_2}
-\captionof{figure}{text}
+\includegraphics[height=4.7cm]{hyp_par_2}
+\captionof{figure}{Change in loss function as the number of epochs is increased}
 \end{minipage}
+
+\vspace{0.2cm}
+
+Whilst it is clear that more data means better performance, care must be taken to avoid over exposing the model to the training dataset. Failure to do so will often result in excellent performance on the training data set, but poor performance on test and validation sets due to over fitting.
+
+\subsection{Steps Per Epoch}
 
 
 \subsection{Learning Rate}
