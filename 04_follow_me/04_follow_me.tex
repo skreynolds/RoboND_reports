@@ -500,7 +500,12 @@ Epochs are the number of times the entire data set gets propagated through the n
 Whilst it is clear that more data means better performance, care must be taken to avoid over exposing the model to the training dataset. Failure to do so will often result in excellent performance on the training data set, but poor performance on test and validation sets due to over fitting.
 
 \subsection{Steps Per Epoch}
+The number of steps per epoch defines the number of batches of training images that go through the network in one epoch. It is considered desirable for one epoch to cover the entire dataset, and therefore this hyper-parameter can be thought of as a function of the total number of images, $N$, and the batch size, $N_{\texttt{batch}}$:
+\begin{align}
+	\texttt{steps\_per\_epoch} = \frac{N}{N_{batch}}
+\end{align}
 
+Setting the steps per epoch equal to the value shown in equation (2) will ensure that all of the images are covered in each epoch.
 
 \subsection{Learning Rate}
 \begin{minipage}{0.45\textwidth}
