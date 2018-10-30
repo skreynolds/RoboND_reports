@@ -1,0 +1,22 @@
+\contentsline {section}{\numberline {1}Introduction \& Background}{2}{section.1}
+\contentsline {section}{\numberline {2}Segmentation}{4}{section.2}
+\contentsline {subsection}{\numberline {2.1}Statistical Filtering to Remove Image Noise}{4}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Voxel Downsampling}{5}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Passthrough Filtering}{6}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}RANSAC Plane Segmentation}{7}{subsection.2.4}
+\contentsline {subsection}{\numberline {2.5}Euclidean Clustering (DBSCAN)}{8}{subsection.2.5}
+\contentsline {section}{\numberline {3}Object Recognition}{9}{section.3}
+\contentsline {subsection}{\numberline {3.1}Object Features}{10}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Colour Histograms}{11}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Surface Normal Histograms}{12}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Capturing Data}{12}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.5}Training the SVM}{13}{subsection.3.5}
+\contentsline {section}{\numberline {4}PR2 Implementation \& YAML File Output}{14}{section.4}
+\contentsline {subsection}{\numberline {4.1}Test World One}{17}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Test World Two}{17}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Test World Three}{18}{subsection.4.3}
+\contentsline {section}{\numberline {5}Results \& Conclusion}{18}{section.5}
+\contentsline {section}{\numberline {6}Further Enhancements}{18}{section.6}
+\contentsline {section}{\numberline {7}Appendix A}{19}{section.7}
+\contentsline {section}{\numberline {8}Appendix B}{20}{section.8}
+\contentsline {section}{\numberline {9}Appendix C}{22}{section.9}

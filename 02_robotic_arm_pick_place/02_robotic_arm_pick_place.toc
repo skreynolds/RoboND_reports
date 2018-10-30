@@ -1,0 +1,17 @@
+\contentsline {section}{\numberline {1}Introduction \& Background}{2}{section.1}
+\contentsline {section}{\numberline {2}Methods \& Implementation}{3}{section.2}
+\contentsline {subsection}{\numberline {2.1}Determining the Denavit-Hartenburg Parameters}{3}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Forward Kinematics}{6}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}Derivation of the transformation matrices}{6}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Correction of Transformation Matrices}{6}{subsubsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.3}Verification of Transformation Matrices}{7}{subsubsection.2.2.3}
+\contentsline {subsection}{\numberline {2.3}Inverse Kinematics}{9}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.3.1}First Three Joint Angles ($\theta _1$, $\theta _2$, and $\theta _3$)}{9}{subsubsection.2.3.1}
+\contentsline {subsubsection}{\numberline {2.3.2}Final Three Joint Angles ($\theta _4$, $\theta _5$, and $\theta _6$)}{11}{subsubsection.2.3.2}
+\contentsline {subsubsection}{\numberline {2.3.3}Implementation of IK Server}{13}{subsubsection.2.3.3}
+\contentsline {section}{\numberline {3}Results \& Conclusion}{15}{section.3}
+\contentsline {section}{\numberline {4}Further Enhancements}{16}{section.4}
+\contentsline {section}{\numberline {5}References}{16}{section.5}
+\contentsline {section}{\numberline {6}Appendix A}{17}{section.6}
+\contentsline {section}{\numberline {7}Appendix B}{18}{section.7}
+\contentsline {section}{\numberline {8}Appendix C}{20}{section.8}

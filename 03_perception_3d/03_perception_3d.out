@@ -1,0 +1,22 @@
+\BOOKMARK [1][-]{section.1}{Introduction \046 Background}{}% 1
+\BOOKMARK [1][-]{section.2}{Segmentation}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Statistical Filtering to Remove Image Noise}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Voxel Downsampling}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Passthrough Filtering}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{RANSAC Plane Segmentation}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.5}{Euclidean Clustering \(DBSCAN\)}{section.2}% 7
+\BOOKMARK [1][-]{section.3}{Object Recognition}{}% 8
+\BOOKMARK [2][-]{subsection.3.1}{Object Features}{section.3}% 9
+\BOOKMARK [2][-]{subsection.3.2}{Colour Histograms}{section.3}% 10
+\BOOKMARK [2][-]{subsection.3.3}{Surface Normal Histograms}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.4}{Capturing Data}{section.3}% 12
+\BOOKMARK [2][-]{subsection.3.5}{Training the SVM}{section.3}% 13
+\BOOKMARK [1][-]{section.4}{PR2 Implementation \046 YAML File Output}{}% 14
+\BOOKMARK [2][-]{subsection.4.1}{Test World One}{section.4}% 15
+\BOOKMARK [2][-]{subsection.4.2}{Test World Two}{section.4}% 16
+\BOOKMARK [2][-]{subsection.4.3}{Test World Three}{section.4}% 17
+\BOOKMARK [1][-]{section.5}{Results \046 Conclusion}{}% 18
+\BOOKMARK [1][-]{section.6}{Further Enhancements}{}% 19
+\BOOKMARK [1][-]{section.7}{Appendix A}{}% 20
+\BOOKMARK [1][-]{section.8}{Appendix B}{}% 21
+\BOOKMARK [1][-]{section.9}{Appendix C}{}% 22

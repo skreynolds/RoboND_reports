@@ -1,0 +1,20 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {section}{\numberline {2}Network Architecture}{3}{section.2}
+\contentsline {subsection}{\numberline {2.1}Convolutional Neural Networks}{5}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Fully Convolutional Neural Networks}{7}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Proposed Architectures \& Implementation}{8}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.3.1}Tensorflow Implementation}{9}{subsubsection.2.3.1}
+\contentsline {subsubsection}{\numberline {2.3.2}Model 1: Deep Model with 1 $\times $ 1 Convolution}{10}{subsubsection.2.3.2}
+\contentsline {subsubsection}{\numberline {2.3.3}Model 2: Shallow Model with 1 $\times $ 1 Convolution}{11}{subsubsection.2.3.3}
+\contentsline {subsubsection}{\numberline {2.3.4}Model 3: Shallow Model without 1 $\times $ 1 Convolution}{12}{subsubsection.2.3.4}
+\contentsline {section}{\numberline {3}Data \& Network Training}{13}{section.3}
+\contentsline {subsection}{\numberline {3.1}Batch Size}{14}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Epochs}{14}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Steps Per Epoch}{14}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Learning Rate}{15}{subsection.3.4}
+\contentsline {section}{\numberline {4}Results}{15}{section.4}
+\contentsline {subsection}{\numberline {4.1}Model 1 Performance}{15}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Model 2 Performance}{17}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Model 3 Performance}{18}{subsection.4.3}
+\contentsline {section}{\numberline {5}Discussion \& Future Enhancements}{19}{section.5}
+\contentsline {section}{\numberline {6}References}{20}{section.6}

@@ -198,7 +198,7 @@ FCNs are often make use of 1 $\times$ 1 convolutions, which are just a 2D convol
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{1by1}
-\caption{The input is 28 $\times$ 28 $\times$ 192 and the desired 2D convolution is a 5 $\times$ 5 patch using 32 filters. This would result in a total of XXXX multiplications. If a 1 $\times$ 1 convolution is used to reduce the depth of the input image from 192 to 16 before performing the 2D convolution with the 5$\times$5 patch, this reduces the total number of multiplications to XXXX.}
+\caption{The input is 28 $\times$ 28 $\times$ 192 and the desired 2D convolution is a 5 $\times$ 5 patch using 32 filters. This would result in a total of 120 million multiplications. If a 1 $\times$ 1 convolution is used to reduce the depth of the input image from 192 to 16 before performing the 2D convolution with the 5$\times$5 patch, this reduces the total number of multiplications to 12.4 million.}
 \end{figure}
 
 Finally, FCNs see an improvement in model performance with the use of something called skip connections. A skip connection attaches a residual output in an FCN architecture to an output occurring later in the network. Their use was originally proposed by He, Zhang, Ren and Sun (2015) who found that adding more layers to their model \textit{worsened} the performance during training. This work led to the development of the well known Resnet architecture. The skip connections essentially concatenate the 2 layers by adding the outputs - an example of the operation can be seen in Figure 15.
@@ -219,7 +219,7 @@ The information presented so far makes a compelling case for the use of FCNs to 
 FCN networks with many layers, like the original FCN architecture by Shelhamer, Long, and Darrell (2014) and SegNet, are used to provide semantic segmentation on images with high visual complexity taken from the real world. In contrast, the models proposed in this paper are tasked with semantic segmentation of images taken from the 3D environment simulated in Unity. Given this, it may not be appropriate to adopt the depth seen in state-of-the-art FCN architectures since reasonable performance may be achieved with smaller models. Moreover, given that the dataset from the simulation only consists of approximately 4000 images (about half of the 9,993 found in the VOC2012 segmentation data set), a more complex model may result in worse performance. In this light, three different FCN architectures are proposed for investigation: a deep model with 1 $\times$ 1 convolutions; a shallow model with 1 $\times$ 1 convolutions; and a shallow model without 1 $\times$ 1 convolutions. These models are discussed in more detail in Sections 2.3.2, 2.3.3, and 2.3.4 respectively. 
 
 \subsubsection{Tensorflow Implementation}
-To make the model implementation easier, two functions were developed: \verb|encoder_block()| (shown in Listing 1), and \verb|decoder_block()| (shown in Listing 2). An interesting feature of the \verb|encoder_block()| is that it uses the a seperable 2D convolution. The reason for this is that separable convolutions are more computationally efficient. To see this, consider a 3 $\times$ 3 patch with one filter ($K = 1$) in a single convolution. The number of operations to perform this is XXXX. A matrix is seperable if it can be written as follows:
+To make the model implementation easier, two functions were developed: \verb|encoder_block()| (shown in Listing 1), and \verb|decoder_block()| (shown in Listing 2). An interesting feature of the \verb|encoder_block()| is that it uses the a seperable 2D convolution. The reason for this is that separable convolutions are more computationally efficient. To see this, consider a 3 $\times$ 3 patch with one filter ($K = 1$) in a single convolution. The number of operations to perform this is 3 $\times$ 3. A matrix is seperable if it can be written as follows:
 \begin{align}
 \begin{bmatrix}
 A \cdot a & A \cdot b & A \cdot c\\
@@ -238,7 +238,7 @@ a & b & c
 \end{bmatrix}
 \end{align}  
 
-The definition shown in (1) can be used to first undertake a convolution with XXXX, and then convolve the result of the first convolution with XXXX. This results in a total of XXXX operations. Given that FCNs have to perform this type of operation many times to convolve an entire image, there are significant computational savings made by using separable 2D convolutions.
+The definition shown in (1) can be used to first undertake a convolution with $[A \ \ B \ \ C]^T$, and then convolve the result of the first convolution with $[a \ \ b \ \ c]$. This results in a total of 3 + 3 operations. Given that FCNs have to perform this type of operation many times to convolve an entire image, there are significant computational savings made by using separable 2D convolutions.
    
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{Implementation of the encoder block for the FCN in TensorFlow}
@@ -317,11 +317,11 @@ Input & 160 & 160 & 3 & Raw image input\\
  & & & &\\
 4 & 20 & 20 & 128 & Created from 2D convolution of layer 3 with 128 filters of patch size 1 $\times$ 1, and the stride is 1 with same padding\\
  & & & &\\
-5 & 40 & 40 & 64 & Created by adding upsampled layer 4 to layer 2 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3 and stride XXXX\\
+5 & 40 & 40 & 64 & Created by adding upsampled layer 4 to layer 2 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3, stride 1, and same padding\\
  & & & &\\
-6 & 80 & 80 & 32 & Created by adding upsampled layer 5 to layer 1 with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3 and stride XXXX\\
+6 & 80 & 80 & 32 & Created by adding upsampled layer 5 to layer 1 with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3, stride 1, and same padding\\
  & & & &\\
-7 & 160 & 160 & 3 & Created by adding upsampled layer 6 to the inputs with a skip connection, and passed through a 2D convolution with 3 filters of patch size 3 $\times$ 3 and stride XXXX\\
+7 & 160 & 160 & 3 & Created by adding upsampled layer 6 to the inputs with a skip connection, and passed through a 2D convolution with 3 filters of patch size 3 $\times$ 3, stride 1, and same padding\\
 & & & &\\
 Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \bottomrule
@@ -369,9 +369,9 @@ Input & 160 & 160 & 3 & Raw image input\\
  & & & &\\
 3 & 40 & 40 & 128 & Created from 2D convolution of layer 2 with 128 filters of patch size 1 $\times$ 3, and the stride is 1 with same padding\\
  & & & &\\
-4 & 80 & 80 & 64 & Created by adding upsampled layer 3 to layer 1 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3\\
+4 & 80 & 80 & 64 & Created by adding upsampled layer 3 to layer 1 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3, stride 1, and same padding\\
  & & & &\\
-5 & 160 & 160 & 32 & Created by adding upsampled layer 4 to the raw input with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3\\
+5 & 160 & 160 & 32 & Created by adding upsampled layer 4 to the raw input with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3, stride 1, and same padding \\
  & & & &\\
 Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \bottomrule
@@ -418,9 +418,9 @@ Input & 160 & 160 & 3 & Raw image input\\
  & & & &\\
 3 & 40 & 40 & 64 & Created from 2D convolution of layer 2 with 64 filters of patch size 3 $\times$ 3, and the stride is 1 with same padding\\
  & & & &\\
-4 & 80 & 80 & 64 & Created by adding upsampled layer 3 to layer 1 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3\\
+4 & 80 & 80 & 64 & Created by adding upsampled layer 3 to layer 1 with a skip connection, and passed through a 2D convolution with 64 filters of patch size 3 $\times$ 3, stride 1, and same padding\\
  & & & &\\
-5 & 160 & 160 & 32 & Created by adding upsampled layer 4 to raw inputs with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3\\
+5 & 160 & 160 & 32 & Created by adding upsampled layer 4 to raw inputs with a skip connection, and passed through a 2D convolution with 32 filters of patch size 3 $\times$ 3, stride 1, and same padding\\
 & & & &\\
 Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \bottomrule
@@ -430,13 +430,13 @@ Output & 160 & 160 & 3 & Created from a 2D convolution\\
 \clearpage
 
 \section{Data \& Network Training}
-The initial data set provided with the problem was comprised of XXXX images. There are three rough categories that the images can be placed in:
+The initial data set provided with the problem was comprised of 4142 images. There are three rough categories that the images can be placed in:
 \begin{enumerate}
 \item Images while the UAV is following the \textit{hero}
 \item Images while the UAV is patrolling, but cannot see the \textit{hero}
 \item Images while the UAV is patrolling and can see the \textit{hero}
 \end{enumerate}
-To provide the network with additional training data, XXXX, XXXX, and XXXX images were captured from the simulator in each of the fields, respectively. These were added to the initial data set to bring it to a total of 5279 images. When an image is captured, pixel label data is also provided in the form of image masks. There are three types of masks that accompany each image: a mask highlighting the hero; a mask highlighting people who are not the hero; and a mask highlighting the background. Examples of these masks can be seen in Figures 20, 21, 22, and 23, respectively. It must be noted that these labels would not be available with real world images, and the masks are able to be extracted only because the image data is collected from a simulation.
+To provide the network with additional training data, 542, 270, and 322 images were captured from the simulator in each of the fields, respectively. These were added to the initial data set to bring it to a total of 5279 images. When an image is captured, pixel label data is also provided in the form of image masks. There are three types of masks that accompany each image: a mask highlighting the hero; a mask highlighting people who are not the hero; and a mask highlighting the background. Examples of these masks can be seen in Figures 20, 21, 22, and 23, respectively. It must be noted that these labels would not be available with real world images, and the masks are able to be extracted only because the image data is collected from a simulation.
 \begin{figure}[h]
 \begin{minipage}{0.45\textwidth}
 \centering
@@ -626,7 +626,13 @@ Similarly to Section 4.1, each Figure has three panels: the leftmost panel is th
 \newpage
 
 \section{Discussion \& Future Enhancements}
-Three separate FCN models were trained to provide pixel by pixel segmentation of images from a 3D simulation. All three models were able to provide some level of segmentation, however, only the model which didn't use 1 $\times$ 1 convolutions was able to achieve the required intersection over union benchmark. It is unclear why this may be the case - using a 3 $\times$ 3 convolution instead of a 1 $\times$ 1 convolution adds additional parameters to the models, however, adding additional parameters by making the model deeper (as with Model 1) failed to produce similar results. To better understand how the models work for this task, and to improve model performance, there are a number of areas that could be explored. These include:
+Three separate FCN models were trained to provide pixel by pixel segmentation of images from a 3D simulation. All three models were able to provide some level of segmentation, however, only the model which didn't use 1 $\times$ 1 convolutions was able to achieve the required intersection over union benchmark. It is unclear why this may be the case - using a 3 $\times$ 3 convolution instead of a 1 $\times$ 1 convolution adds additional parameters to the models, however, adding additional parameters by making the model deeper (as with Model 1) failed to produce similar results. Despist this, the UAV agent was able to identify and track the hero\textit{target} relatively quickly in the simulation. This can be seen in the YouTube video posted below.
+
+\begin{center}
+	\url{https://youtu.be/s5_GbtJK3Sc}
+\end{center}
+
+To better understand how the models work for this task, and to improve model performance, there are a number of areas that could be explored. These include:
 \begin{itemize}
 \item Increasing the patch sizes to include larger patches (e.g. 5 $\times$ 5)
 \item Adding pooling layers in the encoder, and unpooling layers in the decoder
@@ -638,9 +644,6 @@ Three separate FCN models were trained to provide pixel by pixel segmentation of
 \newpage
 
 \section{References}
-
-
-
 
 Badrinarayanan, V., Kendall, A., \& Cipolla, R. (2016). SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation. \textit{arXiv:1511.00561v3}\\
 

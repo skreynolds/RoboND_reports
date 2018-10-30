@@ -1,0 +1,21 @@
+r = sqrt(wx**2 + wy**2) - 0.35 #implemented okay
+ss = wz - 0.75 #implemented okay
+
+k1 = 1.25 #implemented okay
+k2 = 1.5 #implemented okay
+
+D = (k1**2 + k2**2 - (r**2 + ss**2))/(2 * k1 * k2) #implemented okay
+K = (k1**2 + (r**2 + ss**2) - k2**2)/(2*sqrt(r**2 + ss**2)*k1) #implemented okay
+
+# First three joint variables
+theta1 = atan2(wy,wx).evalf()
+theta2 = (pi/2 - atan2(ss,r) - atan2(sqrt(1 - K**2), K)).evalf()
+theta3 = 1.53484 - atan2(sqrt(1 - D**2), D).evalf()
+
+R36rpy = (R0_3.transpose() * Rrpy).evalf(subs={q1: theta1, q2: theta2, q3: theta3})
+
+# Second three joint variables
+theta4 = atan2(R36rpy[2,2], -R36rpy[0,2]).evalf()
+theta5 = atan2(sqrt(1 - R36rpy[1,2]**2), R36rpy[1,2]).evalf()
+theta6 = atan2(-R36rpy[1,1], R36rpy[1,0]).evalf()
+	

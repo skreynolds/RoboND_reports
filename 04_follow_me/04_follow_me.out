@@ -1,0 +1,20 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Network Architecture}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Convolutional Neural Networks}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Fully Convolutional Neural Networks}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Proposed Architectures \046 Implementation}{section.2}% 5
+\BOOKMARK [3][-]{subsubsection.2.3.1}{Tensorflow Implementation}{subsection.2.3}% 6
+\BOOKMARK [3][-]{subsubsection.2.3.2}{Model 1: Deep Model with 1 \0401 Convolution}{subsection.2.3}% 7
+\BOOKMARK [3][-]{subsubsection.2.3.3}{Model 2: Shallow Model with 1 \0401 Convolution}{subsection.2.3}% 8
+\BOOKMARK [3][-]{subsubsection.2.3.4}{Model 3: Shallow Model without 1 \0401 Convolution}{subsection.2.3}% 9
+\BOOKMARK [1][-]{section.3}{Data \046 Network Training}{}% 10
+\BOOKMARK [2][-]{subsection.3.1}{Batch Size}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.2}{Epochs}{section.3}% 12
+\BOOKMARK [2][-]{subsection.3.3}{Steps Per Epoch}{section.3}% 13
+\BOOKMARK [2][-]{subsection.3.4}{Learning Rate}{section.3}% 14
+\BOOKMARK [1][-]{section.4}{Results}{}% 15
+\BOOKMARK [2][-]{subsection.4.1}{Model 1 Performance}{section.4}% 16
+\BOOKMARK [2][-]{subsection.4.2}{Model 2 Performance}{section.4}% 17
+\BOOKMARK [2][-]{subsection.4.3}{Model 3 Performance}{section.4}% 18
+\BOOKMARK [1][-]{section.5}{Discussion \046 Future Enhancements}{}% 19
+\BOOKMARK [1][-]{section.6}{References}{}% 20

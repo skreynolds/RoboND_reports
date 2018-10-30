@@ -1,0 +1,17 @@
+\BOOKMARK [1][-]{section.1}{Introduction \046 Background}{}% 1
+\BOOKMARK [1][-]{section.2}{Methods \046 Implementation}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Determining the Denavit-Hartenburg Parameters}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Forward Kinematics}{section.2}% 4
+\BOOKMARK [3][-]{subsubsection.2.2.1}{Derivation of the transformation matrices}{subsection.2.2}% 5
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Correction of Transformation Matrices}{subsection.2.2}% 6
+\BOOKMARK [3][-]{subsubsection.2.2.3}{Verification of Transformation Matrices}{subsection.2.2}% 7
+\BOOKMARK [2][-]{subsection.2.3}{Inverse Kinematics}{section.2}% 8
+\BOOKMARK [3][-]{subsubsection.2.3.1}{First Three Joint Angles \(1, 2, and 3\)}{subsection.2.3}% 9
+\BOOKMARK [3][-]{subsubsection.2.3.2}{Final Three Joint Angles \(4, 5, and 6\)}{subsection.2.3}% 10
+\BOOKMARK [3][-]{subsubsection.2.3.3}{Implementation of IK Server}{subsection.2.3}% 11
+\BOOKMARK [1][-]{section.3}{Results \046 Conclusion}{}% 12
+\BOOKMARK [1][-]{section.4}{Further Enhancements}{}% 13
+\BOOKMARK [1][-]{section.5}{References}{}% 14
+\BOOKMARK [1][-]{section.6}{Appendix A}{}% 15
+\BOOKMARK [1][-]{section.7}{Appendix B}{}% 16
+\BOOKMARK [1][-]{section.8}{Appendix C}{}% 17
