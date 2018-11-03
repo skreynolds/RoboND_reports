@@ -1,6 +1,11 @@
 \begin{thebibliography}{1}
 
-\bibitem{Nobody06}
-N.~Jr, ``My article,'' 2006.
+\bibitem{BP:201806}
+{British Petroleum}, ``Bp statistical review of world energy,'' tech. rep.,
+  June 1985.
+
+\bibitem{Azapagic:2011}
+S.~P. A~Azapagic, {\em Sustainable Development in Practice}, vol.~2nd ed.
+\newblock Oxford: Wiley-Blackwell, 2011.
 
 \end{thebibliography}
