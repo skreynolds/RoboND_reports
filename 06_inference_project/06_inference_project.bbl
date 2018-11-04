@@ -1,11 +1,29 @@
 \begin{thebibliography}{1}
 
+\bibitem{Australia:2014}
+{Geoscience Australia}, ``Australian energy resource assessment,'' tech. rep.,
+  2014.
+
 \bibitem{BP:201806}
-{British Petroleum}, ``Bp statistical review of world energy,'' tech. rep.,
+{British Petroleum}, ``{BP} statistical review of world energy,'' tech. rep.,
   June 1985.
 
 \bibitem{Azapagic:2011}
 S.~P. A~Azapagic, {\em Sustainable Development in Practice}, vol.~2nd ed.
 \newblock Oxford: Wiley-Blackwell, 2011.
+
+\bibitem{IPCC:2018}
+{IPCC}, ``Special report on global warming of 1.5{$\si{\celsius}$},'' tech.
+  rep., New York NY, 2018.
+
+\bibitem{APVI:2018}
+A.~P. Institute, ``Australian {PV} market since april 2001.''
+  \url{http://pv-map.apvi.org.au/analyses}.
+\newblock Accessed: 2018-11-03.
+
+\bibitem{Baldwin:2018}
+M.~S. K~Baldwin, A~Blakers, ``At its current rate, australia is on track for
+  50\% renewable electricity in 2025.'' \url{http://theconversation.com}.
+\newblock Accessed: 2018-11-03.
 
 \end{thebibliography}
