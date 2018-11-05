@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{Australia:2014}
 {Geoscience Australia}, ``Australian energy resource assessment,'' tech. rep.,
@@ -9,7 +9,8 @@
   June 1985.
 
 \bibitem{Azapagic:2011}
-S.~P. A~Azapagic, {\em Sustainable Development in Practice}, vol.~2nd ed.
+A.~Azapagic and S.~Perdan, {\em Sustainable Development in Practice}, vol.~2nd
+  ed.
 \newblock Oxford: Wiley-Blackwell, 2011.
 
 \bibitem{IPCC:2018}
@@ -17,13 +18,33 @@ S.~P. A~Azapagic, {\em Sustainable Development in Practice}, vol.~2nd ed.
   rep., New York NY, 2018.
 
 \bibitem{APVI:2018}
-A.~P. Institute, ``Australian {PV} market since april 2001.''
+A.~Institute, ``Australian {PV} market since april 2001.''
   \url{http://pv-map.apvi.org.au/analyses}.
 \newblock Accessed: 2018-11-03.
 
 \bibitem{Baldwin:2018}
-M.~S. K~Baldwin, A~Blakers, ``At its current rate, australia is on track for
-  50\% renewable electricity in 2025.'' \url{http://theconversation.com}.
+K.~Baldwin, A.~Blakers, and M.~Stocks, ``At its current rate, australia is on
+  track for 50\% renewable electricity in 2025.''
+  \url{http://theconversation.com}.
 \newblock Accessed: 2018-11-03.
+
+\bibitem{Maghami:2016}
+M.~Maghami, H.~Hizam, C.~Gomes, M.~Radzi, M.~Rezadad, and S.~Hajighorbani,
+  ``Power loss due to soiling on soalr panel: A review,'' {\em Renewable and
+  Sustainable Energy Reviews}, vol.~59, no.~2, pp.~1307--1316, 2016.
+
+\bibitem{He:2015}
+K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image
+  recognition,'' {\em IEEE Conference on Computer Vision and Pattern
+  Recognition}, 2015.
+
+\bibitem{Simonyan:2015}
+K.~Simonyan and A.~Zisserman, ``Very deep convolutional networks for large
+  scale image recognition,'' {\em ICLR}, 2015.
+
+\bibitem{Szegedy:2014}
+C.~Szegedy, W.~Liu, Y.~Jia, P.~Sermanet, S.~Reed, D.~Anguelov, D.~Erhan,
+  V.~Vanhoucke, and A.~Rabinovich, ``Going deeper with convolutions,'' {\em
+  arXiv}, 2014.
 
 \end{thebibliography}

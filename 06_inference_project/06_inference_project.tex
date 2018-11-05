@@ -94,21 +94,33 @@
 		
 		The Intergovernmental Panel on Climate Change (IPCC) released a report in 2018 highlighting the link between greenhouse gas emissions and the increase in global temperatures citing human induced warming of 1$\si{\celsius}$ above pre-industrial levels in 2017, increasing at a minimum of 0.1$ \si{\celsius}$ per decade. The report forewarns of adverse environmental impact assuming maintained rates of CO2 emissions. These include an increase of 1.5$ \si{\celsius}$ above pre-industrial levels; increased frequency and intensity of heat waves; loss of biomass and a decrease in the number of species populations in climate sensitive areas; sea level rise; and food insecurity \cite{IPCC:2018}.\\ 
 		
-		Fortunately, the solar power industry is growing in Australia. As of September 2018, Australia had over 10131$\si{\mega\watt}$ of installed PV solar power. Approximately, 3366$\si{\mega\watt}$ were installed in the preceding 12 months \cite{APVI:2018}. In fact, the Australian renewable energy industry is on track to install more than 10$\si{\giga\watt}$ of new solar power during 2018 and 2019 - a rate which, if sustained, would see Australian generation reach 50\% renewables by 2025 \cite{Baldwin:2018}.
+		Fortunately, the solar power industry is growing in Australia. As of September 2018, Australia had over 10131$\si{\mega\watt}$ of installed PV solar power. Approximately, 3366$\si{\mega\watt}$ were installed in the preceding 12 months \cite{APVI:2018}. In fact, the Australian renewable energy industry is on track to install more than 10$\si{\giga\watt}$ of new solar power during 2018 and 2019 - a rate which, if sustained, would see Australian generation reach 50\% renewables by 2025 \cite{Baldwin:2018}.\\
+		
+		Generation from large- and mid-sized solar arrays face the unique maintenance challenge of keeping the solar panels free from soiling. Soilng comes in the form of an accumutaion of dust, pollen, leaves, bird droppings or snail trails \cite{Maghami:2016}. A paper from an IBM research lab in 2018 demonstrated that CNNs can be used to help determine the soiling state of solar panels. The trained model was successfully able to 
 		
 		
-		Use this space to introduce your robotic inference idea and how you wish to apply it. 
-		If you have any papers / sites you have referenced for your idea, please make sure to cite them.
+		Automatic visual inspection, using drones equipped with RGB cameras, has the potential to schedule cleaning routines to optimise maintenance costs. Cost savings may be realised from the reduction of labour involved for visual inspection by humans. Additionally, data could be used to determine optimal cleaning sequences for maximum power efficiency.\\
 		
+		This paper proposes the use of a convolutional neural network to classify images of solar panels as soiled, or clean.\\
 		
-		
-		
-		
-		
-		
+		 
 		
 		
 		\section{Background / Formulation}
+		A Convolutional Neural Network (CNN) is a class of artificial neural network, which has an underlying architecture suited to learning shapes, edges, and colours in images. The main feature of a CNN is a convolving filter, which can be thought of as a small patch which slides over the image allowing model weights to be shared for different sections of the image. An example of this can be seen in Figure 2.\\
+		\begin{figure}[h]
+			\centering
+			\includegraphics[scale=0.4]{CNN}
+			\caption{text}
+		\end{figure}
+		
+		Indeed, CNNs are recognised as state-of-the-art methods for image classification, as seen in models such as GoogleNet \cite{Szegedy:2014}, ResNet \cite{He:2015}, and VGG \cite{Simonyan:2015}. Of course, recent CNNs, such as VGG, are very deep and contain a significant number of weights. The large number of weights in these models have two main effects:
+		\begin{enumerate}
+			\item 
+		\end{enumerate}
+		
+		
+		
 		At this stage, you should begin diving into the technical details of your approach by explaining to the reader how parameters were defined, what type of network was chosen, and the reasons these items were performed. This should be factual and authoritative, meaning you should not use language such as “I think this will work” or “Maybe a network with this architecture is better..”. Instead, focus on items similar to, ”A 3-layer network architecture was chosen with X, Y, and Z parameters” 
 		Explain why you chose the network you did for the supplied data set and then why you chose the network used for your robotic inference project.
 		
@@ -126,25 +138,25 @@
 				
 			\end{enumerate}
 			
-			\section{Data Acquisition}
-			This section should discuss the data set. Items to include are the number of images, size of the images, the types of images (RGB, Grayscale, etc.), how these images were collected (including the method). Providing this information is critical if anyone would like to replicate your results. After all, the intent of reports such as these are to convey information and build upon ideas so you want to ensure others can validate your process.
-			Justifying why you gathered data in this way is a helpful point, but sometimes this may be omitted here if the problem has been stated clearly in the introduction.
-			It is a great idea here to have at least one or two images showing what your data looks like for the reader to visualize.
+		\section{Data Acquisition}
+		This section should discuss the data set. Items to include are the number of images, size of the images, the types of images (RGB, Grayscale, etc.), how these images were collected (including the method). Providing this information is critical if anyone would like to replicate your results. After all, the intent of reports such as these are to convey information and build upon ideas so you want to ensure others can validate your process.
+		Justifying why you gathered data in this way is a helpful point, but sometimes this may be omitted here if the problem has been stated clearly in the introduction.
+		It is a great idea here to have at least one or two images showing what your data looks like for the reader to visualize.
 			
-			\section{Results}
-			This is typically the hardest part of the report for many. You want to convey your results in an unbiased fashion. If you results are good, you can objectively note this. Similarly, you may do this if they are bad as well. You do not want to justify your results here with discussion; this is a topic for the next session. 
-			Present the results of your robotics project model and the model you used for the supplied data with the appropriate accuracy and inference time
-			For demonstrating your results, it is incredibly useful to have some charts, tables, and/or graphs for the reader to review. This makes ingesting the information quicker and easier.
+		\section{Results}
+		This is typically the hardest part of the report for many. You want to convey your results in an unbiased fashion. If you results are good, you can objectively note this. Similarly, you may do this if they are bad as well. You do not want to justify your results here with discussion; this is a topic for the next session. 
+		Present the results of your robotics project model and the model you used for the supplied data with the appropriate accuracy and inference time
+		For demonstrating your results, it is incredibly useful to have some charts, tables, and/or graphs for the reader to review. This makes ingesting the information quicker and easier.
 			
-			\section{Discussion}
-			This is the only section of the report where you may include your opinion. However, make sure your opinion is based on facts. If your results are poor, make mention of what may be the underlying issues. If the results are good, why do you think this is the case? Again, avoid writing in the first person (i.e. Do not use words like “I” or “me”). If you really find yourself struggling to avoid the word “I” or “me”; sometimes, this can be avoid with the use of the word “one”. As an example: instead of : “I think the accuracy on my dataset is low because the images are too small to show the necessary detail” try: “one may believe the accuracy on the dataset is low because the images are too small to show the necessary detail”. They say the same thing, but the second avoids the first person. 
-			Reflect on which is more important, inference time or accuracy, in regards to your robotic inference project.
+		\section{Discussion}
+		This is the only section of the report where you may include your opinion. However, make sure your opinion is based on facts. If your results are poor, make mention of what may be the underlying issues. If the results are good, why do you think this is the case? Again, avoid writing in the first person (i.e. Do not use words like “I” or “me”). If you really find yourself struggling to avoid the word “I” or “me”; sometimes, this can be avoid with the use of the word “one”. As an example: instead of : “I think the accuracy on my dataset is low because the images are too small to show the necessary detail” try: “one may believe the accuracy on the dataset is low because the images are too small to show the necessary detail”. They say the same thing, but the second avoids the first person. 
+		Reflect on which is more important, inference time or accuracy, in regards to your robotic inference project.
 			
-			\section{Conclusion / Future work}
-			This section is intended to summarize your report. Your summary should include a recap of the results, did this project achieve what you attempted, and is this a commercially viable product? 
-			For Future work,address areas of work that you may not have addressed in your report as possible next steps. For future work, this could be due to time constraints, lack of currently developed methods / technology, and areas of application outside of your current implementation. Again, avoid the use of the first-person.
+		\section{Conclusion / Future work}
+		This section is intended to summarize your report. Your summary should include a recap of the results, did this project achieve what you attempted, and is this a commercially viable product? 
+		For Future work,address areas of work that you may not have addressed in your report as possible next steps. For future work, this could be due to time constraints, lack of currently developed methods / technology, and areas of application outside of your current implementation. Again, avoid the use of the first-person.
 			
-			\bibliography{my_bib}
-			\bibliographystyle{ieeetr}
+		\bibliography{my_bib}
+		\bibliographystyle{ieeetr}
 			
 \end{document}
