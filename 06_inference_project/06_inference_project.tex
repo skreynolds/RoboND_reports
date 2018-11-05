@@ -96,15 +96,9 @@
 		
 		Fortunately, the solar power industry is growing in Australia. As of September 2018, Australia had over 10131$\si{\mega\watt}$ of installed PV solar power. Approximately, 3366$\si{\mega\watt}$ were installed in the preceding 12 months \cite{APVI:2018}. In fact, the Australian renewable energy industry is on track to install more than 10$\si{\giga\watt}$ of new solar power during 2018 and 2019 - a rate which, if sustained, would see Australian generation reach 50\% renewables by 2025 \cite{Baldwin:2018}.\\
 		
-		Generation from large- and mid-sized solar arrays face the unique maintenance challenge of keeping the solar panels free from soiling. Soilng comes in the form of an accumutaion of dust, pollen, leaves, bird droppings or snail trails \cite{Maghami:2016}. A paper from an IBM research lab in 2018 demonstrated that CNNs can be used to help determine the soiling state of solar panels. The trained model was successfully able to 
+		Generation from large- and mid-sized solar arrays face the unique maintenance challenge of keeping the solar panels free from soiling. Soilng comes in the form of an accumutaion of dust, pollen, leaves, bird droppings or snail trails \cite{Maghami:2016}. An IBM research lab in 2018 demonstrated that Fully Convolutional Neural Networks can be used to help determine the soiling states of solar panels. Approximately 45000 images of solar panels in various states of soiling were collected. Trained models were successfully able to use object detection to locate the soiled regions of solar panels. Additionally, models could classify types of soiling, and provide an estimate of the power loss experienced by an individual panel \cite{Mehta:2018}.\\
 		
-		
-		Automatic visual inspection, using drones equipped with RGB cameras, has the potential to schedule cleaning routines to optimise maintenance costs. Cost savings may be realised from the reduction of labour involved for visual inspection by humans. Additionally, data could be used to determine optimal cleaning sequences for maximum power efficiency.\\
-		
-		This paper proposes the use of a convolutional neural network to classify images of solar panels as soiled, or clean.\\
-		
-		 
-		
+		This paper proposes the use of a CNNs to classify images of solar panels as soiled or clean. A simple classification network like this could be used to set up an automatic visual inspection system, using drones equipped with RGB cameras, to determine soiling states for large solar arrays. This is of interest as it would allow scheduling of cleaning routines for maintenance cost optimisation. Cost savings would be realised reductions in labour required for manual visual inspections. Additionally, data could be used to determine optimal cleaning sequences for maximum power efficiency.\\
 		
 		\section{Background / Formulation}
 		A Convolutional Neural Network (CNN) is a class of artificial neural network, which has an underlying architecture suited to learning shapes, edges, and colours in images. The main feature of a CNN is a convolving filter, which can be thought of as a small patch which slides over the image allowing model weights to be shared for different sections of the image. An example of this can be seen in Figure 2.\\
@@ -114,7 +108,7 @@
 			\caption{text}
 		\end{figure}
 		
-		Indeed, CNNs are recognised as state-of-the-art methods for image classification, as seen in models such as GoogleNet \cite{Szegedy:2014}, ResNet \cite{He:2015}, and VGG \cite{Simonyan:2015}. Of course, recent CNNs, such as VGG, are very deep and contain a significant number of weights. The large number of weights in these models have two main effects:
+		CNNs are recognised as state-of-the-art methods for image classification, as seen in models such as GoogleNet \cite{Szegedy:2014}, ResNet \cite{He:2015}, and VGG \cite{Simonyan:2015}. Of course, recent CNNs, such as VGG, are very deep and contain a significant number of weights. The large number of weights in these models have two main effects:
 		\begin{enumerate}
 			\item 
 		\end{enumerate}

@@ -33,6 +33,17 @@ M.~Maghami, H.~Hizam, C.~Gomes, M.~Radzi, M.~Rezadad, and S.~Hajighorbani,
   ``Power loss due to soiling on soalr panel: A review,'' {\em Renewable and
   Sustainable Energy Reviews}, vol.~59, no.~2, pp.~1307--1316, 2016.
 
+\bibitem{Mehta:2018}
+S.~Mehta, A.~Azad, S.~Chemmengath, V.~Raykar, and S.~Kalyanaraman,
+  ``Deepsolareye: Power loss prediction and weakly supervised soiling
+  localisation via fully convolutional networks for solar panels,'' {\em
+  arXiv}, 2018.
+
+\bibitem{Szegedy:2014}
+C.~Szegedy, W.~Liu, Y.~Jia, P.~Sermanet, S.~Reed, D.~Anguelov, D.~Erhan,
+  V.~Vanhoucke, and A.~Rabinovich, ``Going deeper with convolutions,'' {\em
+  arXiv}, 2014.
+
 \bibitem{He:2015}
 K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image
   recognition,'' {\em IEEE Conference on Computer Vision and Pattern
@@ -41,10 +52,5 @@ K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image
 \bibitem{Simonyan:2015}
 K.~Simonyan and A.~Zisserman, ``Very deep convolutional networks for large
   scale image recognition,'' {\em ICLR}, 2015.
-
-\bibitem{Szegedy:2014}
-C.~Szegedy, W.~Liu, Y.~Jia, P.~Sermanet, S.~Reed, D.~Anguelov, D.~Erhan,
-  V.~Vanhoucke, and A.~Rabinovich, ``Going deeper with convolutions,'' {\em
-  arXiv}, 2014.
 
 \end{thebibliography}
