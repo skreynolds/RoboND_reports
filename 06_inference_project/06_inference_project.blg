@@ -6,45 +6,45 @@ Database file #1: my_bib.bib
 Warning--empty institution in Australia:2014
 Warning--empty institution in BP:201806
 Warning--empty institution in IPCC:2018
-You've used 11 entries,
+You've used 12 entries,
             1876 wiz_defined-function locations,
-            540 strings with 5068 characters,
-and the built_in function-call counts, 2013 in all, are:
-= -- 165
-> -- 123
+            545 strings with 5207 characters,
+and the built_in function-call counts, 2175 in all, are:
+= -- 177
+> -- 134
 < -- 0
-+ -- 46
-- -- 35
-* -- 148
-:= -- 342
-add.period$ -- 14
-call.type$ -- 11
-change.case$ -- 13
++ -- 50
+- -- 38
+* -- 160
+:= -- 370
+add.period$ -- 15
+call.type$ -- 12
+change.case$ -- 14
 chr.to.int$ -- 0
-cite$ -- 14
-duplicate$ -- 89
-empty$ -- 194
-format.name$ -- 35
-if$ -- 459
+cite$ -- 15
+duplicate$ -- 98
+empty$ -- 211
+format.name$ -- 38
+if$ -- 496
 int.to.chr$ -- 0
-int.to.str$ -- 11
-missing$ -- 7
-newline$ -- 39
-num.names$ -- 11
-pop$ -- 44
+int.to.str$ -- 12
+missing$ -- 8
+newline$ -- 42
+num.names$ -- 12
+pop$ -- 48
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 33
+skip$ -- 34
 stack$ -- 0
 substring$ -- 36
-swap$ -- 16
+swap$ -- 17
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 3
-while$ -- 13
-width$ -- 13
-write$ -- 98
+while$ -- 14
+width$ -- 14
+write$ -- 106
 (There were 3 warnings)

@@ -53,4 +53,8 @@ K.~He, X.~Zhang, S.~Ren, and J.~Sun, ``Deep residual learning for image
 K.~Simonyan and A.~Zisserman, ``Very deep convolutional networks for large
   scale image recognition,'' {\em ICLR}, 2015.
 
+\bibitem{Cansiani:2017}
+A.~Canziani, E.~Culurciello, and A.~Paszke, ``An analysis of deep deural
+  network models for practical applications,'' {\em arXiv}, 2017.
+
 \end{thebibliography}

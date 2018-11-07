@@ -108,12 +108,27 @@
 			\caption{text}
 		\end{figure}
 		
-		CNNs are recognised as state-of-the-art methods for image classification, as seen in models such as GoogleNet \cite{Szegedy:2014}, ResNet \cite{He:2015}, and VGG \cite{Simonyan:2015}. Of course, recent CNNs, such as VGG, are very deep and contain a significant number of weights. The large number of weights in these models have two main effects:
+		CNNs are recognised as state-of-the-art methods for image classification, as seen in models such as GoogleNet \cite{Szegedy:2014}, ResNet \cite{He:2015}, and VGG \cite{Simonyan:2015}. Of course, recent CNNs, such as VGG, are very deep and contain a significant number of weights. This has two well understood effects:
 		\begin{enumerate}
-			\item 
+			\item High numbers of model weights requires more data to ensure that the model is adequately trained;
+			\item Deep models dramatically increase the computation required for classification, making inference slower \cite{Cansiani:2017}.
 		\end{enumerate}
 		
+		The second point is demonstrated pictorially, shown in Figures 3 and 4.
 		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[scale=1.1]{tradeoff}
+			\caption{text}
+		\end{figure}
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[scale=1.1]{tradeoff_2}
+			\caption{text}
+		\end{figure}
+		
+		Given the lack of available image data for soiled solar panels, a model with too many parameters risks underfitting and providing poor classification results. Additionally, inference needs to be fast if the trained model is to be deployed on a drone for soiling classification of a large solar panel array. To ensure that these standards were met, a lower hurdle for classification accuracy of 75\% was set of a test set of data. Further, the inference speed for a single image needed to be less that 10$\si{\milli\second}$ when deployed on [WHAT HARDWARE IS THIS]
 		
 		At this stage, you should begin diving into the technical details of your approach by explaining to the reader how parameters were defined, what type of network was chosen, and the reasons these items were performed. This should be factual and authoritative, meaning you should not use language such as “I think this will work” or “Maybe a network with this architecture is better..”. Instead, focus on items similar to, ”A 3-layer network architecture was chosen with X, Y, and Z parameters” 
 		Explain why you chose the network you did for the supplied data set and then why you chose the network used for your robotic inference project.
