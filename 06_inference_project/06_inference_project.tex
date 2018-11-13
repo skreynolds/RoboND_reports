@@ -25,7 +25,7 @@
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
 \usepackage{epstopdf} %converting to PDF
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{makecell}
 \usepackage{siunitx}
 \usepackage{wrapfig}
@@ -62,18 +62,17 @@
 	
 	\author{Shane Reynolds}
 	
-	\markboth{Inference project, Robotic Nanodegree, Udacity}%
+	\markboth{Inference project}%
 	{}
 	\IEEEtitleabstractindextext{%
 		
 		\begin{abstract}
-			An abstract is meant to be a summary of all of the relevant points in your presented work. It is designed to present a high-level overview of the report, providing just enough detail to convey the necessary information The abstract may often mention a one-sentence summary of the results.  While the type of voice chosen for the paper (active or passive) may be up for debate, you should avoid the use of “I” and “me” in the report. It usually is kept to a length of 150 - 200 words. 
-			Example: You should not write, “I present two different neural networks for classifying my data”. Instead, you should try to say, “Two different neural networks are used for classification”
+			Solar energy investment is seeing an increased focus as Australia tries to reduce its carbon footprint. One of the main challenges with generation from large solar arrays is keeping the solar panels free from soiling, to limit power loss. This paper aims to develop a solar panel soiling state classification model based on Convolutional Neural Network architectures. Training data is collected using Google image search. Implemented models are based on Googlenet architectures which demostrate mixed results, suggesting the need for more data to increase predictive capabilities.
 		\end{abstract}
 		
 		% Note that keywords are not normally used for peerreview papers.
 		\begin{IEEEkeywords}
-			Robot, IEEEtran, \LaTeX, deep learning.
+			Convolutional Neural Network, Deep Learning, Solar Array.
 		\end{IEEEkeywords}}
 		
 		
@@ -119,13 +118,13 @@
 		\begin{figure}[h]
 			\centering
 			\includegraphics[scale=1]{tradeoff}
-			\caption{This image shows the trade off between the number of operations, accuracy, and number of parameters}
+			\caption{A trade off exists between the number of operations, accuracy, and the number of parameters in a model.}
 		\end{figure}
 		
 		\begin{figure}[h]
 			\centering
 			\includegraphics[scale=1]{tradeoff_2}
-			\caption{This image compares the inference times of different model architectures}
+			\caption{Comparison of inference time versus batch size for different model architectures.}
 		\end{figure}
 		
 		
@@ -133,7 +132,7 @@
 		\begin{figure*}[h]
 			\centering
 			\includegraphics[scale=1]{googlenet_arch}
-			\caption{text}
+			\caption{Googlenet architecture, with all the bells and whistles.}
 		\end{figure*}
 		\clearpage
 		
@@ -146,10 +145,10 @@
 		Googlenet was selected as the best model architecture Ready and available off the shelf that needed little to no development and amoung the state of the art model selections seemed to provide the best balance between model accuracy and inference time. It must be noted that this is most likely not the most optimal model - there is most likely some application specific model which would deliver superior performance and speed - this is similar to design choices when looking at embedded systems. For rapid system development the additional time and cost spent developing optimised systems means that the product may be redundant by the time that it is ready for release.
 			
 		\section{Data Acquisition}
-		Image data was collected for threee distinct categories: clean solar panels, soiled solar panels, and images with no solar panels. Image data was aquired from Google images. Collection was automoated using a Python module called XX. Keywords used to search for each category can be seen in Table 1.
+		Image data was collected for threee distinct categories: clean solar panels, soiled solar panels, and images with no solar panels. Image data was aquired from Google images. Collection was automoated using a Python module called \verb|google_images_download|. Keywords used to search for each category can be seen in Table 1.
 		\begin{table}[h]
 			\centering
-			\caption{text}
+			\caption{Keywords used in Google Image searches.}
 			\begin{tabular}{ll}
 				\toprule
 				\textbf{Classification Category} & \textbf{Keywords} \\
@@ -185,6 +184,7 @@
 		\end{figure}
 		
 		Samples of images collected for the Clean Solar Panel, Soiled Solar Panel, and No Solar Panel can be seen in Figures 6, 7, and 8, respectively. The number of images for each class were doubled using a trick in which images are flipped from left to right and added back to the class. This resulted in a total of 604 images, broken downs as follows:
+		
 		\begin{itemize}
 			\item \textbf{Clean solar panels:} 78
 			\item \textbf{Dirty solar panels:} 204
@@ -199,7 +199,7 @@
 		\begin{figure}[h]
 			\centering
 			\includegraphics[scale=0.3]{trial_data_model_train}
-			\caption{text}
+			\caption{Googlenet trained using the trial dataset showed decreasing loss on training and validation sets. Accuracy was greater than 95\% on the third epoch.}
 		\end{figure}
 		
 		Model performance was also evaluated against a set of unseen test data which resulted in an accuracy of 75.40\%. Further, the inference speed of the model was reported as approximately 5$\si{\milli\second}$.
@@ -209,14 +209,14 @@
 		\begin{figure}[h]
 			\centering
 			\includegraphics[scale=0.3]{googlenet_train_img}
-			\caption{text}
+			\caption{Googlenet trained using the collected solar panel dataset showed decreasing loss on training and validation sets. Accuracy was approximately 80\% on epoch 50.}
 		\end{figure}
 		
 		Trained model performance was evaluated against an unseen data set comprised of 15 images from each class. The model accuracy was reported as 62\%. A normalised confusion matrix can be seen in Figure XX.
 		\begin{figure}[h]
 			\centering
 			\includegraphics[scale=0.37]{confusion_matrix}
-			\caption{text}
+			\caption{Confusion matrix showing reasonable classification performance for soiled and no solar panel categories, however, classification of clean solar panels was poor.}
 		\end{figure}
 			
 		\section{Discussion}
@@ -229,12 +229,9 @@
 		Finally, model hyperparameters such as the batch size, the number of epochs, and optimisation algorithms could be altered during the training phase, however, without a larger dataset the improvements to model performance are likely to be limited.
 			
 		\section{Conclusion / Future work}
-		Googlenet provided a suitable framework for image classification, delivering a reasonable level of accuracy without compromising on inference speed. Model acccuracy of 75\% was achieved on the trial data set with an inference time of 5$\si{\milli\second}$ for a single image. The application of Googlenet architecture to the classification of 3 distinct soiling states for solar panels delivered moderate performace for the no solar panel and the soiled solar panel test sets. Unfortunately, limited training dataset size meant the model did not generalise on the final clean solar panel classification category.\\
+		Googlenet provided a suitable framework for fast image classification, delivering a reasonable level of accuracy without compromising on inference speed. Model acccuracy of 75\% was achieved on a trial data set, while maintaining an inference time of 5$\si{\milli\second}$ for a single image. The application of a Googlenet architecture to the classification of 3 distinct soiling states for solar panels showed moderate performace for the no solar panel and the soiled solar panel test sets. Unfortunately, limited training dataset size meant the model did not generalise well on the final clean solar panel classification category.\\
 		
-		The development of a large dataset would most likely prove the most fruitful approach to bolstering model performance for this application. Previous studies have used in excess of 45000 images for model training datasets, resulting in reliable prediction of soiling state and an approximation efficiency loss in the panel. One approach might be to partner with a large scale solar generation project and use drones to capture 
-		
-		This section is intended to summarize your report. Your summary should include a recap of the results, did this project achieve what you attempted, and is this a commercially viable product? 
-		For Future work,address areas of work that you may not have addressed in your report as possible next steps. For future work, this could be due to time constraints, lack of currently developed methods / technology, and areas of application outside of your current implementation. Again, avoid the use of the first-person.
+		The development of a large dataset would likely prove the most fruitful approach to bolstering model performance for this application. Previous studies have used in excess of 45000 images for model training datasets resulting in reliable prediction of soiling state and an approximation of power loss for a single panel. One approach might be to partner with a large scale solar generation project and use aerial drones equipped with RGB cameras to capture more images of solar panels in known soiling states.
 			
 		\bibliography{my_bib}
 		\bibliographystyle{ieeetr}
