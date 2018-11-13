@@ -146,7 +146,7 @@
 		Googlenet was selected as the best model architecture Ready and available off the shelf that needed little to no development and amoung the state of the art model selections seemed to provide the best balance between model accuracy and inference time. It must be noted that this is most likely not the most optimal model - there is most likely some application specific model which would deliver superior performance and speed - this is similar to design choices when looking at embedded systems. For rapid system development the additional time and cost spent developing optimised systems means that the product may be redundant by the time that it is ready for release.
 			
 		\section{Data Acquisition}
-		Image data was collected for threee distinct categories: soiled solar panels, clean solar panels, and images with no solar panels. Data was aquired from Google image searches which was automated used a Python module called XX. Keywords to search for each category can be seen in Table 1.
+		Image data was collected for threee distinct categories: clean solar panels, soiled solar panels, and images with no solar panels. Image data was aquired from Google images. Collection was automoated using a Python module called XX. Keywords used to search for each category can be seen in Table 1.
 		\begin{table}[h]
 			\centering
 			\caption{text}
@@ -165,7 +165,7 @@
 			\end{tabular}
 		\end{table}
 		
-		Each keyword search from the module returned 100 images, however, not all returned images were suitable and some were discarded during a manual review. This left 161 images for the No Solar Panel category; 102 images for the Soiled Solar Panel category; and 39 images for the Clean Solar Panel category. The final image sets were resized to 256$\times$256 - this introduced some distortion, due to unequal scaling, for those images that did not have square dimensions. Distortion could be avoided by image cropping, however, this would have added further complexity pre-processing.
+		Each keyword search from the module returned 100 images, however, not all returned images were suitable and some were discarded during a manual review. This left 39 images for the Clean Solar Panel category; 102 images for the Soiled Solar Panel category; and  161 images for the No Solar Panel category. The final image sets were resized to 256$\times$256 - this introduced some distortion, due to unequal scaling, for those images that did not have square dimensions. Distortion could be avoided by image cropping, however, this would have added further complexity pre-processing.
 		\begin{figure}[h]
 			\centering
 			\frame{\includegraphics[scale=0.5]{clean}}
@@ -184,41 +184,55 @@
 			\caption{An example of an image of no solar panels.}
 		\end{figure}
 		
-		Samples of images collected for the Clean Solar Panel, Soiled Solar Panel, and No Solar Panel can be seen in Figures 6, 7, and 8, respectively. The number of images for each class were doubled using a trick in which images are flipped from left to right and added back to the class. The final number of images are as follows:
+		Samples of images collected for the Clean Solar Panel, Soiled Solar Panel, and No Solar Panel can be seen in Figures 6, 7, and 8, respectively. The number of images for each class were doubled using a trick in which images are flipped from left to right and added back to the class. This resulted in a total of 604 images, broken downs as follows:
 		\begin{itemize}
 			\item \textbf{Clean solar panels:} 78
 			\item \textbf{Dirty solar panels:} 204
 			\item \textbf{No solar panels:} 322
 		\end{itemize}
-			
+		
+		The data was split into training and validation sets. Approximately 25\% of the images were held for the validation set.
+		
 		\section{Results}
 		\subsection{Trial Data}
-		Training the Googlenet model on the trail data set, over 3 epochs with a batch size of XX, resulted in a 
+		To help analyse model performance independently of the solar panel data, the Googlenet model was trained on a trial data set consisting of approximately 10000 images. Images were split into training and validation sets with 9000 and 1000 images, respectiviely. The model was trained over 3 epochs using a batch size of 100. Reported accuracy was greater than 96\%, as shown in Figure 9. 
 		\begin{figure}[h]
 			\centering
 			\includegraphics[scale=0.3]{trial_data_model_train}
 			\caption{text}
 		\end{figure}
 		
-		The model was evaluated using a set of test data which the model had not been exposed to which resulted in an accuracy of XX\%. Further, the inference speed of the model was 
+		Model performance was also evaluated against a set of unseen test data which resulted in an accuracy of 75.40\%. Further, the inference speed of the model was reported as approximately 5$\si{\milli\second}$.
 		
 		\subsection{Solar Panel Data}
-		Training the Googlenet model on the solar panel data set, over XX epochs with a batch size of XX, resulted in a 
+		Model weights were re-initialised and the model re-trained using the solar panel image data set. Training was undertaken using 50 epochs with a batch size of 10. A higher number of epochs was used given that the data set was very small. Reported accuracy was approximately 80\%, as shown in Figure 10. 
 		\begin{figure}[h]
 			\centering
 			\includegraphics[scale=0.3]{googlenet_train_img}
 			\caption{text}
 		\end{figure}
 		
-		This is typically the hardest part of the report for many. You want to convey your results in an unbiased fashion. If you results are good, you can objectively note this. Similarly, you may do this if they are bad as well. You do not want to justify your results here with discussion; this is a topic for the next session. 
-		Present the results of your robotics project model and the model you used for the supplied data with the appropriate accuracy and inference time
-		For demonstrating your results, it is incredibly useful to have some charts, tables, and/or graphs for the reader to review. This makes ingesting the information quicker and easier.
+		Trained model performance was evaluated against an unseen data set comprised of 15 images from each class. The model accuracy was reported as 62\%. A normalised confusion matrix can be seen in Figure XX.
+		\begin{figure}[h]
+			\centering
+			\includegraphics[scale=0.37]{confusion_matrix}
+			\caption{text}
+		\end{figure}
 			
 		\section{Discussion}
-		This is the only section of the report where you may include your opinion. However, make sure your opinion is based on facts. If your results are poor, make mention of what may be the underlying issues. If the results are good, why do you think this is the case? Again, avoid writing in the first person (i.e. Do not use words like “I” or “me”). If you really find yourself struggling to avoid the word “I” or “me”; sometimes, this can be avoid with the use of the word “one”. As an example: instead of : “I think the accuracy on my dataset is low because the images are too small to show the necessary detail” try: “one may believe the accuracy on the dataset is low because the images are too small to show the necessary detail”. They say the same thing, but the second avoids the first person. 
-		Reflect on which is more important, inference time or accuracy, in regards to your robotic inference project.
+		The Googlenet model trained on the trial dataset performed adequately, meeting the 75\% accuracy hurdle rate and an infernce speed almost twice as fast as the 10$\si{\milli\second}$ benchmark. The same cannot be said for the model performance on the solar dataset. Overall model accuracy is only 63\%. The confusion matrix highlights that the model had particular difficulty when attempting to classify a clean solar panel - it was in error 67\% of the time when classifying these image types. The most likely explanation for this poor performance is the lack of data for this class. Images of clean solar panels only make up approximately 12\% of the total images.\\
+		
+		The classification of soiled solar panels, and the classification of no solar panels performs notably better, as seen in the confusion matrix. It must be highlighted, however, that these positive results may be falsely inflated given the two classes represent a majority of the training data and there is a very clear distinction between images with solar panels, and images without solar panels. It is likely that introducing more clean solar panel images, whilst improving performance the clean solar panel class, will degrade performance when classifying soiled solar panels. Classification of no solar panel is likely to remain unchanged.\\
+		
+		As previously discussed, a solar panel soiling classificaiton experiment undertaken by IBM in 2018 which used object detection, performed significantly better than the results seen here. It must be noted, however, that the dataset for this experiment was much larger (approximately 45000 images) \cite{Mehta:2018}. It should also be noted that IBM's study obtained images from a fixed RGB camera pointed at a single solar panel system and the panel orientation remained unchanged throughout the experiment. In contrast, this experiment obtained images from Google of different sized solar systems viewed at varying angles. This suggests that the poor results may require a significant amount of data in order to train the model for reliable, robust performance.\\
+		
+		Finally, model hyperparameters such as the batch size, the number of epochs, and optimisation algorithms could be altered during the training phase, however, without a larger dataset the improvements to model performance are likely to be limited.
 			
 		\section{Conclusion / Future work}
+		Googlenet provided a suitable framework for image classification, delivering a reasonable level of accuracy without compromising on inference speed. Model acccuracy of 75\% was achieved on the trial data set with an inference time of 5$\si{\milli\second}$ for a single image. The application of Googlenet architecture to the classification of 3 distinct soiling states for solar panels delivered moderate performace for the no solar panel and the soiled solar panel test sets. Unfortunately, limited training dataset size meant the model did not generalise on the final clean solar panel classification category.\\
+		
+		The development of a large dataset would most likely prove the most fruitful approach to bolstering model performance for this application. Previous studies have used in excess of 45000 images for model training datasets, resulting in reliable prediction of soiling state and an approximation efficiency loss in the panel. One approach might be to partner with a large scale solar generation project and use drones to capture 
+		
 		This section is intended to summarize your report. Your summary should include a recap of the results, did this project achieve what you attempted, and is this a commercially viable product? 
 		For Future work,address areas of work that you may not have addressed in your report as possible next steps. For future work, this could be due to time constraints, lack of currently developed methods / technology, and areas of application outside of your current implementation. Again, avoid the use of the first-person.
 			
