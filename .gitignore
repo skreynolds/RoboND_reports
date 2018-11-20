@@ -23,3 +23,8 @@
 06_inference_project/06_inference_project.listing
 06_inference_project/06_inference_project.log
 06_inference_project/06_inference_project.synctex.gz
+*.aux
+*.listing
+*.log
+*.gz
+*.toc

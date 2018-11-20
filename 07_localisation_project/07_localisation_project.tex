@@ -1,0 +1,94 @@
+\documentclass[a4paper]{article}
+
+%--------------------------------------------------------------------------
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{inconsolata}
+\usepackage{listings}
+\usepackage{pstricks-add}
+\usepackage{siunitx}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{epstopdf} %converting to PDF
+\usepackage{hyperref}
+
+\usetikzlibrary{shapes.geometric}
+
+%------------------------------------------------------------
+\graphicspath{{./fig/}}
+
+%------------------------------------------------------------
+\setlength{\parindent}{0in}
+
+\lstdefinestyle{Python}{
+	language        = Python,
+	basicstyle      = \ttfamily,
+	keywordstyle    = \color{blue},
+	keywordstyle    = [2] \color{teal}, % just to check that it works
+	stringstyle     = \color{green},
+	commentstyle    = \color{red}\ttfamily
+}
+
+%------------------------------------------------------------
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
+    fonttitle=\bfseries, colframe=gray, listing only, 
+    listing options={basicstyle=\ttfamily,language=Python}, 
+    title=Listing \thetcbcounter: #2, #1}
+
+%--------------------------------------------------------------------------
+\begin{document}
+\title{Localisation: Where Am I?}
+\author{Shane Reynolds}
+\maketitle
+\tableofcontents
+\newpage
+\section{Introduction}
+
+
+\section{Background}
+Localisation prblem definition. Approaches to localisation
+
+\subsection{Kalman Filters}
+Describe how Kalman Filters work, and why they are used for localisation. Discuss the drawbacks of Kalman Filters and how EKF can help resolve some of these issues.
+
+\subsection{Particle Filters}
+Describe what a particle filter is and how it works. Why are particle filters useful for localisation?
+
+\subsection{Comparison \& Model Selection}
+Compare the two approaches and determine which approach was implemented to provide localisation for the two robot models.
+
+\section{Simulations}
+Describe the performance of the robots. Show the two robot model designs, highlighting the placement of sensors, and the sensors that were employed for the robot.
+
+\subsection{Achievements}
+
+\subsection{Benchmark Model}
+\subsubsection{Model Design}
+the size of the robot, the layout of the sensors - use a chart or a table
+
+\subsubsection{Packages Used}
+
+
+\subsubsection{Parameters}
+
+\subsection{Personal Model}
+
+\section{Results}
+\subsection{Localisation}
+\subsection{Technical Comparison}
+
+\section{Discussion}
+
+\subsection{Topics}
+
+\section{Conculsion / Future Work}
+\subsection{Modifications for Improvement}
+\subsection{Hardward Deployment}
+
+
+\end{document}
