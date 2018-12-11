@@ -48,10 +48,10 @@
 \tableofcontents
 \newpage
 \section{Introduction}
-
+Localisation is the problem of estimating a mobile robot's location and orientation relative to its environment \cite{Thrun:2001}. This paper explores two approaches to solving the localisation problem, after a brief discussion on the three variations commonly seen in mobile robotics applications. The first of these solutions is the Extended Kalman Filter, which is a variant of the Kalman Filter suited to the estimation of non-linear system responses. The second solution is a particle filter method referred to as Monte Carlo Localisation (MCL). The paper concludes with an application of MCL in simulation using Gazebo and an off-the-shelf MCL implementation in ROS. The implementation is trialled across two different robot models providing scope to discuss implementation robustness and parameter tuning for reliable performance.
 
 \section{Background}
-Localisation prblem definition. Approaches to localisation
+The mobile robot localisation problem is often thought of as three distinct, but related, problems of increasing complexity. The simplest of is tracking the pose of the robot relative to its environment. Often it is the case that an initial estimate of the robot pose is known. As the robot takes actions, it needs to update the relative pose using noisey sensor data.
 
 \subsection{Kalman Filters}
 Describe how Kalman Filters work, and why they are used for localisation. Discuss the drawbacks of Kalman Filters and how EKF can help resolve some of these issues.
@@ -90,5 +90,7 @@ the size of the robot, the layout of the sensors - use a chart or a table
 \subsection{Modifications for Improvement}
 \subsection{Hardward Deployment}
 
+\bibliography{my_bib}
+%\bibliographystyle{ieeetr}
 
 \end{document}
