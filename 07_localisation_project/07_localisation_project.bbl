@@ -1,7 +1,22 @@
 \begin{thebibliography}{1}
 
+\bibitem{Cox:1991}
+I.~J. Cox, ``Blanche: An experiment in guidance and navigation of an autonomous
+  robot vehicle,'' {\em IEEE Trans. Robotics Automat}, vol.~7, pp.~193--204,
+  1991.
+
+\bibitem{Wang:1988}
+C.~M. Wang, ``Location estimation and uncertainty analysis for mobile robots,''
+  {\em Proceedings from IEEE International Conference on Robotics and
+  Automation}, pp.~1231--1235, 1988.
+
 \bibitem{Thrun:2001}
 S.~Thrun, D.~Fox, W.~Burgard, and F.~Dellaert, ``Robust monte carlo
   localisation for mobile robots,'' {\em Artificial Intelligence}, 2001.
+
+\bibitem{Thrun:1999}
+S.~Thrun, D.~Fox, and W.~Burgard, ``Markov localisation for mobile robots in
+  dynamic environments,'' {\em Journal of Atrificial Intelligence Research},
+  vol.~11, pp.~391--427, 2001.
 
 \end{thebibliography}

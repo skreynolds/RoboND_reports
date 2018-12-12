@@ -48,10 +48,12 @@
 \tableofcontents
 \newpage
 \section{Introduction}
-Localisation is the problem of estimating a mobile robot's location and orientation relative to its environment \cite{Thrun:2001}. This paper explores two approaches to solving the localisation problem, after a brief discussion on the three variations commonly seen in mobile robotics applications. The first of these solutions is the Extended Kalman Filter, which is a variant of the Kalman Filter suited to the estimation of non-linear system responses. The second solution is a particle filter method referred to as Monte Carlo Localisation (MCL). The paper concludes with an application of MCL in simulation using Gazebo and an off-the-shelf MCL implementation in ROS. The implementation is trialled across two different robot models providing scope to discuss implementation robustness and parameter tuning for reliable performance.
+Suppose a robot has an unknown pose in an environment for which it has a map. The robot takes sensor readings, and based on these observations, must infer a set of poses where it could be located in the environment. In robotics, this scenario is known as the \textit{localisation problem} \cite{Cox:1991, Wang:1988}. In simpler terms, localisation is the problem of estimating a mobile robot's location and orientation relative to its environment, given sensor data \cite{Thrun:2001}. This paper explores two approaches to solving the localisation problem, after providing a brief discussion on the common variations of the problem. The first of these solutions is the Extended Kalman Filter (EKF): an adaptation of the Kalman Filter, suited to the estimation of non-linear system responses. The second solution is a particle filter method called Monte Carlo Localisation (MCL). The paper concludes with an application of MCL in a Gazebo simulation using an off-the-shelf MCL package in ROS. The MCL implementation is trialled across two different robot models providing opportunities for discussion of implementation robustness, and an analysis of parameter tuning for reliable performance.
 
 \section{Background}
-The mobile robot localisation problem is often thought of as three distinct, but related, problems of increasing complexity. The simplest of is tracking the pose of the robot relative to its environment. Often it is the case that an initial estimate of the robot pose is known. As the robot takes actions, it needs to update the relative pose using noisey sensor data.
+The mobile robot localisation problem comes in three flavours. The simplest involves tracking the robot's pose relative to its environment - called \textit{position tracking}. This scenario requires an initial known estimate of the robot's pose relative to the environment. Robot actions require pose updates using noisey sensor data \cite{Thrun:1999}. Often initial pose estimates are unavailable - this scenario represents a more meaningful problem version called the \textit{global localisation problem}. The goal here is for the robot determine it's pose from scratch, given it is unaware of the initial pose. Finally, the most challenging problem type is referred to as the \textit{kidnapped robot problem} which sees a localised robot tele-ported to another location on the map without knowledge of the move. This is different to the \textit{global localisation problem} scenario because, after tele-porting, the robot incorrectly believes it is somewhere other than its current location. This final scenario is used to test whether a localisation algorithm can recover from a catastrophic failure.
+
+TALK ABOUT THE CHICKEN AND THE EGG PROBLEM AND THE FACT THAT IMPLEMENTATION OF THE LOCALISATION SOLUTION REARELY HAPPENS IN ISOLATION. TYPICALLY A MAPPING SOLUTION IS UNDERTAKEN AT THE SAME TIME WHICH IS A FAMOUS PROBLEM REFERRED TO AS THE SIMULTANEOUS LOCALISATION AND MAPPING PROBLEM (SLAM).
 
 \subsection{Kalman Filters}
 Describe how Kalman Filters work, and why they are used for localisation. Discuss the drawbacks of Kalman Filters and how EKF can help resolve some of these issues.
@@ -91,6 +93,6 @@ the size of the robot, the layout of the sensors - use a chart or a table
 \subsection{Hardward Deployment}
 
 \bibliography{my_bib}
-%\bibliographystyle{ieeetr}
+\bibliographystyle{ieeetr}
 
 \end{document}
