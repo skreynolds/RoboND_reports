@@ -1,6 +1,6 @@
 \documentclass[a4paper]{article}
 
-%--------------------------------------------------------------------------
+%------------------------------------------------------------
 \usepackage[a4paper, total={6in, 9in}]{geometry}
 \usepackage{amsmath}
 \usepackage{booktabs}
@@ -40,7 +40,16 @@
     listing options={basicstyle=\ttfamily,language=Python}, 
     title=Listing \thetcbcounter: #2, #1}
 
-%--------------------------------------------------------------------------
+%------------------------------------------------------------
+\tikzstyle{block} = [draw, fill=blue!20, rectangle, 
+    minimum height=3em, minimum width=3em]
+\tikzstyle{sum} = [draw, fill=blue!20, circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+%------------------------------------------------------------
+
 \begin{document}
 \title{Localisation: Where Am I?}
 \author{Shane Reynolds}
@@ -48,18 +57,244 @@
 \tableofcontents
 \newpage
 \section{Introduction}
-Suppose a robot has an unknown pose in an environment for which it has a map. The robot takes sensor readings, and based on these observations, must infer a set of poses where it could be located in the environment. In robotics, this scenario is known as the \textit{localisation problem} \cite{Cox:1991, Wang:1988}. In simpler terms, localisation is the problem of estimating a mobile robot's location and orientation relative to its environment, given sensor data \cite{Thrun:2001}. This paper explores two approaches to solving the localisation problem, after providing a brief discussion on the common variations of the problem. The first of these solutions is the Extended Kalman Filter (EKF): an adaptation of the Kalman Filter, suited to the estimation of non-linear system responses. The second solution is a particle filter method called Monte Carlo Localisation (MCL). The paper concludes with an application of MCL in a Gazebo simulation using an off-the-shelf MCL package in ROS. The MCL implementation is trialled across two different robot models providing opportunities for discussion of implementation robustness, and an analysis of parameter tuning for reliable performance.
+Suppose a robot has an unknown pose in an environment for which it has a map. The robot takes sensor readings, and based on these observations, must infer a set of poses where it could be located in the environment. In robotics, this scenario is known as the \textit{localisation problem} \cite{Cox:1991, Wang:1988}. In simpler terms, localisation is the problem of estimating a mobile robot's location and orientation relative to its environment, given sensor data \cite{Thrun:2001}. This is not as straight forward as it appears given robot actuators can only are subject to small random perturbations in performance, and sensors provide imperfect measurement. Compounding these problems is the fact that the robot may not even know it's initial pose relative to the environment. This paper explores two approaches to solving the localisation problem, after providing a brief discussion on the common variations of the problem. The first of these solutions is the Extended Kalman Filter (EKF): an adaptation of the Kalman Filter, suited to the estimation of non-linear system responses. The second solution is a particle filter method called Monte Carlo Localisation (MCL). The paper concludes with an application of MCL in a Gazebo simulation using an off-the-shelf MCL package in ROS. The MCL implementation is trialled across two different robot models providing opportunities for discussion of implementation robustness, and an analysis of parameter tuning for reliable performance.
 
 \section{Background}
 The mobile robot localisation problem comes in three flavours. The simplest involves tracking the robot's pose relative to its environment - called \textit{position tracking}. This scenario requires an initial known estimate of the robot's pose relative to the environment. Robot actions require pose updates using noisey sensor data \cite{Thrun:1999}. Often initial pose estimates are unavailable - this scenario represents a more meaningful problem version called the \textit{global localisation problem}. The goal here is for the robot determine it's pose from scratch, given it is unaware of the initial pose. Finally, the most challenging problem type is referred to as the \textit{kidnapped robot problem} which sees a localised robot tele-ported to another location on the map without knowledge of the move. This is different to the \textit{global localisation problem} scenario because, after tele-porting, the robot incorrectly believes it is somewhere other than its current location. This final scenario is used to test whether a localisation algorithm can recover from a catastrophic failure.
 
-TALK ABOUT THE CHICKEN AND THE EGG PROBLEM AND THE FACT THAT IMPLEMENTATION OF THE LOCALISATION SOLUTION REARELY HAPPENS IN ISOLATION. TYPICALLY A MAPPING SOLUTION IS UNDERTAKEN AT THE SAME TIME WHICH IS A FAMOUS PROBLEM REFERRED TO AS THE SIMULTANEOUS LOCALISATION AND MAPPING PROBLEM (SLAM).
-
 \subsection{Kalman Filters}
-Describe how Kalman Filters work, and why they are used for localisation. Discuss the drawbacks of Kalman Filters and how EKF can help resolve some of these issues.
+Kalman Filters can be used to solve the simplest localisation problem: position tracking. In an ideal world, position tracking is a trivial task in which the robot knows it's starting location, and updates position with perfect actuation and perfect sensor readings. In the real world, however, this is not the case. Actuation is not perfect, and is subject to minor perturbations, or wheel slippage can occur. Furthermore, sensor readings are noisey. The implications are that both movement and measurement are imprecise and subject to stochastic errors. Consider the a mobile robot moving along a one dimensional trajectory. Let the discrete time position be $x_j$, at time $j$. We note that the position at time $j$ is dependent on the previous position at time $j-1$, denoted as $x_{j-1}$, plus any movement action taken by the robot, denoted as $u_j$. Additionally, as previously noted, the robot's actuators are not perfect and are subject to noise, $\omega_j$. We can write $x_j$ as follows:
+\begin{equation}
+x_j = a \cdot x_j + b \cdot u_j + \omega_j
+\end{equation}
+
+This description is sometimes easier to understand when visualised as a computational block diagram, shown in Figure 1.
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[auto, node distance=2cm]
+    
+    % Input
+    \node [input, name=input] {};
+    
+    % b gain
+    \node [block, right of=input] (b) {$b$};
+    
+    % sum element
+    \node [sum, right of=b,
+    pin={[pinstyle]above:$\omega_j$},
+            node distance=2cm] (sum) {};
+    
+    % Two silent nodes in the middle 
+    \node [output, right of=sum] (x1) {};
+    \node [output, right of=x1] (x2) {};
+    
+    % Output node
+    \node [output, right of=x2] (output) {};
+    
+    % Nodes in the feedback loop
+    \node [block, below of=x2] (delay) {$z^{-1}$};
+	\node [block, below of=x1] (a) {$a$};
+	
+    % Once the nodes are placed, connecting them is easy. 
+    \draw [draw,->] (input) -- node {$u_j$} (b);
+    \draw [->] (b) -- (sum);
+    \draw [-] (sum) -- (x1);
+    \draw [-] (x1) -- (x2);
+    \draw [->] (x2) -- node [name=y] {$x_j$}(output);
+    \draw [->] (y) |- (delay);
+    \draw [->] (delay) -- (a);
+    \draw [->] (a) -| node[pos=0.99] {$+$} 
+        node [near end] {$a \cdot x_{j-1}$} (sum);
+\end{tikzpicture}
+\caption{text}
+\end{figure}
+
+Almost always random phenomena are hidden from the observer behind a dynamical system - Kalman described this as follows:\\
+
+\textit{A random function of time may be thought of as the output of a dynamic system excited by an independent Gaussian random process.} \cite{Kalman:1960}\\
+
+This is true for robotic motion, given that we can only attempt to estimate the robot's stochastically perturbed motion, through the use of sensors like odometry, or laser range finders, which are subject to stochastic noise. Letting the measurement of signal $x_j$ be represented by $z_j$, we can write the following equation defining the measurement of $x_j$ as:
+\begin{equation}
+z_j = h \cdot x_j + \nu_j
+\end{equation} 
+
+Equation (2) can be represented in a computational graph as follows:
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[auto, node distance=2cm]
+    
+    % Input
+    \node [input, name=input] {};
+    
+    % b gain
+    \node [block, right of=input] (b) {$b$};
+    
+    % sum element
+    \node [sum, right of=b,
+    pin={[pinstyle]above:$\omega_j$},
+            node distance=2cm] (sum) {};
+    
+    % Two silent nodes in the middle
+    \node [output, right of=sum] (x1) {};
+    \node [output, right of=x1] (x2) {};
+	 
+	% Output node
+    \node [output, right of=x2] (output) {};
+    
+    % Nodes in the feedback loop
+    \node [block, below of=x2] (delay) {$z^{-1}$};
+	\node [block, below of=x1] (a) {$a$};
+	
+	% Gain on the xj signal
+	\node [block, right of=output, node distance=1cm] (h) {$h$};
+	
+	% sum node
+	\node [sum, right of=h,
+	    pin={[pinstyle]above:$\nu_j$},
+	            node distance=2cm] (sum2) {};
+	            
+	% measurement output
+	\node [output, right of=sum2] (output2) {};
+	
+    % Once the nodes are placed, connecting them is easy. 
+    \draw [draw,->] (input) -- node {$u_j$} (b);
+    \draw [->] (b) -- (sum);
+    \draw [-] (sum) -- (x1);
+    \draw [-] (x1) -- (x2);
+    \draw [-] (x2) -- node [name=y] {$x_j$}(output);
+    \draw [->] (y) |- (delay);
+    \draw [->] (delay) -- (a);
+    \draw [->] (a) -| node[pos=0.99] {$+$} 
+        node [near end] {$a \cdot x_{j-1}$} (sum);
+    
+    % measurement section
+    \draw [->] (output) -- (h);
+    \draw [->] (h) -- (sum2);
+    \draw [->] (sum2) -- node [name=y2] {$z_j$}(output2);
+\end{tikzpicture}
+\caption{text}
+\end{figure}
+
+The fundamental problem that the Kalman Filter tries to answer is: how can an accurate estimate of a hidden stochastic signal be found when it is observed as the output of a dynamical system? The first step to answering this is to create a mathematical model of the system we can use to find an estimate of the measurement, $z_j$, which we call $\hat{z_j}$. This estimate is based on an estimation of the hidden variable, which we denote with $\hat{x_j}$. The mathematical model that provides these estimates does not factor in stochasticity seen in actual signals $x_j$ and $z_j$. The estimation architecture can be seen in Figure 3.
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[auto, node distance=2cm]
+    % % % % % % % % % % % % % % % % % % % % % % %
+    % Upper model
+    % % % % % % % % % % % % % % % % % % % % % % %
+    % Input
+    \node [input, name=input] {};
+    \node [input, left of=input, node distance=1cm] (start) {};
+    
+    % b gain
+    \node [block, right of=input] (b) {$b$};
+    
+    % sum element
+    \node [sum, right of=b,
+    pin={[pinstyle]above:$\omega_j$},
+            node distance=2cm] (sum) {};
+    
+    % Two silent nodes in the middle
+    \node [output, right of=sum] (x1) {};
+    \node [output, right of=x1] (x2) {};
+	 
+	% Output node
+    \node [output, right of=x2] (output) {};
+    
+    % Nodes in the feedback loop
+    \node [block, below of=x2] (delay) {$z^{-1}$};
+	\node [block, below of=x1] (a) {$a$};
+	
+	% Gain on the xj signal
+	\node [block, right of=output, node distance=1cm] (h) {$h$};
+	
+	% sum node
+	\node [sum, right of=h,
+	    pin={[pinstyle]above:$\nu_j$},
+	            node distance=2cm] (sum2) {};
+	            
+	% measurement output
+	\node [output, right of=sum2, node distance=1cm] (output2) {};
+	
+    % Once the nodes are placed, connecting them is easy. 
+    %\draw [draw,->] (start) -- (input);
+    \draw [draw,->] (start) -- node {$u_j$} (b);
+    \draw [->] (b) -- node[pos=0.93] {$+$} (sum);
+    \draw [-] (sum) -- (x1);
+    \draw [-] (x1) -- (x2);
+    \draw [-] (x2) -- node [name=y] {$x_j$}(output);
+    \draw [->] (y) |- (delay);
+    \draw [->] (delay) -- (a);
+    \draw [->] (a) -| node[pos=0.99] {$+$} 
+        node [near end] {$a \cdot x_{j-1}$} (sum);
+    
+    % measurement section
+    \draw [->] (output) -- (h);
+    \draw [->] (h) -- node[pos=0.93] {$+$} (sum2);
+    \draw [->] (sum2) -- node [name=y2] {$z_j$}(output2);
+    
+    
+    % % % % % % % % % % % % % % % % % % % % % % %
+    % Lower model
+    % % % % % % % % % % % % % % % % % % % % % % %
+    
+    % lower b node
+    \node [block, below of=b, node distance=4cm] (be) {$b$};
+    
+    % sum element
+    \node [sum, right of=be, node distance=2cm] (sume) {};
+        
+    % Two silent nodes in the middle
+    \node [output, right of=sume] (x1e) {};
+    \node [output, right of=x1e] (x2e) {};
+    	 
+    % Output node
+    \node [output, right of=x2e] (outpute) {};
+        
+    % Nodes in the feedback loop
+    \node [block, below of=x2e] (delaye) {$z^{-1}$};
+    \node [block, below of=x1e] (ae) {$a$};
+    
+    % Gain on the xj signal
+    \node [block, right of=outpute, node distance=1cm] (he) {$h$};
+    		            
+    % measurement output
+    \node [output, right of=he] (output2e) {};
+    
+    \node [sum, below of=y2, node distance=4.25cm] (sum2e) {};
+    
+    \node [block, below of=he] (k) {$k$};
+    
+    % Once the nodes are placed, connecting them is easy.
+    \draw [->] (input) |- (be);
+    \draw [->] (be) -- (sume);
+    \draw [-] (sume) -- (x1e);
+    \draw [-] (x1e) -- (x2e);
+    \draw [-] (x2e) -- node [name=ye] {$\hat{x}_j$}(outpute);
+    %\draw [->] (ye) |- (delaye);
+    \draw [->] (delaye) -- (ae);
+    \draw [->] (ae) -| node[pos=0.99] {$+$} 
+            node [near end] {$a \cdot \hat{x}_{j-1}$} (sume);
+        
+    % measurement section
+    \draw [->] (outpute) -- (he);
+    \draw [->] (he) -- node [name=y2e] {$\hat{z}_j$}(sum2e);
+    
+    \draw [->] (y2) -- node[left, pos=0.99] {$-$} (sum2e);
+    
+    \node [sum, below of=ye, node distance=2.25cm] (sumfin) {};
+    
+    \draw [->] (sum2e) |- (k);
+    \draw [->] (ye) -- (sumfin);
+    \draw [->] (k) -- (sumfin);
+    \draw [->] (sumfin) -- (delaye);
+    
+\end{tikzpicture}
+\caption{text}
+\end{figure}
 
 \subsection{Particle Filters}
-Describe what a particle filter is and how it works. Why are particle filters useful for localisation?
+Particle filters can be used to solve the global localisation problem, that is, it can localise a robot in an environment when its initial position is unknown. This section looks at a specific type of particle filter known as Monte Carlo Localisation (MCL). One of the core ideas central to MCL is to estimate a probability density over the pose state space, conditioned on sensor measurement data, and odometric action data. Typically, mobile robot pose, $x$, is made up of location coordinates $x$ and $y$ and orientation $\theta$
 
 \subsection{Comparison \& Model Selection}
 Compare the two approaches and determine which approach was implemented to provide localisation for the two robot models.

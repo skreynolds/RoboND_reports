@@ -19,4 +19,9 @@ S.~Thrun, D.~Fox, and W.~Burgard, ``Markov localisation for mobile robots in
   dynamic environments,'' {\em Journal of Atrificial Intelligence Research},
   vol.~11, pp.~391--427, 2001.
 
+\bibitem{Kalman:1960}
+R.~E. Kalman, ``A new approach to linear filtering and prediction problems,''
+  {\em Transactions of the ASME - Journal of Basic Engineering}, vol.~82
+  (Series D), pp.~35--45, 1960.
+
 \end{thebibliography}
