@@ -1,0 +1,51 @@
+\begin{tikzpicture}[auto, node distance=2cm]
+
+    % Input
+    \node [input, name=input] {};
+    
+    % b gain
+    \node [block, right of=input] (b) {$b$};
+    
+    % sum element
+    \node [sum, right of=b,
+    pin={[pinstyle]above:$\omega_j$},
+            node distance=2cm] (sum) {};
+    
+    % Two silent nodes in the middle
+    \node [output, right of=sum] (x1) {};
+    \node [output, right of=x1] (x2) {};
+	 
+	% Output node
+    \node [output, right of=x2] (output) {};
+    
+    % Nodes in the feedback loop
+    \node [block, below of=x2] (delay) {$z^{-1}$};
+	\node [block, below of=x1] (a) {$a$};
+	
+	% Gain on the xj signal
+	\node [block, right of=output, node distance=1cm] (h) {$h$};
+	
+	% sum node
+	\node [sum, right of=h,
+	    pin={[pinstyle]above:$\nu_j$},
+	            node distance=2cm] (sum2) {};
+	            
+	% measurement output
+	\node [output, right of=sum2] (output2) {};
+	
+    % Once the nodes are placed, connecting them is easy. 
+    \draw [draw,->] (input) -- node {$u_j$} (b);
+    \draw [->] (b) -- (sum);
+    \draw [-] (sum) -- (x1);
+    \draw [-] (x1) -- (x2);
+    \draw [-] (x2) -- node [name=y] {$x_j$}(output);
+    \draw [->] (y) |- (delay);
+    \draw [->] (delay) -- (a);
+    \draw [->] (a) -| node[pos=0.99] {$+$} 
+        node [near end] {$a \cdot x_{j-1}$} (sum);
+    
+    % measurement section
+    \draw [->] (output) -- (h);
+    \draw [->] (h) -- (sum2);
+    \draw [->] (sum2) -- node [name=y2] {$z_j$}(output2);
+\end{tikzpicture}
