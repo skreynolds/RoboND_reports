@@ -71,41 +71,7 @@ x_j = a \cdot x_j + b \cdot u_j + \omega_j
 This description is sometimes easier to understand when visualised as a computational block diagram, shown in Figure 1.
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}[auto, node distance=2cm]
-    
-    % Input
-    \node [input, name=input] {};
-    
-    % b gain
-    \node [block, right of=input] (b) {$b$};
-    
-    % sum element
-    \node [sum, right of=b,
-    pin={[pinstyle]above:$\omega_j$},
-            node distance=2cm] (sum) {};
-    
-    % Two silent nodes in the middle 
-    \node [output, right of=sum] (x1) {};
-    \node [output, right of=x1] (x2) {};
-    
-    % Output node
-    \node [output, right of=x2] (output) {};
-    
-    % Nodes in the feedback loop
-    \node [block, below of=x2] (delay) {$z^{-1}$};
-	\node [block, below of=x1] (a) {$a$};
-	
-    % Once the nodes are placed, connecting them is easy. 
-    \draw [draw,->] (input) -- node {$u_j$} (b);
-    \draw [->] (b) -- (sum);
-    \draw [-] (sum) -- (x1);
-    \draw [-] (x1) -- (x2);
-    \draw [->] (x2) -- node [name=y] {$x_j$}(output);
-    \draw [->] (y) |- (delay);
-    \draw [->] (delay) -- (a);
-    \draw [->] (a) -| node[pos=0.99] {$+$} 
-        node [near end] {$a \cdot x_{j-1}$} (sum);
-\end{tikzpicture}
+\input{./tikzpics/kf_1}
 \caption{text}
 \end{figure}
 
@@ -121,180 +87,57 @@ z_j = h \cdot x_j + \nu_j
 Equation (2) can be represented in a computational graph as follows:
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}[auto, node distance=2cm]
-    
-    % Input
-    \node [input, name=input] {};
-    
-    % b gain
-    \node [block, right of=input] (b) {$b$};
-    
-    % sum element
-    \node [sum, right of=b,
-    pin={[pinstyle]above:$\omega_j$},
-            node distance=2cm] (sum) {};
-    
-    % Two silent nodes in the middle
-    \node [output, right of=sum] (x1) {};
-    \node [output, right of=x1] (x2) {};
-	 
-	% Output node
-    \node [output, right of=x2] (output) {};
-    
-    % Nodes in the feedback loop
-    \node [block, below of=x2] (delay) {$z^{-1}$};
-	\node [block, below of=x1] (a) {$a$};
-	
-	% Gain on the xj signal
-	\node [block, right of=output, node distance=1cm] (h) {$h$};
-	
-	% sum node
-	\node [sum, right of=h,
-	    pin={[pinstyle]above:$\nu_j$},
-	            node distance=2cm] (sum2) {};
-	            
-	% measurement output
-	\node [output, right of=sum2] (output2) {};
-	
-    % Once the nodes are placed, connecting them is easy. 
-    \draw [draw,->] (input) -- node {$u_j$} (b);
-    \draw [->] (b) -- (sum);
-    \draw [-] (sum) -- (x1);
-    \draw [-] (x1) -- (x2);
-    \draw [-] (x2) -- node [name=y] {$x_j$}(output);
-    \draw [->] (y) |- (delay);
-    \draw [->] (delay) -- (a);
-    \draw [->] (a) -| node[pos=0.99] {$+$} 
-        node [near end] {$a \cdot x_{j-1}$} (sum);
-    
-    % measurement section
-    \draw [->] (output) -- (h);
-    \draw [->] (h) -- (sum2);
-    \draw [->] (sum2) -- node [name=y2] {$z_j$}(output2);
-\end{tikzpicture}
+\input{./tikzpics/kf_2}
 \caption{text}
 \end{figure}
 
 The fundamental problem that the Kalman Filter tries to answer is: how can an accurate estimate of a hidden stochastic signal be found when it is observed as the output of a dynamical system? The first step to answering this is to create a mathematical model of the system we can use to find an estimate of the measurement, $z_j$, which we call $\hat{z_j}$. This estimate is based on an estimation of the hidden variable, which we denote with $\hat{x_j}$. The mathematical model that provides these estimates does not factor in stochasticity seen in actual signals $x_j$ and $z_j$. The estimation architecture can be seen in Figure 3.
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}[auto, node distance=2cm]
-    % % % % % % % % % % % % % % % % % % % % % % %
-    % Upper model
-    % % % % % % % % % % % % % % % % % % % % % % %
-    % Input
-    \node [input, name=input] {};
-    \node [input, left of=input, node distance=1cm] (start) {};
-    
-    % b gain
-    \node [block, right of=input] (b) {$b$};
-    
-    % sum element
-    \node [sum, right of=b,
-    pin={[pinstyle]above:$\omega_j$},
-            node distance=2cm] (sum) {};
-    
-    % Two silent nodes in the middle
-    \node [output, right of=sum] (x1) {};
-    \node [output, right of=x1] (x2) {};
-	 
-	% Output node
-    \node [output, right of=x2] (output) {};
-    
-    % Nodes in the feedback loop
-    \node [block, below of=x2] (delay) {$z^{-1}$};
-	\node [block, below of=x1] (a) {$a$};
-	
-	% Gain on the xj signal
-	\node [block, right of=output, node distance=1cm] (h) {$h$};
-	
-	% sum node
-	\node [sum, right of=h,
-	    pin={[pinstyle]above:$\nu_j$},
-	            node distance=2cm] (sum2) {};
-	            
-	% measurement output
-	\node [output, right of=sum2, node distance=1cm] (output2) {};
-	
-    % Once the nodes are placed, connecting them is easy. 
-    %\draw [draw,->] (start) -- (input);
-    \draw [draw,->] (start) -- node {$u_j$} (b);
-    \draw [->] (b) -- node[pos=0.93] {$+$} (sum);
-    \draw [-] (sum) -- (x1);
-    \draw [-] (x1) -- (x2);
-    \draw [-] (x2) -- node [name=y] {$x_j$}(output);
-    \draw [->] (y) |- (delay);
-    \draw [->] (delay) -- (a);
-    \draw [->] (a) -| node[pos=0.99] {$+$} 
-        node [near end] {$a \cdot x_{j-1}$} (sum);
-    
-    % measurement section
-    \draw [->] (output) -- (h);
-    \draw [->] (h) -- node[pos=0.93] {$+$} (sum2);
-    \draw [->] (sum2) -- node [name=y2] {$z_j$}(output2);
-    
-    
-    % % % % % % % % % % % % % % % % % % % % % % %
-    % Lower model
-    % % % % % % % % % % % % % % % % % % % % % % %
-    
-    % lower b node
-    \node [block, below of=b, node distance=4cm] (be) {$b$};
-    
-    % sum element
-    \node [sum, right of=be, node distance=2cm] (sume) {};
-        
-    % Two silent nodes in the middle
-    \node [output, right of=sume] (x1e) {};
-    \node [output, right of=x1e] (x2e) {};
-    	 
-    % Output node
-    \node [output, right of=x2e] (outpute) {};
-        
-    % Nodes in the feedback loop
-    \node [block, below of=x2e] (delaye) {$z^{-1}$};
-    \node [block, below of=x1e] (ae) {$a$};
-    
-    % Gain on the xj signal
-    \node [block, right of=outpute, node distance=1cm] (he) {$h$};
-    		            
-    % measurement output
-    \node [output, right of=he] (output2e) {};
-    
-    \node [sum, below of=y2, node distance=4.25cm] (sum2e) {};
-    
-    \node [block, below of=he] (k) {$k$};
-    
-    % Once the nodes are placed, connecting them is easy.
-    \draw [->] (input) |- (be);
-    \draw [->] (be) -- (sume);
-    \draw [-] (sume) -- (x1e);
-    \draw [-] (x1e) -- (x2e);
-    \draw [-] (x2e) -- node [name=ye] {$\hat{x}_j$}(outpute);
-    %\draw [->] (ye) |- (delaye);
-    \draw [->] (delaye) -- (ae);
-    \draw [->] (ae) -| node[pos=0.99] {$+$} 
-            node [near end] {$a \cdot \hat{x}_{j-1}$} (sume);
-        
-    % measurement section
-    \draw [->] (outpute) -- (he);
-    \draw [->] (he) -- node [name=y2e] {$\hat{z}_j$}(sum2e);
-    
-    \draw [->] (y2) -- node[left, pos=0.99] {$-$} (sum2e);
-    
-    \node [sum, below of=ye, node distance=2.25cm] (sumfin) {};
-    
-    \draw [->] (sum2e) |- (k);
-    \draw [->] (ye) -- (sumfin);
-    \draw [->] (k) -- (sumfin);
-    \draw [->] (sumfin) -- (delaye);
-    
-\end{tikzpicture}
+\input{./tikzpics/kf_3}
 \caption{text}
 \end{figure}
 
 \subsection{Particle Filters}
-Particle filters can be used to solve the global localisation problem, that is, it can localise a robot in an environment when its initial position is unknown. This section looks at a specific type of particle filter known as Monte Carlo Localisation (MCL). One of the core ideas central to MCL is to estimate a probability density over the pose state space, conditioned on sensor measurement data, and odometric action data. Typically, mobile robot pose, $x$, is made up of location coordinates $x$ and $y$ and orientation $\theta$
+Particle filters can be used to solve the global localisation problem, that is, it can localise a robot in an environment when its initial position is unknown. This section looks at a specific type of particle filter known as Monte Carlo Localisation (MCL). The central idea of MCL is the posterior distribution estimation of the robot poses, often referred to as the \textit{belief}. The \textit{belief} is defined as probability density over the pose state space, which is conditioned on sensor measurement data, and odometric action data. Mobile robot pose, $\mathbf{x}$, is made up of location coordinates $x$ and $y$ and orientation $\theta$. Letting observation from a laser range finder be represented by $\mathbf{o}$, and odometric sensor data by represented by $\mathbf{a}$, we can mathematically express the belief as follows:
+\begin{equation}
+Bel(\mathbf{x}_t) = p(\mathbf{x}_t | \mathbf{o}_t, \mathbf{a}_{t-1}, \mathbf{o}_{t-1}, \mathbf{a}_{t-2},\ldots,\mathbf{o}_0)
+\end{equation}
+
+Particle filters estimate belief recursively, meaning that an update rule from time $t$ to time $t+1$ is required, and an initial belief is also needed. The initial belief characterizes the initial knowledge about the system state - if little is known about the initial system state, then a uniform distribution can be used over the state space. To derive the update equation we start by expressing (3) using Bayes rule:
+\begin{equation}
+Bel(\mathbf{x}_t) = \frac{p(\mathbf{o}_t | \mathbf{x}_t,\mathbf{a}_{t-1},\ldots,\mathbf{o}_0) \ p(\mathbf{x}_t | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0)}{p(\mathbf{o}_t | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0)}
+\end{equation}
+
+The denominator is a constant value relative to $\mathbf{x}_t$, and (4) can be written more compactly as:
+\begin{equation}
+Bel(\mathbf{x}_t) = \eta \ p(\mathbf{o}_t | \mathbf{x}_t,\mathbf{a}_{t-1},\ldots,\mathbf{o}_0) \ p(\mathbf{x}_t | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0)
+\end{equation}
+
+where $\eta$ is a constant value:
+\begin{equation}
+\eta = p(\mathbf{o}_t | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0)^{-1}
+\end{equation}
+
+A recursive relation seeks to provide an update at each time step. Information from the past is factored into the belief as changes occur. Therefore it can be reasoned that only new information presented to the system from current state is important when modifying the belief. This simplifying assumption, referred to as the \textit{Markov assumption}, suggests that future data is independent of past data given knowledge of the current state. Mathematically, this allows equation (5) to be re-written as:
+\begin{equation}
+Bel(\mathbf{x}_t) = \eta \ p(\mathbf{o}_t | \mathbf{x}_t) \ p(\mathbf{x}_t | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0)
+\end{equation} 
+
+Partitioning over $\mathbf{x}_{t-1}$ equation (7) can be written as:
+\begin{equation}
+Bel(\mathbf{x}_t) = \eta \ p(\mathbf{o}_t | \mathbf{x}_t) \int p(\mathbf{x}_t, \mathbf{x}_{t-1} | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0) \ d\mathbf{x}_{t-1}
+\end{equation}
+
+Applying Bayes' equation (8) can be written as:
+\begin{equation}
+Bel(\mathbf{x}_t) = \eta \ p(\mathbf{o}_t | \mathbf{x}_t) \int p(\mathbf{x}_{t} | \mathbf{x}_{t-1},\mathbf{a}_{t-1},\ldots,\mathbf{o}_0) \ p(\mathbf{x}_{t-1} | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0) \ d\mathbf{x}_{t-1}
+\end{equation}
+
+Exploiting the Markov property again the first expression in the integral can be simplified. The second expression can be written using the $Bel$ notation as follows:
+\begin{equation}
+Bel(\mathbf{x}_t) = \eta \ p(\mathbf{o}_t | \mathbf{x}_t) \int p(\mathbf{x}_{t} | \mathbf{x}_{t-1},\mathbf{a}_{t-1}) \ Bel(\mathbf{x}_{t-1}) \ d\mathbf{x}_{t-1}
+\end{equation}
 
 \subsection{Comparison \& Model Selection}
 Compare the two approaches and determine which approach was implemented to provide localisation for the two robot models.
