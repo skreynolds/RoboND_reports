@@ -1,0 +1,88 @@
+\documentclass[a4paper]{article}
+
+%------------------------------------------------------------
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{inconsolata}
+\usepackage{listings}
+\usepackage{pstricks-add}
+\usepackage{siunitx}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{epstopdf} %converting to PDF
+\usepackage{hyperref}
+
+\usetikzlibrary{shapes.geometric}
+
+%------------------------------------------------------------
+\graphicspath{{./fig/}}
+
+%------------------------------------------------------------
+\setlength{\parindent}{0in}
+
+\lstdefinestyle{Python}{
+	language        = Python,
+	basicstyle      = \ttfamily,
+	keywordstyle    = \color{blue},
+	keywordstyle    = [2] \color{teal}, % just to check that it works
+	stringstyle     = \color{green},
+	commentstyle    = \color{red}\ttfamily
+}
+
+%------------------------------------------------------------
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
+    fonttitle=\bfseries, colframe=gray, listing only, 
+    listing options={basicstyle=\ttfamily,language=Python}, 
+    title=Listing \thetcbcounter: #2, #1}
+
+%------------------------------------------------------------
+\tikzstyle{block} = [draw, fill=blue!20, rectangle, 
+    minimum height=3em, minimum width=3em]
+\tikzstyle{sum} = [draw, fill=blue!20, circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+%------------------------------------------------------------
+
+\begin{document}
+\title{SLAM: Map My World}
+\author{Shane Reynolds}
+\maketitle
+\tableofcontents
+\newpage
+\section{Introduction}
+Consider a robot in an unknown environment, with no known map. The robot takes sensor readings and experiences control actions. Based on these observations and actions, the robot must construct a map and localise itself within the map. In robotics, this scenario is known as the \textit{simultaneous localisation and mapping problem}, or SLAM. In simpler terms, using sensor readings and control data, SLAM concurrently constructs an environment map, and determines the robots location and orientation within that map. This is an important problem since odometric data is subject to small perturbations which are introduced from wheel slippage and sensor noise - often refered to as odometric drift. Mapping allows a robot to revisit previously mapped terrain and reset any localisation error. Also, location and orientation within a given map are normally used as inputs for higher order functions like path planning. The problem is more difficult to solve than localisation with known poses since high dimensionality of map spaces can often lead to computational intractibility. This paper explores two approaches to solving SLAM. The first of these solutions is called FastSLAM which employs a combination of Extended Kalman Filters(EKF) and Monte Carlo Localisation (MCL) to solve the problem. The second approach is called GraphSLAM, which solves the problem by optimising a graph structure built by the algorithm. The paper concludes with an application of GraphSLAM in a Gazebo simulation using an off-the-shelf implementation called RTAB-Map in ROS. The GraphSLAM implementation is tested across two different environments providing opportunities for discussion of robustness, an 
+
+\section{Background}
+provides a sufficient background into the scope of the problem / technologically while also identifying some of the current challenges in robot mapping and why the problem domain is an important piece of robotics. They further discuss and compare mapping algorithms
+
+
+\subsection{FastSLAM}
+
+\subsection{GraphSLAM}
+
+
+\section{Scene and robot configuration}
+explains how the gazebo world was created by providing an overview of the layout of items in his/her customized Gazebo world. Student also describes the robot's parameters, sensor features, and reasoning on the package structure.
+
+\section{Results}
+Results - The student should include the images for mapping process, final map (2D/3D) for both Gazebo worlds.
+
+
+\section{Discussion}
+Discussion - The student explains how the procedure went and methodologies to improve it. The student should compare and contrast the performance of RTAB Mapping in different worlds.
+
+
+\section{Future Work}
+
+
+\bibliography{my_bib}
+\bibliographystyle{ieeetr}
+
+\end{document}
