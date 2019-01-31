@@ -2,6 +2,8 @@
 
 %------------------------------------------------------------
 \usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{booktabs}
@@ -173,9 +175,22 @@ The \textit{posterior} update can be derived from equation (11), and is expresse
 \mathbf{P}_j = (\mathbf{I} - \mathbf{K}_j \mathbf{H}) \mathbf{P}^-_j
 \end{equation}
 
-Equations (8), (9), (13), (14), (15), and (16) make up the Kalman Filter algorithm. The full algorithm is shown in Figure 4.
+Equations (8), (9), (13), (14), (15), and (16) make up the Kalman Filter algorithm. A single pass of the Kalman Filter algorithm can be seen in Algorithm 1 - the pass starts with the \textit{a priori} state estimate update, and concludes with the \textit{posterior} error covariance update. The full algorithm would see the code run continuously, in a loop, iteratively updating state and covariance estimations.
+\begin{algorithm}
+\caption{Kalman Filter}
+\begin{algorithmic}[1]
+\State $\hat{\mathbf{x}}' \gets \mathbf{A} \hat{\mathbf{x}} + \mathbf{B} \mathbf{u}$ (A Priori State Estimate Update)
+\State $\mathbf{P}' \gets \mathbf{A} \mathbf{P} \mathbf{A}^T + \mathbf{Q}$ (A Priori Error Covariance Update)
+\State $\mathbf{S} \gets \mathbf{H} \mathbf{P}' \mathbf{H}^T + \mathbf{R}$ (Covariance Update In Measurement Space)
+\State $\mathbf{K} \gets \mathbf{P}' \mathbf{H}^T \mathbf{S}^{-1}$ (Kalman Gain Update)
+\State $\mathbf{x} \gets \mathbf{x}' + \mathbf{K}(\mathbf{z} - \mathbf{H} \mathbf{x}')$ (Posterior State Estimate Update Using Kalman Gain)
+\State $\mathbf{P} \gets (\mathbf{I} - \mathbf{K} \mathbf{H}) \mathbf{P}'$ (Posterior Error Covariance Update)
+\end{algorithmic}
+\end{algorithm}
 
+NEED TO TALK ABOUT EXTENDED KALMAN FILTER
 
+\pagebreak
 
 \subsection{Particle Filters}
 Particle filters can be used to solve the global localisation problem, that is, it can localise a robot in an environment when its initial position is unknown. This section looks at a specific type of particle filter known as Monte Carlo Localisation (MCL). The central idea of MCL is the estimation of a posterior distribution across robot poses, often referred to as the \textit{belief}. The \textit{belief} is defined as probability density over the pose state space, which is conditioned on sensor measurement data, and odometric action data. Mobile robot pose, $\mathbf{x}$, is made up of location coordinates $x$ and $y$ and orientation $\theta$. Letting observation from a laser range finder be represented by $\mathbf{o}$, and odometric sensor data by represented by $\mathbf{a}$, we can mathematically express the belief as follows:
@@ -183,7 +198,7 @@ Particle filters can be used to solve the global localisation problem, that is, 
 Bel(\mathbf{x}_t) = p(\mathbf{x}_t | \mathbf{o}_t, \mathbf{a}_{t-1}, \mathbf{o}_{t-1}, \mathbf{a}_{t-2},\ldots,\mathbf{o}_0)
 \end{equation}
 
-Particle filters estimate belief recursively, meaning that an update rule from time $t$ to time $t+1$ is required, and an initial belief is also needed. The initial belief characterizes the initial knowledge about the system state - if little is known about the initial system state, then a uniform distribution can be used over the state space. To derive the update equation we start by expressing (3) using Bayes rule:
+Particle filters estimate belief recursively, meaning that an update rule from time $t$ to time $t+1$ is required, and an initial belief is also needed. The initial belief characterizes the initial knowledge about the system state - if little is known about the initial system state, then a uniform distribution can be used over the state space. To derive the update equation we start by expressing (17) using Bayes rule:
 \begin{equation}
 Bel(\mathbf{x}_t) = \frac{p(\mathbf{o}_t | \mathbf{x}_t,\mathbf{a}_{t-1},\ldots,\mathbf{o}_0) \ p(\mathbf{x}_t | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0)}{p(\mathbf{o}_t | \mathbf{a}_{t-1},\ldots,\mathbf{o}_0)}
 \end{equation}
@@ -218,39 +233,82 @@ Exploiting the Markov property again the first expression in the integral can be
 Bel(\mathbf{x}_t) = \eta \ p(\mathbf{o}_t | \mathbf{x}_t) \int p(\mathbf{x}_{t} | \mathbf{x}_{t-1},\mathbf{a}_{t-1}) \ Bel(\mathbf{x}_{t-1}) \ d\mathbf{x}_{t-1}
 \end{equation}
 
-There are two key components to equation (10):  the first is probability $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{a}_{t-1})$ which is referred to as the \textit{motion model}; and the second is the probability $p(\mathbf{o}_t|\mathbf{x}_t)$ which is referred to as the \textit{sensor model}. These are discussed in sections XXXX and XXXX respectively.
+There are two key components to equation (10):  the first is probability $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{a}_{t-1})$ which is referred to as the \textit{motion model}; and the second is the probability $p(\mathbf{o}_t|\mathbf{x}_t)$ which is referred to as the \textit{sensor model}.
 
-\subsubsection{The motion model $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{a}_{t-1})$}
-Under noise free ideal conditions the robot moves from state $\mathbf{x}_{t-1}$ to state $\mathbf{x}_t$ with certainty given some control action $\mathbf{a}_{t-1}$ - the assumption of idealness allows the use of kinematic equations to fully describe the robot's motion. As previously discussed, however, physical robot motion is subject to uncertainty since actuators are not ideal, which means there is uncertainty in pose $mathbf{x}_{t}$. The \textit{motion model}, $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{a}_{t-1})$, describes a posterior density over successors to pose $\mathbf{x}_{t-1}$.
+\subsubsection{Motion model $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{a}_{t-1})$ and sensor model $p(\mathbf{o}_t|\mathbf{x}_t)$}
+Under noise free ideal conditions the robot moves from state $\mathbf{x}_{t-1}$ to state $\mathbf{x}_t$ with certainty given some control action $\mathbf{a}_{t-1}$ - the assumption of idealness allows the use of kinematic equations to fully describe the robot's motion. As previously discussed, however, physical robot motion is subject to uncertainty since actuators are not ideal, which means there is uncertainty in pose $mathbf{x}_{t}$. The \textit{motion model}, $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{a}_{t-1})$, describes a posterior density over successors to pose $\mathbf{x}_{t-1}$. A graphical depiction of what this looks like can be seen in Figure XXXX, which shows the distribution over where the robot could be located given some control action. The image on the right shows the distribution of the robot location after moving 40 meters. The picture on the right shows a more complicated path. The darker regions of the distribution indicate more likely robot locations. 
 
-TALK ABOUT WHAT THE MOTION MODEL LOOKS LIKE PICTORIALLY
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{motion_model}
+\caption{text}
+\end{figure}
 
-TALK ABOUT THE DIFFICULTY IMPLEMENTING A CLOSED FORM OF THE MOTION MODEL AND TALK ABOUT THE USE OF A SAMPLING MODEL INSTEAD
+The sensor model provides the probability, or likelihood, of obtaining the sensor measurements, $\mathbf{o}_t$, given a robot pose, $\mathbf{x}_t$ and control action $\mathbf{a}_{t-1}$, assuming that we have a known map. Sensors such as laser range finders are made up of multiple beams.
 
-\subsubsection{The sensor model $p(\mathbf{o}_t|\mathbf{x}_t)$}
+\subsubsection{MCL Implementation}
+The state space for mobile robot localisation is continuous, meaning that implementing the recursive localisation equation shown in (24) is computationally intractable. Particle filter algorithms attempt to represent the belief $Bel(\mathbf{x}_t)$ using a set of $m$ weighted samples distributed according to $Bel(\mathbf{x}_t)$. Mathematically, we can express this as:
+\begin{equation}
+Bel(\mathbf{x}_t) \approx \{\mathbf{x}^{(i)}, \omega^{(i)} \}_{i=1,...,m}
+\end{equation}
 
+The sampled particles, $\mathbf{x}^{(i)}$, are discrete hypotheses of the robot's pose drawn from $Bel(\mathbf{x}_t)$. The $\omega^{(i)}$, called the \textit{importance factor}, are derived based on how likely the hypothesis particle is, given the sensor measurements and known map. The idea is that over time the set of sample particles converge on the true robot pose in the environment. This means that the algorithm needs to discard particles that are unlikely, and keep particles that are likely. Indeed the MCL algorithm can be thought of as featuring two distinct components:
+\begin{enumerate}
+\item \textbf{Motion and sensor update}: this phase sees the robot undergo a control action which is applied to its pose, as well as the pose of all particles. Additionally, sensor measurements are obtained, and then these sensor readings are used to determine new likelihood weights, $\omega$, for each of the particles.
+\item \textbf{Resampling}: this phase allows us to discard particles which are not likely (low weights), and keep particles with high likelihood (i.e. large weights). This is undertaken by randomly sampling $m$ times from the pool of particles, with replacement. Higher $\omega$ weights mean it is more likely the particle will feature in the re-sampled set.
+\end{enumerate}
+
+The MCL algorithm pseudocode is shown in Algorithm 2 below.
+\begin{algorithm}
+\caption{Monte Carlo Localisation}
+\begin{algorithmic}[1]
+\Procedure{MCL}{$X_{t-1}$,$u_t$,$z_t$}
+\State $\bar{X}_t = X_T = \emptyset$
+\For{$m=1$ to $M$}
+	\State $x^{[m]}_t = \text{motion\_update}(u_t, x^{[m]}_{t-1})$
+	\State $\omega^{[m]}_t = \text{sensor\_update}(z_t, x^{[m]}_t)$
+\EndFor
+\For{$m=1$ to $M$}
+	\State $\text{draw} \ x^{[m]}_t \ \text{from} \  \bar{X}_t \ \text{with probability} \propto \omega^{[m]}_t$
+	\State $X_t = X_t + x^{[m]}_t$
+\EndFor
+\State $\text{return} \ X_t$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Comparison \& Model Selection}
 Compare the two approaches and determine which approach was implemented to provide localisation for the two robot models.
 
 \section{Simulations}
-Describe the performance of the robots. Show the two robot model designs, highlighting the placement of sensors, and the sensors that were employed for the robot.
+Gazebo, a physical simulation environment, was used to test an off-the-shelf implementation of MCL on two different mobile robot platforms. The first robot model was a benchmark designed to provide easy ROS implementation of the MCL package. Further,  the benchmark model utilised existing xml interfacing for Gazebo which guaranteed performance of the MCL package, for appropriate hyper-parameter selection. The second robot model was designed to assess how different physical locations for sensors might impact the performance of MCL. Physical dimensions of the robot were also altered, compared to the benchmark, to assess further performance changes in MCL.
 
-\subsection{Achievements}
+WHAT WERE THE TESTS THAT WERE UNDERTAKEN - BASICALLY, A LOCATION WAS SET FOR THE ROBOT AUTOMATICALLY AND THE TEST WAS SATISFIED
 
 \subsection{Benchmark Model}
 \subsubsection{Model Design}
-the size of the robot, the layout of the sensors - use a chart or a table
+PROVIDE A BRIEF DESCRIPTION OF THE ROBOT MODEL INCLUDING SIZE AND SENSOR LAYOUT TALK ABOUT THE LOCOMOTION DRIVERS FOR THE ROBOT
+
+PROVIDE A PICTURE OF THE ROBOT MODEL
+
 
 \subsubsection{Packages Used}
-
+TALK ABOUT THE PACKAGES THAT WERE USED FOR THE ROBOT AND THEIR CONFIGURATION
 
 \subsubsection{Parameters}
+TALK ABOUT THE HYPERPARAMETERS USED FOR THE 
 
 \subsection{Personal Model}
+PROVIDE A BRIEF DESCRIPTION OF THE ROBOT MODEL INCLUDING THE SIZE AND SENSOR LAYOUT TALK ABOUT THE LOCOMOTION DRIVERS FOR THE ROBOT
+
+PROVIDE A PICTURE OF THE ROBOT MODEL
 
 \section{Results}
 \subsection{Localisation}
+TALK ABOUT THE PERFORMANCE OF THE LOCALISATION ALGORITHM WAS THE ALGORITHM ABLE TO CONVERGE ON THE ROBOT POSE - SHOW PICTURES FROM BOTH ROBOT MODELS DID ONE CONVERGE FASTER THAN THE OTHER
+
+ONCE LOCALISED WAS THE ROBOT ABLE TO SUCCESSFULLY NAVIGATE TO THE DESIRED LOCATION PROVIDED
+
 \subsection{Technical Comparison}
 
 \section{Discussion}
@@ -259,7 +317,6 @@ the size of the robot, the layout of the sensors - use a chart or a table
 
 \section{Conculsion / Future Work}
 \subsection{Modifications for Improvement}
-\subsection{Hardward Deployment}
 
 \bibliography{my_bib}
 \bibliographystyle{ieeetr}
