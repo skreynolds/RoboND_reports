@@ -3,6 +3,7 @@
 %------------------------------------------------------------
 \usepackage[a4paper, total={6in, 9in}]{geometry}
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{booktabs}
 \usepackage{caption}
 \usepackage{enumitem}
@@ -65,7 +66,7 @@ The mobile robot localisation problem comes in three flavours. The simplest invo
 \subsection{Kalman Filters}
 Kalman Filters can be used to solve the simplest localisation problem: position tracking. In an ideal world, position tracking is a trivial task in which the robot knows it's starting location, and updates position with perfect actuation and perfect sensor readings. In the real world, however, this is not the case. Actuation is not perfect, and is subject to minor perturbations, or wheel slippage can occur. Furthermore, sensor readings are noisey. The implications are that both movement and measurement are imprecise and subject to stochastic errors. Consider the a mobile robot moving along a one dimensional trajectory. Let the discrete time position be $x_j$, at time $j$. We note that the position at time $j$ is dependent on the previous position at time $j-1$, denoted as $x_{j-1}$, plus any movement action taken by the robot, denoted as $u_j$. Additionally, as previously noted, the robot's actuators are not perfect and are subject to noise, $\omega_j$. We can write $x_j$ as follows:
 \begin{equation}
-x_j = a \cdot x_j + b \cdot u_j + \omega_j
+x_j = a x_j + b u_j + \omega_j
 \end{equation}
 
 This description is sometimes easier to understand when visualised as a computational block diagram, shown in Figure 1.
@@ -79,9 +80,9 @@ Almost always random phenomena are hidden from the observer behind a dynamical s
 
 \textit{A random function of time may be thought of as the output of a dynamic system excited by an independent Gaussian random process.} \cite{Kalman:1960}\\
 
-This is true for robotic motion, given that we can only attempt to estimate the robot's stochastically perturbed motion, through the use of sensors like odometry, or laser range finders, which are subject to stochastic noise. Letting the measurement of signal $x_j$ be represented by $z_j$, we can write the following equation defining the measurement of $x_j$ as:
+This is true for robotic motion, given that we can only attempt to estimate the robot's stochastically perturbed motion, through the use of sensors like odometry, or laser range finders, which are subject to stochastic noise. Letting the measurement of signal $x_j$ be represented by $z_j$, we can write the following equation defining the measurement of $x_j$, subject to noise $\nu_j$, as:
 \begin{equation}
-z_j = h \cdot x_j + \nu_j
+z_j = h x_j + \nu_j
 \end{equation} 
 
 Equation (2) can be represented in a computational graph as follows:
@@ -91,12 +92,90 @@ Equation (2) can be represented in a computational graph as follows:
 \caption{text}
 \end{figure}
 
-The fundamental problem that the Kalman Filter tries to answer is: how can an accurate estimate of a hidden stochastic signal be found when it is observed as the output of a dynamical system? The first step to answering this is to create a mathematical model of the system we can use to find an estimate of the measurement, $z_j$, which we call $\hat{z_j}$. This estimate is based on an estimation of the hidden variable, which we denote with $\hat{x_j}$. The mathematical model that provides these estimates does not factor in stochasticity seen in actual signals $x_j$ and $z_j$. The estimation architecture can be seen in Figure 3.
+The fundamental problem that the Kalman Filter tries to answer is: how can an accurate estimate of a hidden stochastic signal be found when it is observed as the output of a dynamical system? The first step to answering this is to create a mathematical model of the system we can use to find an estimate of the measurement, $z_j$, which we call $\hat{z_j}$. This estimate is based on an estimation of the hidden variable, which we denote with $\hat{x}^-_j$. The mathematical model that provides these estimates does not factor in stochasticity seen in actual signals $x_j$ and $z_j$. This is the \textit{a priori} estimate of $x_j$, and is mathematically described as:
+\begin{equation}
+\hat{x}^-_j = a \hat{x}_{j-1} + b u_j
+\end{equation}
+
+The \textit{a priori} estimate is used to predict an output estimate,  $\hat{z}_j$. In turn, $\hat{z}_j$, is used to estimate the difference between predicted signal and the observed signal, referred to as the residual:
+\begin{equation}
+z_j - \hat{z}_j = z_j - h \hat{x}^-_j
+\end{equation}
+
+If the residual is small, then our estimate is good. If it is large then our estimate is not good. We can use the residual in (4) to update our \textit{a priori} estimate, $\hat{x}^-_j$:
+\begin{equation}
+\hat{x}_j = \hat{x}^-_j + k (z_j - h \hat{x}^-_j)
+\end{equation}
+
+A visualisation of the computational architecture for the process can be seen in Figure 3. This is a useful picture as it allows us to see the Kalman filter process decomposed into two distinct phases:
+\begin{enumerate}
+\item the state prediction phase in which the residual is used to update the \textit{a priori} providing a state prediction, known as the \textit{posterior belief}
+\item the measurement update phase in which the \textit{posterior belief} is updated with control actions $u_j$ and used as the new \textit{a priori}, which is combined with sensor readings to compute the new residual.
+\end{enumerate}, 
 \begin{figure}[h]
 \centering
 \input{./tikzpics/kf_3}
 \caption{text}
 \end{figure}
+
+The task of determining $k$, used to refine our estimate, is at the heart of the Kalman filtering process. This is not a trivial task. Further, our problem is complicated when considering robotic motion in multiple dimensions - so far, estimation has only been considered for a 1D problem. Most mobile robots move in 2D, and we may also want to estimate other important locomotion variables such as velocity. Suppose that state was now represented as vector of variables such as position in 2D, including velocity. We define this using bold typeface $\mathbf{x}_j$. Similarly, control actions are represented as $\mathbf{u}_j$, and the measurement for each state variable in $\mathbf{x}_j$ is represented by $\mathbf{z}_j$. Without loss of generality equation (1) becomes:
+\begin{equation}
+\mathbf{x}_j = \mathbf{A} \mathbf{x}_j + \mathbf{B} \mathbf{u}_j + \boldsymbol{\omega}_j
+\end{equation}
+
+Similarly, equation (2) becomes:
+\begin{equation}
+\mathbf{z}_j = \mathbf{H} \mathbf{x}_j + \boldsymbol{\nu}_j
+\end{equation}
+
+The \textit{a priori} estimate of the state variable, shown in equation (3), in multidimensional form, is given by:
+\begin{equation}
+\hat{\mathbf{x}}^-_j = \mathbf{A} \hat{\mathbf{x}}_j + \mathbf{B} \mathbf{u}_j
+\end{equation}
+
+The \textit{a priori} update, shown in equation (5) is given by:
+\begin{equation}
+\hat{\mathbf{x}}_j = \hat{\mathbf{x}}^-_j + \mathbf{K}_j (\mathbf{z}_j - \mathbf{H} \hat{\mathbf{x}}^-_j)
+\end{equation}
+
+The error for the \textit{posterior}, $\mathbf{e}_j$, can be written as:
+\begin{equation}
+\mathbf{e}_j = \mathbf{x}_j - \hat{\mathbf{x}}_j
+\end{equation}
+
+A common way to measure the accuracy of $\mathbf{e}_j$ is using the covariance matrix, denoted in the literature as $\mathbf{P}_j$. This can be expressed as follows:
+\begin{equation}
+\mathbf{P}_j = \mathbb{E}[\mathbf{e}_j \cdot \mathbf{e}_j]
+\end{equation}
+
+The Kalman filter attempts to select the Kalman Filter gain, $\mathbf{K}$, such that the \textit{posterior} covariance is minimised. Applying a classical optimisation technique for multivariate calculus, we arrive at the following expression:
+\begin{equation}
+\frac{\partial \mathbf{P}_j}{\partial \mathbf{K}_j} = \frac{\partial \mathbb{E}[(\mathbf{x}_j - \hat{\mathbf{x}}_j)(\mathbf{x}_j - \hat{\mathbf{x}}_j)^T]}{\partial \mathbf{K}_j} = 0
+\end{equation}
+
+Solving equation (12) yields the following result for the Kalman filter gain:
+\begin{equation}
+\mathbf{K}_j = \frac{\mathbf{P}_j \mathbf{H}^T}{\mathbf{H} \mathbf{P}_j \mathbf{H}^T + \mathbf{R}}
+\end{equation}
+
+The denominator of equation (13) contains the measurement noise, represented by matrix $\mathbf{R}$. In fact, the denominator is an important calculation step that maps the state prediction covariance, $\mathbf{P}_j$, into the measurement space - often this is expressed with the variable $\mathbf{S}$, that is:
+\begin{equation}
+\mathbf{S} = \mathbf{H} \mathbf{P}_j \mathbf{H}^T + \mathbf{R} 
+\end{equation}
+
+In addition to the \textit{posterior} error, $\mathbf{e}_j$, there is an error for the \textit{a priori}, denoted $\mathbf{e}^-_j$. The covariance matrix for $\mathbf{e}^-_j$ is given by $\mathbf{P}^-_j$. The final step to arriving at an algorithm for the Kalman filter is being able to recursively update both the \textit{posterior} and \textit{a priori} covariance matrices. The \textit{a priori} error covariance update is derived from considering the error expression $\mathbf{x}_j - \hat{\mathbf{x}}^-_j$, and is expressed using the movement noise matrix $\mathbf{Q}$. The expression is as follows:
+\begin{equation}
+\mathbf{P}^-_j = \mathbf{A} \mathbf{P}_{j-1} \mathbf{A}^T + \mathbf{Q}
+\end{equation}
+
+The \textit{posterior} update can be derived from equation (11), and is expressed as:
+\begin{equation}
+\mathbf{P}_j = (\mathbf{I} - \mathbf{K}_j \mathbf{H}) \mathbf{P}^-_j
+\end{equation}
+
+Equations (8), (9), (13), (14), (15), and (16) make up the Kalman Filter algorithm. The full algorithm is shown in Figure 4.
+
+
 
 \subsection{Particle Filters}
 Particle filters can be used to solve the global localisation problem, that is, it can localise a robot in an environment when its initial position is unknown. This section looks at a specific type of particle filter known as Monte Carlo Localisation (MCL). The central idea of MCL is the estimation of a posterior distribution across robot poses, often referred to as the \textit{belief}. The \textit{belief} is defined as probability density over the pose state space, which is conditioned on sensor measurement data, and odometric action data. Mobile robot pose, $\mathbf{x}$, is made up of location coordinates $x$ and $y$ and orientation $\theta$. Letting observation from a laser range finder be represented by $\mathbf{o}$, and odometric sensor data by represented by $\mathbf{a}$, we can mathematically express the belief as follows:
