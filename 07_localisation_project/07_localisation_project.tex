@@ -57,8 +57,9 @@
 \title{Localisation: Where Am I?}
 \author{Shane Reynolds}
 \maketitle
-\tableofcontents
-\newpage
+
+\section*{Abstract}
+
 \section{Introduction}
 Suppose a robot has an unknown pose in an environment for which it has a map. The robot takes sensor readings, and based on these observations, must infer a set of poses where it could be located in the environment. In robotics, this scenario is known as the \textit{localisation problem} \cite{Cox:1991, Wang:1988}. In simpler terms, localisation is the problem of estimating a mobile robot's location and orientation relative to its environment, given sensor data \cite{Thrun:2001}. This is not as straight forward as it appears given robot actuators are subject to small random perturbations in performance, and sensors provide imperfect measurement. Compounding these problems is the fact that the robot may not even know it's initial pose relative to the environment. This paper explores two approaches to solving the localisation problem, after providing a brief discussion on the common variations of the problem. The first of these solutions is the Extended Kalman Filter (EKF): an adaptation of the Kalman Filter, suited to the estimation of non-linear system responses. The second solution is a particle filter method called Monte Carlo Localisation (MCL). The paper concludes with an application of MCL in a Gazebo simulation using an off-the-shelf MCL package in ROS. The MCL implementation is trialled across two different robot models providing opportunities for discussion of implementation robustness, and an analysis of parameter tuning for reliable performance.
 
@@ -281,42 +282,106 @@ The MCL algorithm pseudocode is shown in Algorithm 2 below.
 Compare the two approaches and determine which approach was implemented to provide localisation for the two robot models.
 
 \section{Simulations}
-Gazebo, a physical simulation environment, was used to test an off-the-shelf implementation of MCL on two different mobile robot platforms. The first robot model was a benchmark designed to provide easy ROS implementation of the MCL package. Further,  the benchmark model utilised existing xml interfacing for Gazebo which guaranteed performance of the MCL package, for appropriate hyper-parameter selection. The second robot model was designed to assess how different physical locations for sensors might impact the performance of MCL. Physical dimensions of the robot were also altered, compared to the benchmark, to assess further performance changes in MCL.
-
-WHAT WERE THE TESTS THAT WERE UNDERTAKEN - BASICALLY, A LOCATION WAS SET FOR THE ROBOT AUTOMATICALLY AND THE TEST WAS SATISFIED
+Gazebo, a physical simulation environment, was used to test an off-the-shelf implementation of MCL on two different mobile robot platforms. The first robot model was a benchmark designed to provide easy ROS implementation of the MCL package. Further, the benchmark model utilised existing xml interfacing for Gazebo guaranteeing performance of the MCL package, with minimal parameter configuration. The second robot model was designed to assess how different physical locations for sensors might impact the performance of MCL. Additionally, physical robot dimensions were altered, compared to the benchmark, to assess performance changes in MCL. MCL performance was tested by sending an identical pose, including location and orientation, in the environment to each robot model. Performance was evaluated by measuring: how long it took the robot model to navigate to the desired pose; how quickly the MCL algorithm localised the robot in it's environment; and how close the final robot pose was to the desired pose on experiment termination.
 
 \subsection{Benchmark Model}
 \subsubsection{Model Design}
-PROVIDE A BRIEF DESCRIPTION OF THE ROBOT MODEL INCLUDING SIZE AND SENSOR LAYOUT TALK ABOUT THE LOCOMOTION DRIVERS FOR THE ROBOT
+The benchmark robot model was a simple design, consisting of a rectangular prism chassis, along with two cylindrical wheels placed in a differential drive configuration in the middle of the chassis. Frictionless, semi-spherical, casters were placed in symmetrical locations on either end of the chassis to ensure stability. A camera, modelled geometrically with a red cube, was placed on the front of the chassis. A laser range finder was placed on top of the chassis, towards the camera location. Figure XXXX shows the robot model loaded into an empty world using Gazebo.
+\begin{figure}[h]
+\centering
+\frame{\includegraphics[scale=0.4]{benchmark_model}}
+\caption{text}
+\end{figure}
 
-PROVIDE A PICTURE OF THE ROBOT MODEL
+The robot was equipped with a differential drive controller, called \texttt{tits}, which allowed ROS to control the robot wheels. Similarly, controllers for the camera and laser range finder were equipped which were called \texttt{urmum} and \texttt{tits milk}, respectively.
 
-
-\subsubsection{Packages Used}
-TALK ABOUT THE PACKAGES THAT WERE USED FOR THE ROBOT AND THEIR CONFIGURATION
-
-\subsubsection{Parameters}
-TALK ABOUT THE HYPERPARAMETERS USED FOR THE 
-
-\subsection{Personal Model}
+\subsubsection{Personal Model}
 PROVIDE A BRIEF DESCRIPTION OF THE ROBOT MODEL INCLUDING THE SIZE AND SENSOR LAYOUT TALK ABOUT THE LOCOMOTION DRIVERS FOR THE ROBOT
 
 PROVIDE A PICTURE OF THE ROBOT MODEL
 
+\subsection{Packages}
+\subsubsection{\texttt{amcl} package}
+The \texttt{amcl} package is a localisation system for a robot traversing 2D map topologies, which is implemented in ROS. The package implements an Monte Carlo localisation approach that uses a particle filter to track the pose of the robot for a given known map. Unlike standard MCL algorithms, this package implements an adaptive filter, which changes the number of sampled particles dynamically to ensure that error introduced by the sample-based representation is bounded.
+
+Some of the more important parameters for this package include:
+\begin{itemize}
+\item \textbf{\texttt{min\_particles}} and \textbf{\texttt{max\_particles}}: amcl dynamically adjusts the number of particles for each iteration, between some given range. A range with a high maximum may be too computationally expensive, for a given system.
+\item \textbf{\texttt{update\_min\_a}} and \textbf{\texttt{update\_min\_d}}: upon receiving a laser scan, amcl checks the linear and angular displacement of the robot from the last laser scan and will only provide a filter update if these values are greater than the values specified in these parameters 
+\item \textbf{\texttt{transform\_tolerance}}: the duration for which a published transform is valid
+\item \textbf{\texttt{laser\_min\_range}} and \textbf{\texttt{laser\_max\_range}}: define the minimum and maximum scan ranges that will be considered for the laser range finder 
+\item \textbf{\texttt{laser\_max\_beams}}: how many evenly spaced beams in each scan to be used when updating the filter
+\end{itemize}
+
+\subsubsection{\texttt{move\_base} package}
+The \texttt{move\_base} package provides the robot with a navigation and path planning tool. Given a goal in the world, the \texttt{move\_base} package will provide action to reach it with a mobile base. This is comprised of a global path planner, and a local path planner. The \texttt{mve\_base} node, once initialised, will also maintain two costmaps: one for the global planner, and one for the local planner. These maps are integral to accomplish navigation tasks. The \texttt{move\_base} node subscribes to a number of different topics. These include:
+\begin{itemize}
+\item an environment map provided by a map server;
+\item laser scans from a laser range finder;
+\item point cloud data from RGBD cameras;
+\item odometric data from the robot odometry;
+\item sensor transforms from a transform topic; and
+\item transform updates from amcl nodes
+\end{itemize}
+
+The \texttt{move\_base} node receives a simple goal pose, and outputs a series of commands to the robot's base controller in order to achieve the input goal. The visual graph depicting the navigation stack set up can be seen in Figure XXXX.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.7]{move_base}
+\caption{text}
+\end{figure}
+
+Some of the more important parameters for this package include:
+\begin{itemize}
+\item \textbf{\texttt{controller\_frequency}}: the rate in $\si{\hertz}$ at which to run the control loop and send velocity commands to the base
+\item \textbf{\texttt{update\_frequency}}: the frequency in $\si{\hertz}$ for the map to be updated
+\item \textbf{\texttt{publish\_frequency}}: the frequency in $\si{\hertz}$ for the map to be published
+\item \textbf{\texttt{inflation\_radius}}: the radius in meters to which the map inflates obstacle cost values
+\item \textbf{\texttt{obstacle\_range}}: the maximum range in meters at which to insert obstacles into the costmap using sensor data
+\item \textbf{\texttt{raytrace\_range}}: the maximum range in meters at which to raytrace out obstacles from the map using sensor data
+\end{itemize}
+
+\subsection{Parameter Tuning}
+\begin{minipage}{0.55\textwidth}
+Parameters were tuned for the benchmark model using trial and error. This was done iteratively until a set of parameters were found that allowed basic error free movement over short linear distances. Parameters were tuned one at a time. This was achieved by entering a test value for a single parameter to the model configuration. The model was then loaded into the world, with an active \texttt{amcl} and \texttt{move\_base} node, and given a desired pose a short distance from the original pose. Performance was evaluated visually. This process was continued until satisfactory performance was obtained for the benchmark model - the tuned parameter values can be seen in Table 1.
+\end{minipage}
+\hspace{0.75cm}
+\begin{minipage}{0.35\textwidth}
+\centering
+\captionof{table}{text}
+\begin{tabular}{lr}
+\toprule
+\textbf{Parameter} & \textbf{Value}\\
+\midrule
+\texttt{controller\_frequency} & 10.0 \\
+\texttt{update\_frequency} & 20.0 \\
+\texttt{publish\_frequency} & 20.0 \\
+\texttt{transform\_tolerance} & 0.2 \\
+\texttt{inflation\_radius} & 0.3 \\
+\texttt{obstacle\_range} & \\
+\texttt{raytrace\_range} & \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+
+
+
 \section{Results}
-\subsection{Localisation}
 TALK ABOUT THE PERFORMANCE OF THE LOCALISATION ALGORITHM WAS THE ALGORITHM ABLE TO CONVERGE ON THE ROBOT POSE - SHOW PICTURES FROM BOTH ROBOT MODELS DID ONE CONVERGE FASTER THAN THE OTHER
 
 ONCE LOCALISED WAS THE ROBOT ABLE TO SUCCESSFULLY NAVIGATE TO THE DESIRED LOCATION PROVIDED
 
-\subsection{Technical Comparison}
+PROVIDE PICTURES OF THE ROBOT AT THE START OF THE GOAL SEEKING, DURING THE GOAL SEEKING, AND AT THE END OF THE GOAL SEEKING
+
+PROVIDE A TABLE OF INTERESTING RESULTS IN TERMS OF TIMES TAKEN TO ACHIEVE
 
 \section{Discussion}
-
-\subsection{Topics}
+WHICH ROBOT PERFORMED BETTER? WHY WAS THIS THE CASE?
 
 \section{Conculsion / Future Work}
-\subsection{Modifications for Improvement}
+WHAT NEEDS TO BE INVESTIGATED FURTHER? WHAT PROBLEMS DID THE ROBOT ENCOUNTER? WHAT OTHER VARIANTS OF THE LOCALISATION PROBLEM COULD BE EXPLORED? 
+
+\newpage
 
 \bibliography{my_bib}
 \bibliographystyle{ieeetr}
