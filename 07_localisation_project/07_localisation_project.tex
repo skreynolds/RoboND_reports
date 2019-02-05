@@ -412,57 +412,77 @@ Parameters were tuned for the benchmark model using trial and error. This was do
 \section{Results}
 Robot models were tested using the same parameter configuration for \texttt{move\_base} and \texttt{amcl}. The test required robot navigation to a location in the environment. Both the benchmark and personal models were able to successfully localise in the environment, and build local costmap used to navigate around environment obstacles. Figures XXXX, XXXX, and XXXX show the physical environment, the given ground truth map, and the local cost map, respectively.\\
 
-\begin{minipage}{0.3\textwidth}
-\centering
-\includegraphics[height=2.7cm]{cost_map_1}
-\captionof{figure}{text}
-\end{minipage}
-\hspace{0.5cm}
-\begin{minipage}{0.3\textwidth}
-\centering
-\includegraphics[height=2.7cm]{cost_map_2}
-\captionof{figure}{text}
-\end{minipage}
-\hspace{0.5cm}
-\begin{minipage}{0.3\textwidth}
-\centering
-\includegraphics[height=2.7cm]{cost_map_3}
-\captionof{figure}{text}
-\end{minipage}
-
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[height=4.5cm]{og_model_1}
+\frame{\includegraphics[height=4cm]{cost_map_1}}
 \captionof{figure}{text}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[height=4.5cm]{new_model_1}
+\frame{\includegraphics[height=4cm]{cost_map_2}}
 \captionof{figure}{text}
 \end{minipage}
 
+\begin{figure}[h]
+\centering
+\frame{\includegraphics[height=4cm]{cost_map_3}}
+\captionof{figure}{text}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{text}
+\begin{tabular}{crrcrr}
+\toprule
+& \multicolumn{2}{c}{\textbf{Benchmark Model}} & & \multicolumn{2}{c}{\textbf{Personal Model}} \\
+\cline{2-3} \cline{5-6}
+\textbf{Trial} & \textbf{Localisation} & \textbf{Goal} & & \textbf{Localisation} & \textbf{Goal} \\
+\midrule
+1 & \texttt{stuck} & \texttt{stuck} & & 0.48 & 1.36 \\
+2 & \texttt{stuck} & \texttt{stuck} & & 0.47 & 1.36 \\
+3 & \texttt{stuck} & \texttt{stuck} & & \texttt{stuck} & \texttt{stuck} \\
+4 & 0.39 & 1.21 & & 0.52 & 1.37 \\
+5 & 0.36 & 1.21 & & \texttt{stuck} & \texttt{stuck} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[height=4.5cm]{og_model_2}
+\frame{\includegraphics[height=4.5cm]{og_model_1}}
 \captionof{figure}{text}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[height=4.5cm]{new_model_2}
+\frame{\includegraphics[height=4.5cm]{new_model_1}}
 \captionof{figure}{text}
 \end{minipage}
 
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[height=4.5cm]{og_model_3}
+\frame{\includegraphics[height=4.5cm]{og_model_2}}
 \captionof{figure}{text}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[height=4.5cm]{new_model_3}
+\frame{\includegraphics[height=4.5cm]{new_model_2}}
+\captionof{figure}{text}
+\end{minipage}
+
+\begin{minipage}{0.45\textwidth}
+\centering
+\frame{\includegraphics[height=4.5cm]{og_model_3}}
+\captionof{figure}{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\frame{\includegraphics[height=4.5cm]{new_model_3}}
 \captionof{figure}{text}
 \end{minipage}
 
