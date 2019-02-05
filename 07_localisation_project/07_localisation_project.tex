@@ -286,21 +286,64 @@ Gazebo, a physical simulation environment, was used to test an off-the-shelf imp
 
 \subsection{Benchmark Model}
 \subsubsection{Model Design}
-The benchmark robot model was a simple design, consisting of a rectangular prism chassis, along with two cylindrical wheels placed in a differential drive configuration in the middle of the chassis. Frictionless, semi-spherical, casters were placed in symmetrical locations on either end of the chassis to ensure stability. A camera, modelled geometrically with a red cube, was placed on the front of the chassis. A laser range finder was placed on top of the chassis, towards the camera location. Figure XXXX shows the robot model loaded into an empty world using Gazebo.
+The benchmark robot model was a simple design, consisting of a rectangular prism chassis, along with two cylindrical wheels placed in a differential drive configuration in the middle of the chassis. Frictionless, semi-spherical, casters were placed in symmetrical locations on either end of the chassis to ensure stability. A camera, modelled geometrically with a red cube, was placed on the front of the chassis. A laser range finder was placed on top of the chassis, towards the camera location.
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.4]{benchmark_model}}
 \caption{text}
 \end{figure}
 
-The robot was equipped with a differential drive controller, called \texttt{tits}, which allowed ROS to control the robot wheels. Similarly, controllers for the camera and laser range finder were equipped which were called \texttt{urmum} and \texttt{tits milk}, respectively.
+\begin{minipage}{0.45\textwidth}
+Figure XXXX shows the robot model loaded into an empty world using Gazebo. The robot was equipped with a differential drive controller, called \texttt{libgazebo\_ros\_diff\_drive.so}, which allowed ROS to control the robot wheels. Similarly, controllers for the camera and laser range finder were equipped which were called \texttt{libgazebo\_ros\_camera.so} and \texttt{libgazebo\_ros\_laser.so}, respectively. The robot dimensions can be seen in Table XXXX.
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\captionof{table}{text}
+\begin{tabular}{lc}
+\toprule
+\textbf{Dimension} & \textbf{Measurement ($\si{\meter}$)} \\
+\midrule
+Chassis Length & 0.4\\
+Chassis Width & 0.2\\
+Chassis Height & 0.1\\
+Wheel Radius & 0.1\\
+Wheel Placement & Center\\
+\bottomrule
+\end{tabular}
+\end{minipage}
+
 
 \subsubsection{Personal Model}
-PROVIDE A BRIEF DESCRIPTION OF THE ROBOT MODEL INCLUDING THE SIZE AND SENSOR LAYOUT TALK ABOUT THE LOCOMOTION DRIVERS FOR THE ROBOT
+An alternative model was constructed using the benchmark design as a starting point. The original chassis was retained, however, the cylindrical wheels were shifted to the chassis rear in a differential drive configuration. Two frictionless semi-spherical casters were symmetrically at either end of the chassis. The camera was left in its original location. To provided an elevated location for the laser range finder the height of the robot chassis at the rear was elevated.
+\begin{figure}[h]
+\centering
+\frame{\includegraphics[scale=0.5]{shane_model}}
+\caption{text}
+\end{figure}
 
-PROVIDE A PICTURE OF THE ROBOT MODEL
+\begin{minipage}{0.45\textwidth}
+Figure XXXX shows the robot model loaded into an empty world using Gazebo. The robot was equipped with controllers for the differential drive, camera, and laser range finder identical to the benchmark model. The robot dimensions can be seen in Table XXXX.
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\captionof{table}{text}
+\begin{tabular}{lc}
+\toprule
+\textbf{Dimension} & \textbf{Measurement ($\si{\meter}$)} \\
+\midrule
+Chassis Length & 0.4\\
+Chassis Width & 0.2\\
+Chassis Height & 0.1\\
+Wheel Radius & 0.1\\
+Wheel Placement & Rear\\
+\bottomrule
+\end{tabular}
+\end{minipage}
 
 \subsection{Packages}
+TALK BRIEFLY ABOUT THE USE OF PACKAGES IN THE SET UP
 \subsubsection{\texttt{amcl} package}
 The \texttt{amcl} package is a localisation system for a robot traversing 2D map topologies, which is implemented in ROS. The package implements an Monte Carlo localisation approach that uses a particle filter to track the pose of the robot for a given known map. Unlike standard MCL algorithms, this package implements an adaptive filter, which changes the number of sampled particles dynamically to ensure that error introduced by the sample-based representation is bounded.
 
@@ -358,8 +401,8 @@ Parameters were tuned for the benchmark model using trial and error. This was do
 \texttt{publish\_frequency} & 20.0 \\
 \texttt{transform\_tolerance} & 0.2 \\
 \texttt{inflation\_radius} & 0.3 \\
-\texttt{obstacle\_range} & \\
-\texttt{raytrace\_range} & \\
+\texttt{obstacle\_range} & 8.0\\
+\texttt{raytrace\_range} & 10.0\\
 \bottomrule
 \end{tabular}
 \end{minipage}
@@ -367,6 +410,62 @@ Parameters were tuned for the benchmark model using trial and error. This was do
 
 
 \section{Results}
+Robot models were tested using the same parameter configuration for \texttt{move\_base} and \texttt{amcl}. The test required robot navigation to a location in the environment. Both the benchmark and personal models were able to successfully localise in the environment, and build local costmap used to navigate around environment obstacles. Figures XXXX, XXXX, and XXXX show the physical environment, the given ground truth map, and the local cost map, respectively.\\
+
+\begin{minipage}{0.3\textwidth}
+\centering
+\includegraphics[height=2.7cm]{cost_map_1}
+\captionof{figure}{text}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}{0.3\textwidth}
+\centering
+\includegraphics[height=2.7cm]{cost_map_2}
+\captionof{figure}{text}
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}{0.3\textwidth}
+\centering
+\includegraphics[height=2.7cm]{cost_map_3}
+\captionof{figure}{text}
+\end{minipage}
+
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=4.5cm]{og_model_1}
+\captionof{figure}{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=4.5cm]{new_model_1}
+\captionof{figure}{text}
+\end{minipage}
+
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=4.5cm]{og_model_2}
+\captionof{figure}{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=4.5cm]{new_model_2}
+\captionof{figure}{text}
+\end{minipage}
+
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=4.5cm]{og_model_3}
+\captionof{figure}{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=4.5cm]{new_model_3}
+\captionof{figure}{text}
+\end{minipage}
+
 TALK ABOUT THE PERFORMANCE OF THE LOCALISATION ALGORITHM WAS THE ALGORITHM ABLE TO CONVERGE ON THE ROBOT POSE - SHOW PICTURES FROM BOTH ROBOT MODELS DID ONE CONVERGE FASTER THAN THE OTHER
 
 ONCE LOCALISED WAS THE ROBOT ABLE TO SUCCESSFULLY NAVIGATE TO THE DESIRED LOCATION PROVIDED
