@@ -2,7 +2,7 @@
 \BOOKMARK [1][-]{section.2}{Background}{}% 2
 \BOOKMARK [2][-]{subsection.2.1}{Kalman Filters}{section.2}% 3
 \BOOKMARK [2][-]{subsection.2.2}{Particle Filters}{section.2}% 4
-\BOOKMARK [3][-]{subsubsection.2.2.1}{Motion model p\(xt| xt-1, at-1\) and sensor model p\(ot|xt\)}{subsection.2.2}% 5
+\BOOKMARK [3][-]{subsubsection.2.2.1}{Motion model p\(xt| xt-1, ut-1\) and sensor model p\(zt|xt\)}{subsection.2.2}% 5
 \BOOKMARK [3][-]{subsubsection.2.2.2}{MCL Implementation}{subsection.2.2}% 6
 \BOOKMARK [2][-]{subsection.2.3}{Comparison \046 Model Selection}{section.2}% 7
 \BOOKMARK [1][-]{section.3}{Simulations}{}% 8
