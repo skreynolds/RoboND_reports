@@ -92,7 +92,10 @@ This is true for robotic motion, given that we can only attempt to estimate the 
 z_j = h x_j + \nu_j
 \end{equation} 
 
-Equation (2) can be represented in a computational graph as follows:
+Equation (2) can be represented in a computational graph as shown in Figure 2.
+
+\newpage
+
 \begin{figure}[h]
 \centering
 \input{./tikzpics/kf_2}
@@ -118,7 +121,8 @@ A visualisation of the computational architecture for the process can be seen in
 \begin{enumerate}
 \item the state prediction phase in which the residual is used to update the \textit{a priori} providing a state prediction, known as the \textit{posterior belief}
 \item the measurement update phase in which the \textit{posterior belief} is updated with control actions $u_j$ and used as the new \textit{a priori}, which is combined with sensor readings to compute the new residual.
-\end{enumerate}, 
+\end{enumerate}
+
 \begin{figure}[h]
 \centering
 \input{./tikzpics/kf_3}
@@ -281,7 +285,7 @@ The MCL algorithm pseudocode is shown in Algorithm 2 below.
 \end{algorithm}
 
 \subsection{Comparison \& Model Selection}
-Kalman filters and MCL present very different approaches to solving the localisation problem. Kalman filters make underlying assumptions about the distribution of stochastic perturbation to model actuation and sensor noise in order to predict true robot pose - it assumes Gaussian distributions. As a result the pose posterior is also Gaussian. In contrast, MCL does not make this restrictive assumption and instead takes samples using particles to estimate the pose distribution. This means that the MCL is more robust than a Kalman filter approach given that it can handle situations in which there are violations of distribution assumptions in KF. The principal drawback of MCL is that it is much more expensive in terms of memory requirements and computational processing. This is because to properly estimate the pose distribution a large number of samples (particles) need to be stored and updated for each discrete time step in the algorithm. The main advantage of MCL over a Kalman filter approach is that it can recover from wheel slip events, that is, the MCL algorithm can solve the global localisation problem, whereas a Kalman filter can only be used for position tracking. 
+Kalman filters and MCL present very different approaches to solving the localisation problem. Kalman filters make underlying assumptions about the distribution of stochastic perturbation to model actuation and sensor noise in order to predict true robot pose - it assumes Gaussian distributions. As a result the pose posterior is also Gaussian. In contrast, MCL does not make this restrictive assumption and instead takes samples using particles to estimate the pose distribution. This means that the MCL is more robust than a Kalman filter approach given that it can handle situations in which there are violations of distribution assumptions in KF. The principal drawback of MCL is that it is much more expensive in terms of memory requirements and computational processing. This is because to properly estimate the pose distribution a large number of samples (particles) need to be stored and updated for each discrete time step in the algorithm. The main advantage of MCL over a Kalman filter approach is that it can recover from wheel slip events, that is, the MCL algorithm can solve the global localisation problem, whereas a Kalman filter can only be used for position tracking. MCL was selected to implement in simulation, given that it is able to solve the global localisation problem making it a more robust solution.
 
 \newpage
 
@@ -289,7 +293,7 @@ Kalman filters and MCL present very different approaches to solving the localisa
 Gazebo, a physical simulation environment, was used to test an off-the-shelf implementation of MCL on two mobile robot platforms: a benchmark model, and a personal model. ROS was used to implement and run the various process nodes which make up the robot model, and RVIZ was used to visualise sensor data, costmaps, and navigation paths. A basic simulated environment was used to test MCL performance for spawned robots - map topology can be seen in Figure XXXX.
 \begin{figure}[h]
 \centering
-\frame{\includegraphics[scale=0.25]{map_topology}}
+\frame{\includegraphics[scale=0.35]{map_topology}}
 \caption{Simple environment topology was used to test the robot model MCL performance}
 \end{figure}
 
@@ -356,7 +360,8 @@ Wheel Placement & Rear\\
 \newpage
 
 \subsection{Packages}
-TALK BRIEFLY ABOUT THE USE OF PACKAGES IN THE SET UP
+Two main packages are required to implement MCL in simulation. The first is the \texttt{amcl} package - an MCL package that alters the number of particles used to improve algorithm efficiency. The second package is the \texttt{move\_base} package which is used to generate cost maps and navigation paths for the robot model to reach goal locations. Sections 3.2.1 and 3.2.2 discuss the \texttt{amcl} and \texttt{move\_base} packages, respectively.
+
 \subsubsection{\texttt{amcl} package}
 The \texttt{amcl} package is a localisation system for a robot traversing 2D map topologies, which is implemented in ROS. The package implements an Monte Carlo localisation approach that uses a particle filter to track the pose of the robot for a given known map. Unlike standard MCL algorithms, this package implements an adaptive filter, which changes the number of sampled particles dynamically to ensure that error introduced by the sample-based representation is bounded.
 
