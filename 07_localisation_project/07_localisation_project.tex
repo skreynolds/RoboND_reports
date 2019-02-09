@@ -58,7 +58,11 @@
 \author{Shane Reynolds}
 \maketitle
 
+\rule{\textwidth}{1pt}
 \section*{Abstract}
+Reliable localisation of a mobile robot in a known environment is an important problem in robotics - higher order tasks like efficient navigation rely on the robot understanding where it is in an environment. This paper explores the workings of two widely used approaches for solving the localisation problem: Kalman filters; and Monte Carlo Localisation. The paper concludes by testing an off-the-shelf Monte Carlo Localisation implementation in ROS, using a Gazebo simulation environment. The simulation experiment tests the package robustness against changes in robot geometries and sensor locations.\\
+
+\rule{\textwidth}{1pt}
 
 \section{Introduction}
 Suppose a robot has an unknown pose in an environment for which it has a map. The robot takes sensor readings, and based on these observations, must infer a set of poses where it could be located in the environment. In robotics, this scenario is known as the \textit{localisation problem} \cite{Cox:1991, Wang:1988}. In simpler terms, localisation is the problem of estimating a mobile robot's location and orientation relative to its environment, given sensor data \cite{Thrun:2001}. This is not as straight forward as it appears given robot actuators are subject to small random perturbations in performance, and sensors provide imperfect measurement. Compounding these problems is the fact that the robot may not even know it's initial pose relative to the environment. This paper explores two approaches to solving the localisation problem, after providing a brief discussion on the common variations of the problem. The first of these solutions is the Extended Kalman Filter (EKF): an adaptation of the Kalman Filter, suited to the estimation of non-linear system responses. The second solution is a particle filter method called Monte Carlo Localisation (MCL). The paper concludes with an application of MCL in a Gazebo simulation using an off-the-shelf MCL package in ROS. The MCL implementation is trialled across two different robot models providing opportunities for discussion of implementation robustness, and an analysis of parameter tuning for reliable performance.
@@ -191,8 +195,6 @@ Equations (8), (9), (13), (14), (15), and (16) make up the Kalman Filter algorit
 
 NEED TO TALK ABOUT EXTENDED KALMAN FILTER
 
-\pagebreak
-
 \subsection{Particle Filters}
 Particle filters can be used to solve the global localisation problem, that is, it can localise a robot in an environment when its initial position is unknown. This section looks at a specific type of particle filter known as Monte Carlo Localisation (MCL). The central idea of MCL is the estimation of a posterior distribution across robot poses, often referred to as the \textit{belief}. The \textit{belief} is defined as probability density over the pose state space, which is conditioned on sensor measurement data, and odometric action data. Mobile robot pose, $\mathbf{x}$, is made up of location coordinates $x$ and $y$ and orientation $\theta$. Letting observation from a laser range finder be represented by $\mathbf{z}$, and odometric sensor data by represented by $\mathbf{u}$, we can mathematically express the belief as follows:
 \begin{equation}
@@ -279,7 +281,7 @@ The MCL algorithm pseudocode is shown in Algorithm 2 below.
 \end{algorithm}
 
 \subsection{Comparison \& Model Selection}
-Compare the two approaches and determine which approach was implemented to provide localisation for the two robot models.
+Kalman filters and MCL present very different approaches to solving the localisation problem. Kalman filters make underlying assumptions about the distribution of stochastic perturbation to model actuation and sensor noise in order to predict true robot pose - it assumes Gaussian distributions. As a result the pose posterior is also Gaussian. In contrast, MCL does not make this restrictive assumption and instead takes samples using particles to estimate the pose distribution. This means that the MCL is more robust than a Kalman filter approach given that it can handle situations in which there are violations of distribution assumptions in KF. The principal drawback of MCL is that it is much more expensive in terms of memory requirements and computational processing. This is because to properly estimate the pose distribution a large number of samples (particles) need to be stored and updated for each discrete time step in the algorithm. The main advantage of MCL over a Kalman filter approach is that it can recover from wheel slip events, that is, the MCL algorithm can solve the global localisation problem, whereas a Kalman filter can only be used for position tracking. 
 
 \newpage
 
@@ -351,6 +353,8 @@ Wheel Placement & Rear\\
 \end{tabular}
 \end{minipage}
 
+\newpage
+
 \subsection{Packages}
 TALK BRIEFLY ABOUT THE USE OF PACKAGES IN THE SET UP
 \subsubsection{\texttt{amcl} package}
@@ -419,7 +423,7 @@ Parameters were tuned for the benchmark model using trial and error. This undert
 
 
 \section{Results}
-Robot models were deployed separately in the environment using identical parameter configurations for their \texttt{move\_base} and \texttt{amcl} nodes. Both models successfully generated a costmap, which was used for navigation. The physical environment, the ground truth map, and the local costmap, for the benchmark model, can be seen in Figures XXXX, XXXX, and XXXX, respectively. Robots, provided with a goal pose, were required to localise in the environment and navigate to the goal pose. Successful localisation was saw particle convergence around the correct robot pose, which was determined through visual inspection. Time taken to localise, and time taken to reach the goal were measured. Each robot underwent five separate trials.\\
+Robot models were deployed separately in the environment using identical parameter configurations for their \texttt{move\_base} and \texttt{amcl} nodes. Both models successfully generated a costmap, which was used for navigation. The physical environment, the ground truth map, and the local costmap, for the benchmark model, can be seen in Figures XXXX, XXXX, and XXXX, respectively. Robots, provided with a goal pose, were required to localise in the environment and navigate to the goal pose. Successful localisation saw particle convergence around the correct robot pose, which was determined by visual inspection. Time taken to localise, and time taken to reach the goal were measured. Each robot underwent five separate trials.\\
 
 \begin{minipage}[t]{0.45\textwidth}
 \centering
@@ -436,7 +440,7 @@ Robot models were deployed separately in the environment using identical paramet
 \vspace{0.25cm}
 
 \begin{minipage}{0.45\textwidth}
-The benchmark model was able to localise in all five trials and avoided collisions with environment obstacles. The robot became stuck in two trials, and was unable to recover. Interestingly, the robot did not get stuck on the environment obstacles, rather, it became stuck on an \textit{invisible} barrier. The remaining three trials saw the robot successfully navigate to the desired goal pose. The average localisation time over the three successful trials was XXXX, and the average time to goal was XXXX. The full set of results can be seen in Table XXXX.
+The benchmark model was able to localise in all five trials and avoided collisions with environment obstacles. The robot became stuck in two trials, and was unable to recover. Interestingly, the robot did not get stuck on the environment obstacles, rather, it became stuck on an \textit{invisible} barrier. The remaining three trials saw the robot successfully navigate to the desired goal pose. The average localisation time over the three successful trials was 0.49 seconds, and the average time to goal was 1 minute and 36 seconds. The full set of results can be seen in Table XXXX.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
@@ -447,9 +451,7 @@ The benchmark model was able to localise in all five trials and avoided collisio
 
 \vspace{0.5cm}
 
-PROVIDE PICTURES OF THE ROBOT AT THE START OF THE GOAL SEEKING, DURING THE GOAL SEEKING, AND AT THE END OF THE GOAL SEEKING
-
-PROVIDE A TABLE OF INTERESTING RESULTS IN TERMS OF TIMES TAKEN TO ACHIEVE
+The personal model as able to localise in all five trials and avoided collisions with environment obstacles. The robot became stuck in three trials, and was unable to recover. As with the benchmark model, the robot did not become stuck on actual physical obstacles. The remaining three trials saw the robot successfully navigate to the desired goal pose. The average localisation time over two successful trials was 0.375 seconds, and the average time to goal was 1 minute and 21 seconds. The full set of results can be seen in Table XXXX.
 
 \begin{table}[h]
 \centering
@@ -468,6 +470,13 @@ PROVIDE A TABLE OF INTERESTING RESULTS IN TERMS OF TIMES TAKEN TO ACHIEVE
 \bottomrule
 \end{tabular}
 \end{table}
+
+Benchmark model performance, during a successful run, can be seen in Figures 12, 14. and 16. Figure XXXX shows the benchmark model initialised in the environment. The green arrows represent the distribution of particles used by the \texttt{amcl} node. Note they are uniformly distributed around the robot. Figure XXXX shows the robot navigating towards the goal location - the green arrows are starting to converge on the robots true pose within the environment map. Finally, Figure XXXX shows the robot at the goal pose. The arrows are tightly clustered around the robot demonstrating that \texttt{amcl} has localised the robot within the environment. Figures XXXX, XXXX, and XXXX show the same sequence of events for the personal robot model on a successful run.
+
+\section{Discussion}
+The benchmark model appears the most stable as it was able to navigate the goal pose more reliably than the personal model. It must be noted, however, that this may simply be an artefact of the stochastic initialisation and pose evolution of the particles that are used in the \texttt{amcl} node. The \texttt{amcl} node randomly initialises the distribution of particles, and each discrete time step adds random perturbations to particle movement, and sensor measurements. Given that the \texttt{amcl} outputs to the \texttt{move\_base} node, it may be the case that both models are equally likely to get stuck - more trials need to be undertaken to determine if both models are equally likely to get stuck. No immediate reason is presented as to why the robot models are getting stuck. ROS does not flag any errors or warnings. Possible causes include poor parameter configuration, or a lack of adequate system resources - further experimentation is required to determine the root cause.\\
+
+Time to localisation results indicated that both robot models performed similarly suggesting \texttt{amcl} is not materially affected by modifications to robot geometries and sensor locations. Time taken to reach the goal location, however, was noticeably different. On average, the personal robot model was able to reach the goal location 15 seconds faster than the benchmark. There is no apparent reason for \texttt{move\_base} to provide more efficient navigation paths for the personal model, and observed model time differences may again be due to the stochastic nature of \texttt{amcl}. To further explore this finding, more trials need to be undertaken. Additionally, using different starting locations may also provide a set of results allowing for more robust conclusions.
 
 \newpage
 
@@ -502,24 +511,19 @@ PROVIDE A TABLE OF INTERESTING RESULTS IN TERMS OF TIMES TAKEN TO ACHIEVE
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4.5cm]{og_model_3}}
-\captionof{figure}{text}
+\captionof{figure}{Benchmark model at the goal location. The tight clustering of green arrows indicates particle convergence on true robot location for \texttt{amcl}}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4.5cm]{new_model_3}}
-\captionof{figure}{text}
+\captionof{figure}{Personal model at the goal location. The tight clustering of green arrows indicates particle convergence on true robot location for \texttt{amcl}}
 \end{minipage}
 
 
+\section{Conculsion}
+Two robot models with differing body geometries and sensor locations were tested to determine the robustness of \texttt{amcl} and \texttt{move\_base} packages, used to implement MCL on a mobile robot platform. Experimental simulation provided some evidence that time taken to localise within an environment is not affected by changes to robot geometries and sensor locations, however, this may not be the case for algorithm stability and navigation path efficiency. The personal model appeared to experience reduced stability becoming stuck in the environment more often, but was able to navigate to the goal pose faster than the benchmark model. Ultimately these findings are inconclusive, and more experimental trials need to be undertaken to determine if observations were due to stochastic variation or not.
 
-\section{Discussion}
-WHICH ROBOT PERFORMED BETTER? WHY WAS THIS THE CASE?
-
-\section{Conculsion / Future Work}
-WHAT NEEDS TO BE INVESTIGATED FURTHER? WHAT PROBLEMS DID THE ROBOT ENCOUNTER? WHAT OTHER VARIANTS OF THE LOCALISATION PROBLEM COULD BE EXPLORED? 
-
-\newpage
 
 \bibliography{my_bib}
 \bibliographystyle{ieeetr}
