@@ -1,8 +1,10 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
 \BOOKMARK [1][-]{section.2}{Background}{}% 2
-\BOOKMARK [2][-]{subsection.2.1}{FastSLAM}{section.2}% 3
-\BOOKMARK [2][-]{subsection.2.2}{GraphSLAM}{section.2}% 4
-\BOOKMARK [1][-]{section.3}{Scene and robot configuration}{}% 5
-\BOOKMARK [1][-]{section.4}{Results}{}% 6
-\BOOKMARK [1][-]{section.5}{Discussion}{}% 7
-\BOOKMARK [1][-]{section.6}{Future Work}{}% 8
+\BOOKMARK [2][-]{subsection.2.1}{Grid Based FastSLAM}{section.2}% 3
+\BOOKMARK [3][-]{subsubsection.2.1.1}{Occupancy Grid Mapping}{subsection.2.1}% 4
+\BOOKMARK [3][-]{subsubsection.2.1.2}{Grid Based FastSLAM Algorithm}{subsection.2.1}% 5
+\BOOKMARK [2][-]{subsection.2.2}{GraphSLAM}{section.2}% 6
+\BOOKMARK [1][-]{section.3}{Scene and robot configuration}{}% 7
+\BOOKMARK [1][-]{section.4}{Results}{}% 8
+\BOOKMARK [1][-]{section.5}{Discussion}{}% 9
+\BOOKMARK [1][-]{section.6}{Future Work}{}% 10
