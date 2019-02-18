@@ -117,8 +117,58 @@ As previously mentioned, the mapping problem requires estimation of the posterio
 p(m | x_{1:t}, z_{1:t}) = \prod_{i} p(m_i | x_{1:t}, z_{1:t})
 \end{equation}
 
-\subsubsection{Grid Based FastSLAM Algorithm}
+We note that $p(m_i | x_{1:t}, z_{1:t})$ in equation (XXXX) is estimating a fixed binary quantity from a sequence of sensor measurements. According to XXXX beliefs of this type are commonly implemented as \textit{log odds ratios}. We note that the \textit{odds} of a state is defined as the ratio of the probability of the binary event divided by the probability of its negate. Using Bayes' theorem, we express $p(m_i | x_{1:t}, z_{1:t})$ as follows:
+\begin{equation}
+p(m_i | x_{1:t}, z_{1:t}) = \frac{p(z_t | m_i, z_{1:t-1}, x_{1:t}) \cdot p(m_i | z_{1:t}, x_{1:t})}{p(z_t | z_{1:t-1}, x_{1:t})}
+\end{equation}
 
+Applying the Markov assumption for the first term in the numerator yields:
+\begin{equation}
+p(m_i | x_{1:t}, z_{1:t}) = \frac{p(z_t | m_i, x_{t}) \cdot p(m_i | z_{1:t}, x_{1:t})}{p(z_t | z_{1:t-1}, x_{1:t})}
+\end{equation}
+
+We note, applying Bayes' theorem, that:
+\begin{equation}
+p(z_t | m_i, x_t) = \frac{p(m_i | z_t, x_t) \cdot p(z_t | x_t)}{p(m_i | x_t)}
+\end{equation}
+
+Using equation (XXXX), we can re-express equation (XXXX) as:
+\begin{equation}
+p(m_i | x_{1:t}, z_{1:t}) = \frac{p(m_i | z_t, x_t) \cdot p(z_t | x_t) \cdot p(m_i | z_{1:t-1}, x_{1:t-1})}{p(m_i | x_t) \cdot p(z_t | z_{1:t-1}, x_{1:t})}
+\end{equation}
+
+A further application of the Markov assumption allows us to express equation (XXXX) as:
+\begin{equation}
+p(m_i | x_{1:t}, z_{1:t}) = \frac{p(m_i | z_t, x_t) \cdot p(z_t | x_t) \cdot p(m_i | z_{1:t-1}, x_{1:t-1})}{p(m_i) \cdot p(z_t | z_{1:t-1}, x_{1:t})}
+\end{equation}
+
+Similarly, we can follow the same process for the negate of $m_i$, $\neg m_i$. This yields the following expression:
+\begin{equation}
+p(\neg m_i | x_{1:t}, z_{1:t}) = \frac{p(\neg m_i | z_t, x_t) \cdot p(z_t | x_t) \cdot p(\neg m_i | z_{1:t-1}, x_{1:t-1})}{p( \neg m_i) \cdot p(z_t | z_{1:t-1}, x_{1:t})}
+\end{equation}
+
+Hence, after some manipulation, the \textit{odds} can be expressed as:
+\begin{equation}
+\frac{p(m_i | z_{1:t}, u_{1:t})}{p( \neg m_i | z_{1:t}, u_{1:t})} = \frac{p(m_i | z_t, x_t)}{1 - p(m_i | z_t, x_t)} \cdot \frac{p(m_i | z_{1:t-1}, x_{1:t-1})}{1 - p(m_i | z_{1:t-1}, x_{1:t-1})} \cdot \frac{1 - p(m_i)}{p(m_i)}
+\end{equation}
+
+Taking the logarithm of this yields the the \textit{log odds} calculation, $l_t$, for single grid cell:
+\begin{equation}
+l_t = \log \bigg( \frac{p(m_i | z_t, x_t)}{1 - p(m_i | z_t, x_t)} \bigg) + \log \bigg( \frac{p(m_i | z_{1:t-1}, x_{1:t-1})}{1 - p(m_i | z_{1:t-1}, x_{1:t-1})} \bigg) + \log \bigg( \frac{1 - p(m_i)}{p(m_i)} \bigg)
+\end{equation}
+
+We note that equation (XXXX) can be expressed recursively since the middle term is just $l_{t-1}$. Further, the inverted final term is simply the inital belief $l_0$ Hence, we get:
+\begin{equation}
+l_t = l_{t-1} + \log \bigg( \frac{p(m_i | z_t, x_t)}{1 - p(m_i | z_t, x_t)} \bigg) - l_0
+\end{equation}
+
+The final term in equation (XXXX) is just the initial belief for the grid cell, and the second to last term is referred to as the \textit{inverse sensor model}. The occupancy grid mapping algorithm takes the current pose $x_t$ and current sensor measurements $z_t$, along with the array of log odds ratios calculated in a previous iteration for each grid cell. This array is denoted as $\{l_{t-1,i}\}$. The algorithm simply loops through all of the grid cells which comprise an environmental map, updating the log odds ratio for each cell. The pseudo code for the occupancy grid algorithm can be seen in XXXX.
+
+
+
+
+\subsubsection{Grid Based FastSLAM Algorithm}
+The grid based FastSLAM algorithm uses a particle filter to 
 
 \subsection{GraphSLAM}
 
