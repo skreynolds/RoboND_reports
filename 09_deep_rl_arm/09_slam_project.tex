@@ -1,0 +1,127 @@
+\documentclass[a4paper]{article}
+
+%------------------------------------------------------------
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{inconsolata}
+\usepackage{listings}
+\usepackage{pstricks-add}
+\usepackage{siunitx}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage{epstopdf} %converting to PDF
+\usepackage{hyperref}
+
+\usetikzlibrary{shapes.geometric}
+
+%------------------------------------------------------------
+\graphicspath{{./fig/}}
+
+%------------------------------------------------------------
+\setlength{\parindent}{0in}
+
+\lstdefinestyle{Python}{
+	language        = Python,
+	basicstyle      = \ttfamily,
+	keywordstyle    = \color{blue},
+	keywordstyle    = [2] \color{teal}, % just to check that it works
+	stringstyle     = \color{green},
+	commentstyle    = \color{red}\ttfamily
+}
+
+%------------------------------------------------------------
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
+    fonttitle=\bfseries, colframe=gray, listing only, 
+    listing options={basicstyle=\ttfamily,language=Python}, 
+    title=Listing \thetcbcounter: #2, #1}
+
+%------------------------------------------------------------
+\tikzstyle{block} = [draw, fill=blue!20, rectangle, 
+    minimum height=3em, minimum width=3em]
+\tikzstyle{sum} = [draw, fill=blue!20, circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+%------------------------------------------------------------
+
+\begin{document}
+\title{Deep Reinforcement Learning: Robotic Arm Control}
+\author{Shane Reynolds}
+\maketitle
+
+\section*{Abstract}
+
+
+
+\section{Introduction}
+BRIEFLY, WHAT IS REINFORCEMENT LEARNING, AND WHY IS THIS BRANCH OF RESEARCH IMPORTANT?\\
+
+TALK ABOUT RAI HADSELL APPROACH TO END TO END AUTOMATION OF ROBOTIC SYSTEMS\\
+
+GIVE PREVIOUS EXAMPLES OF STATE OF THE ART APPROACHES - ROBOTICS IS SLIGHTLY DIFFERENT AND REQUIRES THE USE OF MORE SOPHISTICATED ARCHITECTURES\\
+
+WHAT IS THE OBJECTIVE OF THIS PAPER - WHAT IS THE PAPER TRYING TO ACHIEVE
+
+
+
+\section{Background}
+HOW IS REINFORCEMENT DEFINED?\\
+
+
+
+\section{Robotic Arm Reinforcement Leaning Problem}
+WHAT IS THE DEFINITION OF THE PROBLEM?\\
+
+HOW IS THE END OF AN EPISODE OR THE TERMINAL STATES OF THE EPISODE DETERMINED?\\
+
+WHAT IS THE ARCHITECTURE OF THE NEURAL NETWORK THAT IS BEING USED TO DELIVER THE DRL\\
+
+
+
+\section{Robot Arm Simulation}
+TALK ABOUT THE SIMULATION ENVIRONMENT AND THE GEOMETRICAL CONFIGURATION OF THE ROBOT - KINEMATICS, MOVEMENT\\
+
+TALK ABOUT OTHER ELEMENTS OF CONFIGURATION THAT ARE USED WITH THE ROBOT - FOR EXAMPLE THE CAMERA\\
+
+SET UP OF THE DQN AGENT\\
+
+CONTROL OF THE ROBOT USING JOINT POSITION OR JOINT VELOCITY - WHAT IS THE DIFFERENCE BETWEEN THE TWO? SHOULD THIS BE INCLUDED IN THE DISCUSSION?\\
+
+
+
+\section{Collisions}
+CHECKING OF THE COLLISION BETWEEN THE OBJECT AND THE ROBOT, AND CHECKING THE COLLISION BETWEEN THE ROBOT AND THE GROUND PLANE
+
+
+
+\section{Reward Function}
+A SINGLE REWARD IS DEFINED, HOWEVER, THE COLLISION RULES ARE CHANGED WHICH ALTERS THE INTERIM REWARD THAT THE AGENT RECEIVES THROUGHOUT THE EPISODE
+
+
+
+\section{Hyperparameters}
+TALK ABOUT THE HYPERPARAMETERS USED FOR EXAMPLE THE CHANGES TO IMAGE DISCRETISATION THAT WAS USED IS 64 BY 64 TO ENSURE THAT MEMORY RESOURCES WERE NOT EXCEEDED.
+
+
+\section{Results}
+TALK ABOUT HOW LONG IT TOOK FOR THE ROBOT TO REACH THE DESIRED SOLUTION SPACE FOR EACH OF THE TASKS\\
+
+INCLUDE SCREENSHOTS AND VARIOUS VIDEOS OF EACH OF THE 
+
+
+\section{Discussion}
+TALK ABOUT THE FACT THAT THE SUCCESS OF THE REINFORCEMENT LEARNING TASK LARGELY COMES DOWN TO THE DETERMINATION OF A REWARD FUNCTION THAT ALLOWS THE ROBOT TO CONVERGE ON THE DESIRED BEHAVIOUR.
+
+\section{Future Work}
+TALK ABOUT THE FACT THAT THERE ARE ADDITIONAL CAMERAS AND THAT THE OBJECT COULD BE RANDOMLY PLACED THROUGHOUT THE ENVIRONMENT AND THAT ROBOT BASE COULD BE MOVED ALSO TO TRY TO GET THE ROBOT TO LEARN MORE EXOTIC POLICIES
+
+\bibliography{my_bib}
+\bibliographystyle{ieeetr}
+
+\end{document}
