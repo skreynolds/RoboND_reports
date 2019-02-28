@@ -60,18 +60,21 @@
 
 
 \section{Introduction}
-BRIEFLY, WHAT IS REINFORCEMENT LEARNING, AND WHY IS THIS BRANCH OF RESEARCH IMPORTANT?\\
+Prior to 2010, state of the art speech to text was achieved by taking an audio sample input which was passed through various independently developed models, such as acoustic models, and language models, which converted the input to text. In 2010, Deep Neural Networks (DNN) started to make improvements on this approach. The DNN approach simply took the raw audio input and returned the text output, replacing the various acoustic, and language models with single network. Speech recognition with DNNs is now considered state of the art. Prior to 2012, the Computer Vision task of taking raw pixel input and labelling the picture as an output was achieved by extracting key points, using SIFT feature computation, and applying deformable part models. In 2012, ImageNet and AlexNet demonstrated performance which surpassed the current state of the art, effectively replacing the image labelling process with a single DNN. Again, prior to 2014, text-to-text machine translation was undertaken with a series of individual models and computation processes. Today, state of the art machine translation is achieved with a single DNN. The common theme in these examples is that input to output transformation, which were comprised of many individual models, been replaced by a single DNN yielding significant increases in system performance.\\
 
-TALK ABOUT RAI HADSELL APPROACH TO END TO END AUTOMATION OF ROBOTIC SYSTEMS\\
+The field of robotics presents a similar story: robotic sensor input is processed, and actions in the physical world are the system output. Currently, state-of-the-art approaches to achieving this sensor input to action output transformation is done using perception models to localise the robot and map the environment, navigation models to path plan, and control models to move actuators. Thinking of a robotic system in this context presents a compelling argument for trying to replace our approach to perception, navigation, and control using a single DNN. Simple analogies aside, it must be acknowledged that robotics is more challenging than labelling an image. The main reason is that the robot's actions change the nature of the robot's environment. The implication is that we cannot collect static data to learn actions from, rather, the data set needs to be built by the robot exploring and interacting with the environment. One of the best ways that we currently know how to approach this problem is through reinforcement learning.
+ 
+TALK ABOUT REINFORCEMENT LEARNING
 
-GIVE PREVIOUS EXAMPLES OF STATE OF THE ART APPROACHES - ROBOTICS IS SLIGHTLY DIFFERENT AND REQUIRES THE USE OF MORE SOPHISTICATED ARCHITECTURES\\
-
-WHAT IS THE OBJECTIVE OF THIS PAPER - WHAT IS THE PAPER TRYING TO ACHIEVE
+This paper explores deep reinforcement learning (DRL) and its application to a three degree of freedom robotic arm. The reinforcement learning agent is trained to touch a cylindrical object which is spawned in the robot's workspace. The goal comes in two flavours: the first is to touch the cylindrical object with any part of the robot; the second, more difficult, goal is to touch the cylindrical object with the robot arm end effector. Learning takes place over repeated episodes, which are terminated when the robot successfully touches the object, or when the robot arm collides with the ground. A final reward is given when the agent reaches a terminal state. An interim rewards is assigned at each discrete time step. The interim reward function design is the main focus of the paper. The benchmark for 
 
 
 
 \section{Background}
-HOW IS REINFORCEMENT DEFINED?\\
+Reinforcement Learning (RL) is a branch of machine learning that is concerned with how agents make sequential decisions to maximise some notion of a cumulative reward. Suppose that a robotic agent exists in some environment which is comprised of many discrete states, $s \in S$, such that $S$ denotes the state space. At any discrete point in time the agent can take an action $a \in A$, where $A$ denotes the action space. When the agent takes an action in a given state, the agent receives some reward, denoted with $r$. If an agent is in a given state, $s$, and takes and action, $a$, this will transition the agent to a new state, $s'$, and yield reward, $r$, with some given probability. The set of probabilities which govern the environmental dynamics are referred to as transition probabilities. We denote them as follows:
+\begin{equation}
+P(S_{t+1}=s', R_{t+1}=r | S_t = s, A_t = a)
+\end{equation}
 
 
 
