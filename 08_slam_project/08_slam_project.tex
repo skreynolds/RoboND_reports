@@ -18,6 +18,7 @@
 \usepackage{hyperref}
 
 \usetikzlibrary{shapes.geometric}
+\usetikzlibrary{calc}
 
 %------------------------------------------------------------
 \graphicspath{{./fig/}}
@@ -171,9 +172,35 @@ The final term in equation (XXXX) is just the initial belief for the grid cell, 
 The grid based FastSLAM algorithm uses a particle filter to 
 
 \subsection{GraphSLAM}
+GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to solving the SLAM problem. The main idea behind GraphSLAM is to build up a graph that consists of robot poses, and map features. Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. We see that the robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves on to $x_3$, sensor detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $e_1$, $e_2$, and $e_3$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $e_4$, $e_5$, $e_6$, and $e_7$. 
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+% Draw the nodes used for the picture
+\node[circle,fill=blue!20](a){$x_0$};
+\node[circle,fill=blue!20,right of=a,node distance=2cm](b){$x_1$};
+\node[circle,fill=blue!20,right of=b,node distance=2cm](c){$x_2$};
+\node[circle,fill=blue!20,right of=c,node distance=2cm](d){$x_3$};
+\node(e) at ($(a)!0.5!(b)$){};
+\node(f) at ($(c)!0.5!(d)$){};
+\node[circle,fill=green!20,below of=e,node distance=2cm](g){$m_1$};
+\node[circle,fill=green!20,below of=f,node distance=2cm](h){$m_2$};
+
+% Draw the edges between the nodes
+\draw (a) -- node[above]{$e_1$} (b);
+\draw (b) -- node[above]{$e_2$} (c);
+\draw (c) -- node[above]{$e_3$} (d);
+\draw[dashed] (a) -- node[left]{$e_4$} (g);
+\draw[dashed] (b) -- node[right]{$e_5$} (g);
+\draw[dashed] (c) -- node[left]{$e_6$} (h);
+\draw[dashed] (d) -- node[right]{$e_7$} (h);
+\end{tikzpicture}
+\caption{text}
+\end{figure}
 
 
 \section{Scene and robot configuration}
+
 explains how the gazebo world was created by providing an overview of the layout of items in his/her customized Gazebo world. Student also describes the robot's parameters, sensor features, and reasoning on the package structure.
 
 \section{Results}
