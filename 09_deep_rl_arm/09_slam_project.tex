@@ -2,7 +2,7 @@
 
 %------------------------------------------------------------
 \usepackage[a4paper, total={6in, 9in}]{geometry}
-\usepackage{amsmath}
+\usepackage{amsmath, amssymb}
 \usepackage{booktabs}
 \usepackage{caption}
 \usepackage{enumitem}
@@ -25,21 +25,31 @@
 %------------------------------------------------------------
 \setlength{\parindent}{0in}
 
-\lstdefinestyle{Python}{
-	language        = Python,
-	basicstyle      = \ttfamily,
-	keywordstyle    = \color{blue},
-	keywordstyle    = [2] \color{teal}, % just to check that it works
-	stringstyle     = \color{green},
-	commentstyle    = \color{red}\ttfamily
+\lstdefinestyle{C++}{
+	language=C++,
+	basicstyle=\ttfamily,
+	keywordstyle=\color{blue}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{green}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#},
+	showstringspaces=false
 }
 
 %------------------------------------------------------------
 \newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
     fonttitle=\bfseries, colframe=gray, listing only, 
-    listing options={basicstyle=\ttfamily,language=Python}, 
+    listing options={basicstyle=\ttfamily,language=C++}, 
     title=Listing \thetcbcounter: #2, #1}
 
+%------------------------------------------------------------
+\lstset{language=C++,
+        basicstyle=\ttfamily,
+        keywordstyle=\color{blue}\ttfamily,
+        stringstyle=\color{red}\ttfamily,
+        commentstyle=\color{green}\ttfamily,
+        morecomment=[l][\color{magenta}]{\#},
+        showstringspaces=false
+}
 %------------------------------------------------------------
 \tikzstyle{block} = [draw, fill=blue!20, rectangle, 
     minimum height=3em, minimum width=3em]
@@ -69,47 +79,209 @@ TALK ABOUT REINFORCEMENT LEARNING
 This paper explores deep reinforcement learning (DRL) and its application to a three degree of freedom robotic arm. The reinforcement learning agent is trained to touch a cylindrical object which is spawned in the robot's workspace. The goal comes in two flavours: the first is to touch the cylindrical object with any part of the robot; the second, more difficult, goal is to touch the cylindrical object with the robot arm end effector. Learning takes place over repeated episodes, which are terminated when the robot successfully touches the object, or when the robot arm collides with the ground. A final reward is given when the agent reaches a terminal state. An interim rewards is assigned at each discrete time step. The interim reward function design is the main focus of the paper. The benchmark for 
 
 
-
 \section{Background}
-Reinforcement Learning (RL) is a branch of machine learning that is concerned with how agents make sequential decisions to maximise some notion of a cumulative reward. Suppose that a robotic agent exists in some environment which is comprised of many discrete states, $s \in S$, such that $S$ denotes the state space. At any discrete point in time the agent can take an action $a \in A$, where $A$ denotes the action space. When the agent takes an action in a given state, the agent receives some reward, denoted with $r$. If an agent is in a given state, $s$, and takes and action, $a$, this will transition the agent to a new state, $s'$, and yield reward, $r$, with some given probability. The set of probabilities which govern the environmental dynamics are referred to as transition probabilities. We denote them as follows:
+\subsection{Markov Decision Process}
+Reinforcement Learning (RL) is a branch of machine learning that is concerned with how agents make sequential decisions to maximise some notion of a cumulative reward. Suppose that a robotic agent exists in some environment which is comprised of many discrete states, $s \in S$, such that $S$ denotes the state space. At any discrete point in time the agent can take an action $a \in A$, where $A$ denotes the action space. When the agent takes an action in a given state, the agent receives some reward, denoted with $r \in R$, where $R$ is the reward set. If an agent is in a given state, $s$, and takes and action, $a$, this will transition the agent to a new state, $s'$, and yield reward, $r$, with some given probability - these are referred to as state transition probabilities. Transition probabilities are denoted as follows:
 \begin{equation}
-P(S_{t+1}=s', R_{t+1}=r | S_t = s, A_t = a)
+P(S_{t+1}=s', R_{t+1}=r \ | \ S_t = s, A_t = a)
 \end{equation}
 
+The set of parameters, outlined above, make up a framework referred to as a Markov Decision Process (MDP).
+
+\subsection{Policy}
+In order for the robot to act within the environment, it needs to have a policy. A policy, $\pi$, is defined as a mapping from states to actions, that is, a rule which determines what action the robot will take for a given state. A deterministic policy, $\pi (s)$, maps a single action to a single state. A stochastic policy, $\pi (a | s)$, defines a probability distribution over the actions for a given state.
+
+\subsection{Return}
+As the robotic agent takes actions at each discrete time step, it receives a reward. The cumulative sum of this reward is referred to as the return. The return is denoted, for $N$ discrete time steps, as:
+\begin{equation}
+G_t = r_t + r_{1+1} + r_{t+2} + \ldots + r_{N-1}
+\end{equation}
+
+Often it is convenient to make future rewards less important that more immediate rewards. This is by multiplying each reward in the sequence by a discount factor, $\gamma \in [0,1]$. Equation (XXXX) then becomes:
+\begin{equation}
+G_t = r_t + \gamma r_{1+1} + \gamma^2 r_{t+2} + \ldots + \gamma^{N-1} r_{N-1} = \sum_{k = 0}^{N-1} \gamma^k r_{t+k}
+\end{equation} 
+
+\subsection{Value Function}
+In order to help decide what the agent's best action to take at a particular instant it is important for the agent to know how good it is to be in a particular state. A way of measuring the ``goodness'' of a state is the \textit{value function}, $v_{\pi}(s)$, which is defined as the expected value of the return that an agent will receive while following a particular policy $\pi$ starting in some state $s$. Mathematically, this can be described as follows:
+\begin{equation}
+v_{\pi}(s) = \mathbb{E}_{\pi} ( G_t \ | \ s_t = s ) = \mathbb{E}_{\pi} \bigg( \sum_{k=0}^{\infty} \gamma^k r_{t+k} \ | \ s_t = s \bigg)
+\end{equation}
+
+An alternative way to express equation (XXXX) is with the Bellman equation:
+\begin{equation}
+v_{\pi}(s) = \sum_{a \in A(s)} \pi\big(a | s\big) \sum_{s' \in S^+, r \ \in R} P\big(S_{t+1}=s', R_{t+1} = r \ | \ S_t=s, A_t=a\big) \cdot \big(r + \gamma v_{\pi}(s')\big)
+\end{equation} 
+
+In addition to the \textit{value function}, it may be useful for the robot to measure the value of taking an action if it is in some given state - this is called an \textit{action-value function}. Formally, the \textit{action-value function}, $q_{\pi}(s,a)$, is defined as the expected value of the return that the agent will receive after taking action $a$ in state $s$, and following policy $\pi$ thereafter. Mathematically, this can be expressed as:
+\begin{equation}
+q_{\pi}(s,a) = \mathbb{E}_{\pi} (G_t \ | \ s_t = s, a_t = a) = \mathbb{E}_{\pi} \bigg( \sum_{k=0}^{\infty} \gamma^k r_{t+k} \ | \ S_t=s, A_t=a \bigg)
+\end{equation}
+
+\subsection{Reinforcement Learning Algorithms}
+The objective of RL is to determine the policy which will maximise the expected value of the agent's cumulative reward. The value function is useful when assessing whether one policy is better than another policy. We say that some policy $\pi'$ is better than policy $\pi$ if and only if $v_{\pi'}(s) \geq v_{\pi}(s) \ \forall \ s \in S$. There is always one policy that is better than all the other policies - this policy is often referred to as the optimal policy. Whilst there may be more than one optimal policy, we denote them using $\pi^*$. They share the same \textit{value function}, denoted $v_{\pi^*}$, and are defined as:
+\begin{equation}
+v_{\pi^*(s)} = \max_{\pi} v_{\pi}(s), \ \forall \ s \in S
+\end{equation}
+
+\subsection{Deep Reinforcement Learning}
+\subsubsection{Experience Replay}
+\subsubsection{Fixed Q-Targets}
 
 
-\section{Robotic Arm Reinforcement Leaning Problem}
-WHAT IS THE DEFINITION OF THE PROBLEM?\\
 
-HOW IS THE END OF AN EPISODE OR THE TERMINAL STATES OF THE EPISODE DETERMINED?\\
+\section{Robotic Arm Reinforcement Learning Problem}
+Newborn babies are typically unable to coordinate their arms to reliably grasp objects within their reach, however, as early as 4 months old babies can locate and pick up large objects such as blocks. One simple way to think about the baby developing this skill is to envision the baby taking repeated attempts to locate and pick up an object - if the baby successfully grasps the object then it feels happy, if it is unable to grasp the object then it feels sad. Simplifying things further we might crudely imagine the baby as a system comprised of an arm full of sensors which can detect object collisions, and a camera allowing vision of it's own arm interacting in the environment. This is the problem that this paper attempts to simulate and solve using DRL. The robotic arm is simulated in Gazebo, and consists of three revolute joints providing three degrees of freedom. A cylindrical object is placed within the work space of the robot, and the robot can observe the both its arm and the environment with an external camera. The scene set up is shown in Figure XXXX.
+\begin{figure}[h]
+\centering
+%\includegraphics[keyvals]{imagefile}
+\caption{text}
+\end{figure}
+
+The task is simple - the robotic arm must reach towards and touch the object. The robot can view itself and the object with a camera, and the it knows what it's joint angles are. A single attempt at touching the object is called an episode, and can consist of many actions. An episode terminates when the robot collides with the ground; or successfully touches the object; or XXXX seconds elapse for a given episode. Commencing a new episode re-initialises the joint angles so that the robot arm stretches upwards. Furthermore, the object is repositioned back in front of the robot - using the same position each time. A discrete time step during an episode allows an action to be taken for a single joint. After each action, the robot receives an interim reward.\\
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{DQN Initialisation}
+agent = dqnAgent::Create(INPUT_WIDTH,
+			 INPUT_HEIGHT,
+			 INPUT_CHANNELS,
+			 DOF*2,
+			 OPTIMIZER,
+			 LEARNING_RATE,
+			 REPLAY_MEMORY,
+			 BATCH_SIZE, 
+		  	 GAMMA,
+		  	 EPS_START,
+		  	 EPS_END,
+		  	 EPS_DECAY, 
+		  	 USE_LSTM,
+		  	 LSTM_SIZE,
+		  	 ALLOW_RANDOM,
+		  	 DEBUG_DQN);
+\end{sexylisting}
+\end{figure}
+
+TALK ABOUT DQN AGENT SET UP\\
+
+There were two choices when designing the action space: allow an action to change a joint position; or allow an action to change a joint velocity. Changing the joint position directly was problematic since instantaneously altering joint positions by a small amount at each time step, led to  jittery robotic movements. Further it is obviously impossible to move joints instantaneously in the real world. Actions were instead defined to be the change of the angular velocity for a given joint, which yielded much smoother looking robotic movements. The robot action implementation was developed as part of a method for the DQN agent called \texttt{ArmPlugin::updateAgent()}
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{listing}
+float velocity = 0.0; // TODO - Set joint velocity based on whether action is even or odd.
+
+if (action % 2 == 0){
+    velocity = vel[action/2] + actionVelDelta;
+}else{
+    velocity = vel[action/2] - actionVelDelta;
+}
+
+
+if( velocity < VELOCITY_MIN )
+    velocity = VELOCITY_MIN;
+
+if( velocity > VELOCITY_MAX )
+    velocity = VELOCITY_MAX;
+
+vel[action/2] = velocity;
+\end{sexylisting}
+\end{figure}
 
 WHAT IS THE ARCHITECTURE OF THE NEURAL NETWORK THAT IS BEING USED TO DELIVER THE DRL\\
 
 
-
-\section{Robot Arm Simulation}
-TALK ABOUT THE SIMULATION ENVIRONMENT AND THE GEOMETRICAL CONFIGURATION OF THE ROBOT - KINEMATICS, MOVEMENT\\
-
-TALK ABOUT OTHER ELEMENTS OF CONFIGURATION THAT ARE USED WITH THE ROBOT - FOR EXAMPLE THE CAMERA\\
-
-SET UP OF THE DQN AGENT\\
-
-CONTROL OF THE ROBOT USING JOINT POSITION OR JOINT VELOCITY - WHAT IS THE DIFFERENCE BETWEEN THE TWO? SHOULD THIS BE INCLUDED IN THE DISCUSSION?\\
-
-
-
 \section{Collisions}
-CHECKING OF THE COLLISION BETWEEN THE OBJECT AND THE ROBOT, AND CHECKING THE COLLISION BETWEEN THE ROBOT AND THE GROUND PLANE
+Two different types of collisions were monitored at each time step. The first type of collision is bad, and occurs if any part of the arm collides with the ground. This was implemented as part of the \texttt{ArmPlugin::OnUpdate()} method. WHAT DOES THE PIECE OF CODE DO? The implementation code snippet can be seen in Listing XXXX.
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}
+cconst math::Box& gripBBox = gripper->GetBoundingBox();
+const float groundContact = 0.05f;
 
+if (gripBBox.min.z < groundContact){
+						
+    if(DEBUG){printf("GROUND CONTACT, EOE\n");}
+    printf("Robot hit ground");
+    rewardHistory = REWARD_LOSS;
+    newReward     = true;
+    endEpisode    = true;
+}
+\end{sexylisting}
+\end{figure}
+
+The second type of collision represents a successful episode, and is triggered according to to different criteria. First criteria is when any part of the robot touches the object. The second criteria is when the robot end effector touches the object. The code snippet was implemented as part of the XXXX method. TALK ABOUT WHAT IT WAS DESIGNED TO DO. The implementation can be seen in Listing XXXX.
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{listingxxx}
+for (unsigned int i = 0; i < contacts->contact_size(); ++i){
+	
+    if( strcmp(contacts->contact(i).collision2().c_str(), COLLISION_FILTER) == 0 )
+        continue;
+		
+    if (strcmp(contacts->contact(i).collision1().c_str(), COLLISION_ITEM) == 0 ||
+        strcmp(contacts->contact(i).collision2().c_str(), COLLISION_ITEM) == 0){
+			
+            std::cout << "Collision between[" << contacts->contact(i).collision1()
+                      << "] and [" << contacts->contact(i).collision2() << "]\n";
+
+            rewardHistory = REWARD_WIN;
+
+            newReward  = true;
+            endEpisode = true;
+
+            return;
+	}
+}
+\end{sexylisting}
+\end{figure} 
 
 
 \section{Reward Function}
-A SINGLE REWARD IS DEFINED, HOWEVER, THE COLLISION RULES ARE CHANGED WHICH ALTERS THE INTERIM REWARD THAT THE AGENT RECEIVES THROUGHOUT THE EPISODE
+Rewards are given to the agent when ever an episode terminates. If the agent experiences a collision with the ground, or if the episode times out, the agent is deemed to have failed the task and is given a punitive reward of XXXX. If the agent is successful in touching the object, then it is successful in its task and is given a reward of XXXX to promote the behaviour. In addition to final rewards, the agent also receives interim rewards at each time step. Just like the final rewards, the agent can be given a positive reward if the behaviour over the time step is desirable, or a negative reward if the behaviour is undesirable.
+
+TALK MORE ABOUT THE REWARD FUNCTIONS THAT COULD BE DEPLOYED.
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{listing}
+if (gripBBox.min.z >= groundContact){
+    
+    // compute the reward from distance to the goal
+    const float distGoal = BoxDistance(gripBBox, propBBox); 
+
+    if( episodeFrames > 1 ){
+        
+        // compute the change in distance to the goal
+        const float distDelta  = lastGoalDistance - distGoal;
+
+        // compute the smoothed moving average of the delta of the distance to the goal
+        avgGoalDelta  = (avgGoalDelta * 0.5) + (distDelta * (1.0 - 0.5));
+        rewardHistory = avgGoalDelta;
+        newReward     = true;
+    }
+    
+    lastGoalDistance = distGoal;
+    
+}
+\end{sexylisting}
+\end{figure}
 
 
 
 \section{Hyperparameters}
-TALK ABOUT THE HYPERPARAMETERS USED FOR EXAMPLE THE CHANGES TO IMAGE DISCRETISATION THAT WAS USED IS 64 BY 64 TO ENSURE THAT MEMORY RESOURCES WERE NOT EXCEEDED.
+TALK ABOUT THE SELECTION OF INPUT WIDTH AND INPUT HEIGHT, TALK ABOUT THE CHOICE OF OPTIMISER, TALK ABOUT THE CHOICE OF LEARNING RATE, TALK ABOUT THE CHOICE OF REPLAY MEMORY, TALK ABOUT THE CHOICE OF BATCH SIZE, TALK ABOUT THE CHOICE OF USING LSTM, TALK ABOUT THE CHOICE OF THE LSTM SIZE
+
+\begin{figure}[h]\scriptsize
+\begin{sexylisting}{listing}
+
+// define hyperparameters 
+#define INPUT_WIDTH   64
+#define INPUT_HEIGHT  64
+#define OPTIMIZER "RMSprop"
+#define LEARNING_RATE 0.01f
+#define REPLAY_MEMORY 10000
+#define BATCH_SIZE 8
+#define USE_LSTM false
+#define LSTM_SIZE 32
+
+\end{sexylisting}
+\end{figure}
 
 
 \section{Results}

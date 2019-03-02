@@ -1,10 +1,17 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
 \BOOKMARK [1][-]{section.2}{Background}{}% 2
-\BOOKMARK [1][-]{section.3}{Robotic Arm Reinforcement Leaning Problem}{}% 3
-\BOOKMARK [1][-]{section.4}{Robot Arm Simulation}{}% 4
-\BOOKMARK [1][-]{section.5}{Collisions}{}% 5
-\BOOKMARK [1][-]{section.6}{Reward Function}{}% 6
-\BOOKMARK [1][-]{section.7}{Hyperparameters}{}% 7
-\BOOKMARK [1][-]{section.8}{Results}{}% 8
-\BOOKMARK [1][-]{section.9}{Discussion}{}% 9
-\BOOKMARK [1][-]{section.10}{Future Work}{}% 10
+\BOOKMARK [2][-]{subsection.2.1}{Markov Decision Process}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Policy}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Return}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{Value Function}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.5}{Reinforcement Learning Algorithms}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.6}{Deep Reinforcement Learning}{section.2}% 8
+\BOOKMARK [3][-]{subsubsection.2.6.1}{Experience Replay}{subsection.2.6}% 9
+\BOOKMARK [3][-]{subsubsection.2.6.2}{Fixed Q-Targets}{subsection.2.6}% 10
+\BOOKMARK [1][-]{section.3}{Robotic Arm Reinforcement Learning Problem}{}% 11
+\BOOKMARK [1][-]{section.4}{Collisions}{}% 12
+\BOOKMARK [1][-]{section.5}{Reward Function}{}% 13
+\BOOKMARK [1][-]{section.6}{Hyperparameters}{}% 14
+\BOOKMARK [1][-]{section.7}{Results}{}% 15
+\BOOKMARK [1][-]{section.8}{Discussion}{}% 16
+\BOOKMARK [1][-]{section.9}{Future Work}{}% 17
