@@ -172,7 +172,29 @@ The final term in equation (XXXX) is just the initial belief for the grid cell, 
 The grid based FastSLAM algorithm uses a particle filter to 
 
 \subsection{GraphSLAM}
-GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to solving the SLAM problem. The main idea behind GraphSLAM is to build up a graph that consists of robot poses, and map features. Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. We see that the robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves on to $x_3$, sensor detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $e_1$, $e_2$, and $e_3$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $e_4$, $e_5$, $e_6$, and $e_7$. 
+GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to solving the SLAM problem. The main idea behind GraphSLAM is to build up a graph that consists of robot poses, $x_t$, and map features, $m_t$. The graph edges represent a series of constraints. The constraints are used to develop a likelihood cost function - minimising this cost function is analogous to determining pose and map features that maximise the likelihood of measurement observations. This is achieved using optimisation techniques, and is performed offline once the graph has been constructed. Picture of the basic set up of GraphSLAM talk about front end and back end.
+\begin{figure}[h]
+\centering
+%\includegraphics[keyvals]{imagefile}
+\caption{text}
+\end{figure}
+
+
+\subsubsection{GraphSLAM Front End}
+The front end of GraphSLAM is concerned with constructing the graph and determining the constraints. Suppose we concern ourselves with estimating SLAM for some 2D topology, the robot pose is comprised of position coordinates $x$, and $y$, as well as orientation $\theta$. To make things simple, we will encapsulate these three parameters in a single pose vector $x_t = \begin{bmatrix} x & y & \theta \end{bmatrix}$. To simplify things further often a single parameter is used to represent state variables that contain one or more poses $x$ with the map $m$. Thrun and Montemerlo define $y_{0:t}$ to be a vector composed of the path $x_{0:t}$ and the map $m$, whereas $y_t$ is simply composed as the momentary pose at time $t$ and the map $m$:
+\begin{equation}
+y_{0:t} =
+\begin{bmatrix}
+x_0 \\ x_1 \\ \vdots \\ x_t \\ m
+\end{bmatrix}
+\quad\mathrm{and}\quad 
+y_t =
+\begin{bmatrix}
+x_t \\ m
+\end{bmatrix}
+\end{equation}
+
+Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data - these are represented using notation $u_t$. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors - these are represented using notation $z_t$. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. The robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves, sensors detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $u_0$, $u_1$, and $u_2$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $z_0$, $z_1$, $z_2$, and $z_3$. 
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}
@@ -187,18 +209,21 @@ GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to so
 \node[circle,fill=green!20,below of=f,node distance=2cm](h){$m_2$};
 
 % Draw the edges between the nodes
-\draw (a) -- node[above]{$e_1$} (b);
-\draw (b) -- node[above]{$e_2$} (c);
-\draw (c) -- node[above]{$e_3$} (d);
-\draw[dashed] (a) -- node[left]{$e_4$} (g);
-\draw[dashed] (b) -- node[right]{$e_5$} (g);
-\draw[dashed] (c) -- node[left]{$e_6$} (h);
-\draw[dashed] (d) -- node[right]{$e_7$} (h);
+\draw (a) -- node[above]{$u_0$} (b);
+\draw (b) -- node[above]{$u_1$} (c);
+\draw (c) -- node[above]{$u_2$} (d);
+\draw[dashed] (a) -- node[left]{$z_0$} (g);
+\draw[dashed] (b) -- node[right]{$z_1$} (g);
+\draw[dashed] (c) -- node[left]{$z_2$} (h);
+\draw[dashed] (d) -- node[right]{$z_3$} (h);
 \end{tikzpicture}
 \caption{text}
 \end{figure}
 
 The edges form a set of \textit{information constraints}. To compute a map posterior, GraphSLAM linearises the set of constraints which results in a sparse information matrix and an information vector. 
+
+\subsubsection{GraphSlam Back End}
+
 
 \section{Scene and robot configuration}
 
