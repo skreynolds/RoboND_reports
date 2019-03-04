@@ -181,7 +181,7 @@ GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to so
 
 
 \subsubsection{GraphSLAM Front End}
-The front end of GraphSLAM is concerned with constructing the graph and determining the constraints. Suppose we concern ourselves with estimating SLAM for some 2D topology, the robot pose is comprised of position coordinates $x$, and $y$, as well as orientation $\theta$. To make things simple, we will encapsulate these three parameters in a single pose vector $x_t = \begin{bmatrix} x & y & \theta \end{bmatrix}$. To simplify things further often a single parameter is used to represent state variables that contain one or more poses $x$ with the map $m$. Thrun and Montemerlo define $y_{0:t}$ to be a vector composed of the path $x_{0:t}$ and the map $m$, whereas $y_t$ is simply composed as the momentary pose at time $t$ and the map $m$:
+The front end of GraphSLAM is concerned with constructing the graph and determining the constraints. A robot nagivating some 2D topology typically has a pose comprised of position coordinates $x$, and $y$, as well as orientation $\theta$. To make things simple, we will encapsulate these three parameters in a single pose vector $x_t = \begin{bmatrix} x & y & \theta \end{bmatrix}$. To simplify things further often a single parameter is used to represent state variables that contain one or more poses $x$ with the map $m$. Thrun and Montemerlo define $y_{0:t}$ to be a vector composed of the path $x_{0:t}$ and the map $m$, whereas $y_t$ is simply composed as the momentary pose at time $t$ and the map $m$:
 \begin{equation}
 y_{0:t} =
 \begin{bmatrix}
@@ -193,6 +193,10 @@ y_t =
 x_t \\ m
 \end{bmatrix}
 \end{equation}
+
+As the robot moves around the environment, it creates pose nodes $x_t$, and observes map features creating feature nodes $m_t$. 
+
+
 
 Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data - these are represented using notation $u_t$. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors - these are represented using notation $z_t$. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. The robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves, sensors detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $u_0$, $u_1$, and $u_2$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $z_0$, $z_1$, $z_2$, and $z_3$. 
 \begin{figure}[h]
