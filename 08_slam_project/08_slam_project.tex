@@ -296,7 +296,7 @@ RTAB-Map is the package used to equip the robot model with GraphSLAM capabilitie
 	\end{tabular}
 \end{table}
 
-\begin{figure}
+\begin{figure}[h]
 	\begin{minipage}{0.45\textwidth}
 		text
 	\end{minipage}
@@ -327,7 +327,7 @@ RTAB-Map is the package used to equip the robot model with GraphSLAM capabilitie
 \clearpage
 
 
-SHOW A PICTURE OF THE RQT GRAPH WHICH DEPICTS HOW THE ROBOT WAS CONFIGURED - WHAT ARE THE MAIN FILES THAT WERE REQUIRED TO CONFIGURE THE ROBOT
+WHAT ARE THE MAIN FILES THAT WERE REQUIRED TO CONFIGURE THE ROBOT
 
 TALK ABOUT THE LAUNCH FILES THAT WERE CREATED TO LAUNCH EACH OF THE RESPECTIVE NODES
 
@@ -336,9 +336,9 @@ Rtab-Map was tested in two different environment models: a benchmark model, and 
 
 \subsubsection{Benchmark Environment}
 The benchmark model is of a small apartment mock up, featuring a kitchen and lounge room. The model is highly textured and contains many features - a good representation of real world environments. The robot spawn point is in the kitchen. The benchmark environment model can be seen in Figure XXXX.
-\begin{figure}
+\begin{figure}[h]
 \centering
-%\includegraphics[scale=0.5]{imagefile}
+\frame{\includegraphics[scale=0.3]{benchmark_env}}
 \caption{text}
 \end{figure}
 
@@ -351,10 +351,39 @@ The alternative model was designed to be very simple. The topology is a basic sq
 \end{figure}
 
 \section{Results}
-Results - The student should include the images for mapping process, final map (2D/3D) for both Gazebo worlds.
-
 \subsection{Benchmark Environment}
-TALK ABOUT HOW MANY LAPS THE ROBOT UNDERTOOK IN ORDER TO 
+A teleop node was used to manoeuvre the robot throughout the benchmark environment using keyboard input control. Approximately three laps of the kitchen, balcony, and lounge room areas were performed. Figure XXXX shows a final iteration of the 2D occupancy grid map, in addition to blue line which represents the robot's path through the environment - the red and green coordinate axes show the robot's starting location.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{kitchen_graph_view}
+\caption{text}
+\end{figure}
+
+As the robot traverses the environment Rtab-Map identifies features from images using the \texttt{SURF} detection algorithm which was specified in the mapping node configuration. Figure XXXX shows a single image along the robot path, taken from the Rtab-Map database. The yellow highlights identify features that \texttt{SURF} has identified. As images are collected along the robot path, features in new images are compared to features from old images. The pink highlights represent instances where two images have features in common. These common features are used to create neighbouring links between images and loop closures. Figure XXXX shows the constraint view for the same point in time as Figure XXXX - this shows where the neighbouring links and loop closures were created.
+\begin{figure}[h]
+\centering
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{kitchen_features}
+\caption{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{kitchen_constraints}
+\caption{text}
+\end{minipage}
+
+\end{figure}
+
+Rtab-Map successfully created a 3D map from captured point cloud data captured by the RGBD camera. The 3D environment model was of reasonable fidelity, and well aligned with the 2D occupancy grid. Figure XXXX shows the 3D environment model from Rviz.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.28]{kitchen_3d_map_2}
+\caption{text}
+\end{figure}
+
+The robot was able to successfully localise within the mapped environment, making small corrections to the odometry upon detection of loop closure.
 
 \subsection{Alternative Environment}
 
