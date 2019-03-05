@@ -332,21 +332,23 @@ SHOW A PICTURE OF THE RQT GRAPH WHICH DEPICTS HOW THE ROBOT WAS CONFIGURED - WHA
 TALK ABOUT THE LAUNCH FILES THAT WERE CREATED TO LAUNCH EACH OF THE RESPECTIVE NODES
 
 \subsection{Environment Model}
+Rtab-Map was tested in two different environment models: a benchmark model, and an alternative model. Models have differing topologies, sizes, and features. 
 
 \subsubsection{Benchmark Environment}
-TALK ABOUT THE STANDARD OFF THE SHELF ENVIRONMENT MODEL THAT WAS USED TO TEST THE SLAM IMPLEMENTATION
-
-MODEL IS FEATURE RICH
+The benchmark model is of a small apartment mock up, featuring a kitchen and lounge room. The model is highly textured and contains many features - a good representation of real world environments. The robot spawn point is in the kitchen. The benchmark environment model can be seen in Figure XXXX.
+\begin{figure}
+\centering
+%\includegraphics[scale=0.5]{imagefile}
+\caption{text}
+\end{figure}
 
 \subsubsection{Alternative Environment}
-TALK ABOUT THE ALTERNATIVE MODEL THAT WAS DEVELOPED
-
-WHY WAS THE MODEL DEVELOPED
-
-HOW WAS THE MODEL DEVELOPED
-
-MODEL CONTAINS LESS FEATURES THAN THE BENCHMARK AND WILL HELP TO UNDERSTAND THE LIMITATIONS OF THE SLAM IMPLEMENTATION
-
+The alternative model was designed to be very simple. The topology is a basic square room, with 6 objects located throughout the room. Compared to the benchmark environment, the alternative environment is relatively featureless. The model was developed using the building editor embedded in Gazebo. The alternative environment model can be seen in Figure XXXX.
+\begin{figure}
+\centering
+%\includegraphics[keyvals]{imagefile}
+\caption{text}
+\end{figure}
 
 \section{Results}
 Results - The student should include the images for mapping process, final map (2D/3D) for both Gazebo worlds.
