@@ -280,13 +280,41 @@ RTAB-Map is the package used to equip the robot model with GraphSLAM capabilitie
 	\caption{text}
 \end{figure}
 
-\begin{table}
+\begin{table}[h]
 	\centering
 	\caption{text}
-	\begin{tabular}{lll}
-		text & & \\
+	\begin{tabular}{ll}
+		\toprule
+		\textbf{Sensor Topic} & \textbf{Topic Path} \\
+		\midrule
+		RGBD Camera Image & \texttt{/camera\_ir/rgb/image\_raw} \\
+		RGBD Camera Depth & \texttt{/camera\_ir/depth/image\_raw} \\
+		RGBD Camera Info & \texttt{/camera\_ir/rgb/camera\_info} \\
+		Laser Scan & \texttt{/graph\_slam\_bot/laser/scan} \\
+		Odometry & \texttt{} \\ 
+		\bottomrule
 	\end{tabular}
 \end{table}
+
+\begin{figure}
+	\begin{minipage}{0.45\textwidth}
+		text
+	\end{minipage}
+	\hspace{0.5cm}
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\captionof{table}{text}
+		\begin{tabular}{cc}
+			\toprule
+			\textbf{Parameter} & \textbf{Value}\\
+			\midrule
+			\texttt{Grid/FromDepth} & \texttt{false} \\
+			\texttt{subscribe\_scan} & \texttt{true} \\
+			\texttt{subscribe\_depth} & \texttt{true} \\
+			\bottomrule
+		\end{tabular}
+	\end{minipage}
+\end{figure}
 
 \clearpage
 
@@ -298,7 +326,6 @@ RTAB-Map is the package used to equip the robot model with GraphSLAM capabilitie
 
 \clearpage
 
-TALK ABOUT THE MAIN PACKAGES THAT WERE USED AND HOW THESE WERE CONFIGURED TO TALK TO EACH OTHER
 
 SHOW A PICTURE OF THE RQT GRAPH WHICH DEPICTS HOW THE ROBOT WAS CONFIGURED - WHAT ARE THE MAIN FILES THAT WERE REQUIRED TO CONFIGURE THE ROBOT
 
