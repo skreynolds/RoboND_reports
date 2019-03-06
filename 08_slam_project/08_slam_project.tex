@@ -183,7 +183,7 @@ GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to so
 
 
 \subsubsection{GraphSLAM Front End}
-The front end of GraphSLAM is concerned with constructing the graph and determining the constraints. A robot nagivating some 2D topology typically has a pose comprised of position coordinates $x$, and $y$, as well as orientation $\theta$. To make things simple, we will encapsulate these three parameters in a single pose vector $x_t = \begin{bmatrix} x & y & \theta \end{bmatrix}$. To simplify things further often a single parameter is used to represent state variables that contain one or more poses $x$ with the map $m$. Thrun and Montemerlo define $y_{0:t}$ to be a vector composed of the path $x_{0:t}$ and the map $m$, whereas $y_t$ is simply composed as the momentary pose at time $t$ and the map $m$:
+The front end of GraphSLAM is concerned with constructing the graph and determining the constraints. A robot nagivating some 2D topology typically has a pose comprised of position coordinates $x$, and $y$, as well as orientation $\theta$. To make things simple, we will encapsulate these three parameters in a single pose vector $x_t = \begin{bmatrix} x & y & \theta \end{bmatrix}$. To simplify things further often a single parameter is used to represent state variables that contain one or more poses $x_{0:t}$ with the map $m$. Thrun and Montemerlo define $y_{0:t}$ to be a vector composed of the path $x_{0:t}$ and the map $m$, whereas $y_t$ is simply composed as a single momentary pose in time, $x_t$, and the map $m$:
 \begin{equation}
 y_{0:t} =
 \begin{bmatrix}
@@ -196,9 +196,47 @@ x_t \\ m
 \end{bmatrix}
 \end{equation}
 
-As the robot moves around the environment, it creates pose nodes $x_t$, and observes map features creating feature nodes $m_t$. 
+As the robot moves around the environment, it experiences control actions $u_{1:t}$, takes sensor measurements $z_{1:t}$, and develops correspondences $c_{1:t}$. The posterior of full SLAM seen in equation (4) can be expressed using $y_{0:t}$, which yields the following:
+\begin{equation}
+p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t})
+\end{equation}
 
+Factorising equation XXXX using Bayes rule yields the following expression:
+\begin{equation}
+p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t}) = \frac{p(z_t \ | \ y_{0:t}, z_{1:t-1}, u_{1:t}, c_{1:t}) \ p(y_{0:t} \ | \ z_{1:t-1}, u_{1:t}, c_{1:t})}{p(z_t \ | \ z_{1:t-1}, u_{1:t}, c_{1:t})}
+\end{equation}
 
+Letting $\eta = p(z_t \ | \ z_{1:t-1}, u_{1:t}, c_{1:t})^{-1}$, we simplify equation (XXXX) as follows:
+\begin{equation}
+p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t}) = \eta \ p(z_t \ | \ y_{0:t}, z_{1:t-1}, u_{1:t}, c_{1:t}) \ p(y_{0:t} \ | \ z_{1:t-1}, u_{1:t}, c_{1:t})
+\end{equation}
+
+The \textit{Markov assumption} allows the simplification of the first probability in equation (XXXX):
+\begin{equation}
+p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t}) = \eta \ p(z_t \ | \ y_t, c_t) \ p(y_{0:t} \ | \ z_{1:t-1}, u_{1:t}, c_{1:t})
+\end{equation}
+
+Partitioning $y_{0:t}$ into $x_t$ and $y_{0:t-1}$ the second probability term in equation (XXXX) can be expressed as:
+\begin{equation}
+p(y_{0:t} \ | \ z_{1:t-1}, u_{1:t}, c_{1:t}) = p(x_t \ | \ y_{0:t-1}, z_{1:t-1}, u_{1:t}, c_{1:t}) \ p(y_{0:t-1} \ | \ z_{1:t-1}, u_{1:t}, c_{1:t})
+\end{equation}
+\\
+THERE IS AN ADDITIONAL STEP HERE
+\\
+
+Substituting equation (XXXX) back into equation (XXXX) yields a recursive expression for the full SLAM posterior:
+\begin{equation}
+p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t}) = \eta \ p(z_t \ | \ y_t, c_t) \ p(x_t \ | \ x_{t-1}, u_t) \ p(y_{0:t-1} \ | \ z_{1:t-1}, u_{1:t-1}, c_{1:t-1})
+\end{equation}
+
+Mathematical induction over $t$ yields the closed form solution where $p(y_0)$ is the prior over the map $m$ and the initial pose $x_0$. The closed form solution is:
+\begin{equation}
+p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t}) = \eta \ p(y_0) \ \prod_{t} p(x_t \ | \ x_{t-1}, u_t) p(z_t \ | \ y_t, c_t)
+\end{equation}
+
+We note that probability $p(x_t \ | \ x_{t-1}, u_t)$ is the \textit{motion model}, which gives us the probability of our current pose, $x_t$, given the previous pose and our odometry $u_t$. The other probability, $p(z_t \ | \ y_t, c_t)$, is the \textit{sensor model} - this gives us the probability of receiving the sensor measurements given the current position, map, and correspondences. Equation (XXXX) is important because it allows us to think of the full SLAM posterior as a series of independent probabilistic events\\
+
+NEED TO FINISH OFF THIS EXPLANATION
 
 Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data - these are represented using notation $u_t$. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors - these are represented using notation $z_t$. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. The robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves, sensors detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $u_0$, $u_1$, and $u_2$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $z_0$, $z_1$, $z_2$, and $z_3$. 
 \begin{figure}[h]
@@ -229,6 +267,8 @@ Edges between two corresponding pose nodes are referred to as motion constraints
 The edges form a set of \textit{information constraints}. To compute a map posterior, GraphSLAM linearises the set of constraints which results in a sparse information matrix and an information vector. 
 
 \subsubsection{GraphSlam Back End}
+The back end of GraphSLAM is concerned with optimising the developed graph. There are a couple of ways to think about this if the constraints were all linear (or linearised) then we can find the maximum of the manifold surface by simply taking the derivative for each dimension and solve the resulting system of equations. The system is typically written as the following $\Omega \cdot \mu = \xi$. We note that $\Omega$ is referred to as the information matrix, and $\xi$ the information vector. Alternatively an optimisation algorithm such as Stochstic Gradient Descent 
+
 
 \subsubsection{RTAB Map Impementation}
 
@@ -339,6 +379,7 @@ Rtab-Map was tested in two different environment models: a benchmark model, and 
 
 \subsubsection{Benchmark Environment}
 The benchmark model is of a small apartment mock up, featuring a kitchen and lounge room. The model is highly textured and contains many features - a good representation of real world environments. Rtab-Map should perform well in this environment because it is visually rich providing many opportunities for loop closure. The robot spawn point is in the kitchen. The benchmark environment model can be seen in Figure XXXX.
+
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.3]{benchmark_env}}
@@ -347,12 +388,12 @@ The benchmark model is of a small apartment mock up, featuring a kitchen and lou
 
 \subsubsection{Alternative Environment}
 The alternative model was designed to be very simple. The topology is a basic rectangular room. An important design feature is the variation of features in the environment: some areas have many features, and other areas are featureless. This design choice was made to help evaluate Rtab-Map's performance in sections of the environment that are visually bland, or that have repetitive textures. The environment model was developed using the building editor embedded in Gazebo. The alternative environment model can be seen in Figure XXXX.
-\begin{figure}
+
+\begin{figure}[h]
 \centering
-\includegraphics[scale=0.3]{alternative_env}
+\frame{\includegraphics[scale=0.3]{alternative_env}}
 \caption{text}
 \end{figure}
-
 
 \section{Results}
 \subsection{Benchmark Environment}
@@ -384,7 +425,7 @@ NEED TO TALK MORE ABOUT THE DIFFERENT LOOP CLOSURE ACTIVITY AND ACTIVITY WHERE T
 Rtab-Map successfully created a 3D map from captured point cloud data captured by the RGBD camera. The 3D environment model was of reasonable fidelity, and well aligned with the 2D occupancy grid. Figure XXXX shows the 3D environment model from Rviz.
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.28]{kitchen_3d_map_2}
+\frame{\includegraphics[scale=0.28]{kitchen_3d_map_2}}
 \caption{text}
 \end{figure}
 
@@ -444,6 +485,11 @@ As with the benchmark model, the robot was manoeuvred through the alternative en
 \end{minipage}
 \end{figure}
 
+\begin{figure}
+\centering
+\frame{\includegraphics[scale=0.35]{slam_house_2_3d_map}}
+\caption{text}
+\end{figure}
 
 \section{Discussion}
 Discussion - The student explains how the procedure went and methodologies to improve it. The student should compare and contrast the performance of RTAB Mapping in different worlds.
