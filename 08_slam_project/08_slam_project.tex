@@ -172,6 +172,7 @@ The final term in equation (XXXX) is just the initial belief for the grid cell, 
 \subsubsection{Grid Based FastSLAM Algorithm}
 The grid based FastSLAM algorithm uses a particle filter to 
 
+
 \subsection{GraphSLAM}
 GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to solving the SLAM problem. The main idea behind GraphSLAM is to build up a graph that consists of robot poses, $x_t$, and map features, $m_t$. The graph edges represent a series of constraints. The constraints are used to develop a likelihood cost function - minimising this cost function is analogous to determining pose and map features that maximise the likelihood of measurement observations. This is achieved using optimisation techniques, and is performed offline once the graph has been constructed. Picture of the basic set up of GraphSLAM talk about front end and back end.
 \begin{figure}[h]
@@ -230,6 +231,7 @@ The edges form a set of \textit{information constraints}. To compute a map poste
 \subsubsection{GraphSlam Back End}
 
 \subsubsection{RTAB Map Impementation}
+
 
 \section{Scene and robot configuration}
 \subsection{Robot Model}
@@ -331,11 +333,12 @@ WHAT ARE THE MAIN FILES THAT WERE REQUIRED TO CONFIGURE THE ROBOT
 
 TALK ABOUT THE LAUNCH FILES THAT WERE CREATED TO LAUNCH EACH OF THE RESPECTIVE NODES
 
+
 \subsection{Environment Model}
 Rtab-Map was tested in two different environment models: a benchmark model, and an alternative model. Models have differing topologies, sizes, and features. 
 
 \subsubsection{Benchmark Environment}
-The benchmark model is of a small apartment mock up, featuring a kitchen and lounge room. The model is highly textured and contains many features - a good representation of real world environments. The robot spawn point is in the kitchen. The benchmark environment model can be seen in Figure XXXX.
+The benchmark model is of a small apartment mock up, featuring a kitchen and lounge room. The model is highly textured and contains many features - a good representation of real world environments. Rtab-Map should perform well in this environment because it is visually rich providing many opportunities for loop closure. The robot spawn point is in the kitchen. The benchmark environment model can be seen in Figure XXXX.
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.3]{benchmark_env}}
@@ -343,16 +346,17 @@ The benchmark model is of a small apartment mock up, featuring a kitchen and lou
 \end{figure}
 
 \subsubsection{Alternative Environment}
-The alternative model was designed to be very simple. The topology is a basic square room, with 6 objects located throughout the room. Compared to the benchmark environment, the alternative environment is relatively featureless. The model was developed using the building editor embedded in Gazebo. The alternative environment model can be seen in Figure XXXX.
+The alternative model was designed to be very simple. The topology is a basic rectangular room. An important design feature is the variation of features in the environment: some areas have many features, and other areas are featureless. This design choice was made to help evaluate Rtab-Map's performance in sections of the environment that are visually bland, or that have repetitive textures. The environment model was developed using the building editor embedded in Gazebo. The alternative environment model can be seen in Figure XXXX.
 \begin{figure}
 \centering
-%\includegraphics[keyvals]{imagefile}
+\includegraphics[scale=0.3]{alternative_env}
 \caption{text}
 \end{figure}
 
+
 \section{Results}
 \subsection{Benchmark Environment}
-A teleop node was used to manoeuvre the robot throughout the benchmark environment using keyboard input control. Approximately three laps of the kitchen, balcony, and lounge room areas were performed. Figure XXXX shows a final iteration of the 2D occupancy grid map, in addition to blue line which represents the robot's path through the environment - the red and green coordinate axes show the robot's starting location.
+A teleop node was set up to manoeuvre the robot around the benchmark environment using keyboard input control. Approximately three laps of the kitchen, balcony, and lounge room areas were performed. Figure XXXX shows a final iteration of the 2D occupancy grid map, in addition to blue line which represents the robot's node graph through the environment, which is optimised by GraphSLAM in Rtab-Map. The red lines connecting nodes show loop closure activity. The red and green coordinate axes show the robot's starting location.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.8]{kitchen_graph_view}
@@ -373,8 +377,9 @@ As the robot traverses the environment Rtab-Map identifies features from images 
 \includegraphics[height=5.5cm]{kitchen_constraints}
 \caption{text}
 \end{minipage}
-
 \end{figure}
+
+NEED TO TALK MORE ABOUT THE DIFFERENT LOOP CLOSURE ACTIVITY AND ACTIVITY WHERE THERE WAS NO LOOP CLOSURE.
 
 Rtab-Map successfully created a 3D map from captured point cloud data captured by the RGBD camera. The 3D environment model was of reasonable fidelity, and well aligned with the 2D occupancy grid. Figure XXXX shows the 3D environment model from Rviz.
 \begin{figure}[h]
@@ -385,7 +390,60 @@ Rtab-Map successfully created a 3D map from captured point cloud data captured b
 
 The robot was able to successfully localise within the mapped environment, making small corrections to the odometry upon detection of loop closure.
 
+
 \subsection{Alternative Environment}
+As with the benchmark model, the robot was manoeuvred through the alternative environment using keyboard commands issued to a teleop node. Three laps of the basic environment were undertaken. The final iteration of the 2D occupancy grid map can be seen in Figure XXXX. The node graph used by GraphSLAM in Rtab-Map is represented by the blue line, and loop closure activity is shown in red.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=1.2]{slam_house_2_graph_view}
+\caption{text}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{slam_house_features_corner_1}
+\caption{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{slam_house_constraints_1}
+\caption{text}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{slam_house_features_corner_2}
+\caption{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{slam_house_constraints_2}
+\caption{text}
+\end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{slam_house_features_corner_3}
+\caption{text}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{slam_house_constraints_3}
+\caption{text}
+\end{minipage}
+\end{figure}
+
 
 \section{Discussion}
 Discussion - The student explains how the procedure went and methodologies to improve it. The student should compare and contrast the performance of RTAB Mapping in different worlds.
