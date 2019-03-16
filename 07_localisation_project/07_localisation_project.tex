@@ -68,10 +68,10 @@ Reliable localisation of a mobile robot in a known environment is an important p
 Suppose a robot has an unknown pose in an environment for which it has a map. The robot takes sensor readings, and based on these observations, must infer a set of poses where it could be located in the environment. This scenario is known as the \textit{localisation problem} \cite{Cox:1991, Wang:1988}. Put simply, localisation is the problem of estimating a mobile robot's location and orientation relative to its environment, given sensor data \cite{Thrun:2001}. This is not as straight forward as it appears given robot actuators are subject to small random performance perturbations, and sensors provide imperfect measurement due to noise. Compounding these problems, the robot may not even know it's initial pose relative to the environment. This paper provides a discussion on two approaches to solving the localisation problem. The first of these solutions is the Extended Kalman Filter (EKF): an adaptation of the Kalman Filter, suited to the estimation of non-linear system responses. The second solution is a particle filter method called Monte Carlo Localisation (MCL). The paper concludes with an application of MCL in a Gazebo simulation using an off-the-shelf MCL package in ROS. The MCL implementation is trialled across two different robot models providing opportunity to assess robustness of tuned parameters, and an analysis of parameter tuning for reliable performance.
 
 \section{Background}
-The mobile robot localisation problem comes in three flavours. The simplest involves tracking the robot's pose relative to its environment - called \textit{position tracking}. This scenario requires an initial known estimate of the robot's pose relative to the environment. Robot actions require pose updates using noisey sensor data \cite{Thrun:1999}. Often initial pose estimates are unavailable - this scenario represents a more meaningful problem version called the \textit{global localisation problem}. The goal here is for the robot determine it's pose from scratch, given it is unaware of the initial pose. Finally, the most challenging problem type is referred to as the \textit{kidnapped robot problem} which sees a localised robot tele-ported to another location on the map without knowledge of the move. This is different to the \textit{global localisation problem} scenario because, after tele-porting, the robot incorrectly believes it is somewhere other than its current location. This final scenario is used to test whether a localisation algorithm can recover from a catastrophic failure.
+The mobile robot localisation problem comes in three flavours. The simplest involves tracking the robot's pose relative to its environment - called \textit{position tracking}. This scenario requires an initial known estimate of the robot's pose relative to the environment. As the robot takes actions and senses the environment the robot pose is updated \cite{Thrun:1999}. Often initial pose estimates are unavailable, since the robot may not know where it is - this scenario represents a more meaningful problem version called the \textit{global localisation problem}. The goal here is for the robot to determine it's pose from scratch. Finally, the most challenging problem type is referred to as the \textit{kidnapped robot problem} which sees a localised robot tele-ported to another location on the map without knowledge of the move. This is different to the \textit{global localisation problem} scenario because, after tele-porting, the robot incorrectly believes it is somewhere other than its current location. This final scenario is used to test whether a localisation algorithm can recover from a catastrophic failure.
 
 \subsection{Kalman Filters}
-Kalman Filters can be used to solve the simplest localisation problem: position tracking. In an ideal world, position tracking is a trivial task in which the robot knows it's starting location, and updates position with perfect actuation and perfect sensor readings. In the real world, however, this is not the case. Actuation is not perfect, and is subject to minor perturbations, or wheel slippage can occur. Furthermore, sensor readings are noisey. The implications are that both movement and measurement are imprecise and subject to stochastic errors. Consider the a mobile robot moving along a one dimensional trajectory. Let the discrete time position be $x_j$, at time $j$. We note that the position at time $j$ is dependent on the previous position at time $j-1$, denoted as $x_{j-1}$, plus any movement action taken by the robot, denoted as $u_j$. Additionally, as previously noted, the robot's actuators are not perfect and are subject to noise, $\omega_j$. We can write $x_j$ as follows:
+Kalman Filters can be used to solve the simplest localisation problem: position tracking. In an ideal world, position tracking is a trivial task in which the robot knows it's starting location, and updates position with perfect actuation and perfect sensor readings. In the real world, however, this is not the case. Actuation is not perfect, and is subject to minor perturbations, or wheel slippage can occur. Furthermore, sensor readings are noisey. The implications are that both movement and measurement are imprecise as they are subject to stochastic errors. Consider the a mobile robot moving along a one dimensional trajectory. Let the discrete time position be $x_j$, at time $j$. We note that the position at time $j$ is dependent on the previous position at time $j-1$, denoted as $x_{j-1}$, plus any movement action taken by the robot, denoted as $u_j$. Additionally, as previously noted, the robot's actuators are not perfect and are subject to noise, $\omega_j$. We can write $x_j$ as follows:
 \begin{equation}
 x_j = a x_j + b u_j + \omega_j
 \end{equation}
@@ -83,11 +83,12 @@ This description is sometimes easier to understand when visualised as a computat
 \caption{Block diagram illustrating robot position, $x_j$, at discrete time $j$ updated using control action, $u_j$, and the previous position $x_{j-1}$. Stochastic perturbation is introduced using $\omega_j$.}
 \end{figure}
 
-Almost always random phenomena are hidden from the observer behind a dynamical system - Kalman described this as follows:\\
+Almost always random phenomena are hidden from the observer behind a dynamical system - Kalman described this as follows:
+\begin{quotation}
+\noindent\textit{A random function of time may be thought of as the output of a dynamic system excited by an independent Gaussian random process.} \cite{Kalman:1960}
+\end{quotation}
 
-\textit{A random function of time may be thought of as the output of a dynamic system excited by an independent Gaussian random process.} \cite{Kalman:1960}\\
-
-This is true for robotic motion, given that we can only attempt to estimate the robot's stochastically perturbed motion, through the use of sensors like odometry, or laser range finders, which are subject to stochastic noise. Letting the measurement of signal $x_j$ be represented by $z_j$, we can write the following equation defining the measurement of $x_j$, subject to noise $\nu_j$, as:
+It is true for robotic motion that we must attempt to estimate the robot's stochastically perturbed motion, through the use of odometry sensors, or laser range finders, which are subject to stochastic noise. It must be noted, however, that it is not necessarily true that these stochastic perturbations follow a Gaussian distribution. Letting the measurement of signal $x_j$ be represented by $z_j$, we can write the following equation defining the measurement of $x_j$, subject to noise $\nu_j$, as:
 \begin{equation}
 z_j = h x_j + \nu_j
 \end{equation} 
@@ -117,7 +118,7 @@ If the residual is small, then our estimate is good. If it is large then our est
 \hat{x}_j = \hat{x}^-_j + k (z_j - h \hat{x}^-_j)
 \end{equation}
 
-A visualisation of the computational architecture for the process can be seen in Figure 3. This is a useful picture as it allows us to see the Kalman filter process decomposed into two distinct phases:
+A visualisation of the computational architecture for the process can be seen in Figure 3. We see the Kalman filter process decomposed into two distinct phases:
 \begin{enumerate}
 \item the state prediction phase in which the residual is used to update the \textit{a priori} providing a state prediction, known as the \textit{posterior belief}
 \item the measurement update phase in which the \textit{posterior belief} is updated with control actions $u_j$ and used as the new \textit{a priori}, which is combined with sensor readings to compute the new residual.
@@ -129,7 +130,7 @@ A visualisation of the computational architecture for the process can be seen in
 \caption{Block diagram showing the actual measurement model (above), and the prediction model (below). The outputs of the two models are compared and fed to a feedback topology. Core to the Kalman filter implementation is the selection of weights $k$ in the bottom right hand corner.}
 \end{figure}
 
-The task of determining $k$, used to refine our estimate, is at the heart of the Kalman filtering process. This is not a trivial task. Further, our problem is complicated when considering robotic motion in multiple dimensions - so far, estimation has only been considered for a 1D problem. Most mobile robots move in 2D, and we may also want to estimate other important locomotion variables such as velocity. Suppose that state was now represented as vector of variables such as position in 2D, including velocity. We define this using bold typeface $\mathbf{x}_j$. Similarly, control actions are represented as $\mathbf{u}_j$, and the measurement for each state variable in $\mathbf{x}_j$ is represented by $\mathbf{z}_j$. Without loss of generality equation (1) becomes:
+The task of determining $k$, used to refine our estimate, is at the heart of the Kalman filtering process. So far we have only considered problems of a single dimension - determining $k$ in this domain is a fairly simple task, however, the problem is complicated further when considering robotic motion in multiple dimensions. Most mobile robotic motion can be thought of in a 2D planar environment, and expressed using coordinates $x$, and $y$, and orientation $\theta$. Adding to the problem dimensionality we may also want to estimate other important locomotion variables such as velocity. Suppose that state was now represented as vector of variables. We define this using bold typeface $\mathbf{x}_j$. Similarly, control actions are represented as $\mathbf{u}_j$, and the measurement for each state variable in $\mathbf{x}_j$ is represented by $\mathbf{z}_j$. Without loss of generality equation (1) becomes:
 \begin{equation}
 \mathbf{x}_j = \mathbf{A} \mathbf{x}_j + \mathbf{B} \mathbf{u}_j + \boldsymbol{\omega}_j
 \end{equation}
@@ -159,7 +160,7 @@ A common way to measure the accuracy of $\mathbf{e}_j$ is using the covariance m
 \mathbf{P}_j = \mathbb{E}[\mathbf{e}_j \cdot \mathbf{e}_j]
 \end{equation}
 
-The Kalman filter attempts to select the Kalman Filter gain, $\mathbf{K}$, such that the \textit{posterior} covariance is minimised. Applying a classical optimisation technique for multivariate calculus, we arrive at the following expression:
+The Kalman filter attempts to select the gain, $\mathbf{K}$, such that the \textit{posterior} covariance is minimised. Applying a classical optimisation technique, we arrive at the following expression:
 \begin{equation}
 \frac{\partial \mathbf{P}_j}{\partial \mathbf{K}_j} = \frac{\partial \mathbb{E}[(\mathbf{x}_j - \hat{\mathbf{x}}_j)(\mathbf{x}_j - \hat{\mathbf{x}}_j)^T]}{\partial \mathbf{K}_j} = 0
 \end{equation}
@@ -197,10 +198,10 @@ Equations (8), (9), (13), (14), (15), and (16) make up the Kalman Filter algorit
 \end{algorithmic}
 \end{algorithm}
 
-NEED TO TALK ABOUT EXTENDED KALMAN FILTER
+One of the major assumptions made when using the Kalman Filter is that motion and measurement models are linear. Unfortunately, most robot motion models exhibit non-linearity (REFERENCE). The main issue here is that non-linearity violates the other major assumption made when using Kalman Filters: state space variables can be modelled using a Gaussian distribution. For example, if some Gaussian distributed random variable $X$ is used in a non-linear function $Y = f(X)$, then the resulting random variable $Y$ is no longer Gaussian. To address this issue \textit{motion models} and \textit{measurement models} are linearised using a first order multidimensional Taylor series approximation, for short distances (REFERENCE). This does not materially change the structure of Algorithm 1, however, does require some additional computation in execution. 
 
 \subsection{Particle Filters}
-Particle filters can be used to solve the global localisation problem, that is, it can localise a robot in an environment when its initial position is unknown. This section looks at a specific type of particle filter known as Monte Carlo Localisation (MCL). The central idea of MCL is the estimation of a posterior distribution across robot poses, often referred to as the \textit{belief}. The \textit{belief} is defined as probability density over the pose state space, which is conditioned on sensor measurement data, and odometric action data. Mobile robot pose, $\mathbf{x}$, is made up of location coordinates $x$ and $y$ and orientation $\theta$. Letting observation from a laser range finder be represented by $\mathbf{z}$, and odometric sensor data by represented by $\mathbf{u}$, we can mathematically express the belief as follows:
+Particle filters can be used to solve the \textit{global localisation} problem, that is, it can localise a robot in an environment when its initial position is unknown. This section looks at a specific type of particle filter known as Monte Carlo Localisation (MCL). The central idea of MCL is the estimation of a posterior distribution across robot poses, often referred to as the \textit{belief}. The \textit{belief} is defined as probability density over the pose state space, which is conditioned on sensor measurement data, and odometric action data. Mobile robot pose, $\mathbf{x}$, is made up of location coordinates $x$ and $y$ and orientation $\theta$. Letting observation from a laser range finder be represented by $\mathbf{z}$, and odometric sensor data by represented by $\mathbf{u}$, we can mathematically express the belief as follows:
 \begin{equation}
 Bel(\mathbf{x}_t) = p(\mathbf{x}_t | \mathbf{z}_t, \mathbf{u}_{t-1}, \mathbf{z}_{t-1}, \mathbf{u}_{t-2},\ldots,\mathbf{z}_0)
 \end{equation}
@@ -220,17 +221,17 @@ where $\eta$ is a constant value:
 \eta = p(\mathbf{z}_t | \mathbf{u}_{t-1},\ldots,\mathbf{z}_0)^{-1}
 \end{equation}
 
-A recursive relation seeks to provide an update at each time step. Information from the past is factored into the belief as changes occur. Therefore it can be reasoned that only new information presented to the system from current state is important when modifying the belief. This simplifying assumption, referred to as the \textit{Markov assumption}, suggests that future data is independent of past data given knowledge of the current state. Mathematically, this allows equation (5) to be re-written as:
+A recursive relation seeks to provide an update at each time step. Information from the past is factored into the belief as changes occur. Therefore it can be reasoned that only new information presented to the system from current state is important when modifying the belief. This simplifying assumption, referred to as the \textit{Markov assumption}, suggests that future data is independent of past data given knowledge of the current state. Mathematically, this allows equation (19) to be re-written as:
 \begin{equation}
 Bel(\mathbf{x}_t) = \eta \ p(\mathbf{z}_t | \mathbf{x}_t) \ p(\mathbf{x}_t | \mathbf{u}_{t-1},\ldots,\mathbf{z}_0)
 \end{equation} 
 
-Partitioning over $\mathbf{x}_{t-1}$ equation (7) can be written as:
+Partitioning over $\mathbf{x}_{t-1}$ equation (21) can be written as:
 \begin{equation}
 Bel(\mathbf{x}_t) = \eta \ p(\mathbf{z}_t | \mathbf{x}_t) \int p(\mathbf{x}_t, \mathbf{x}_{t-1} | \mathbf{a}_{t-1},\ldots,\mathbf{z}_0) \ d\mathbf{x}_{t-1}
 \end{equation}
 
-Applying Bayes' equation (8) can be written as:
+Applying Bayes' equation (22) can be written as:
 \begin{equation}
 Bel(\mathbf{x}_t) = \eta \ p(\mathbf{z}_t | \mathbf{x}_t) \int p(\mathbf{x}_{t} | \mathbf{x}_{t-1},\mathbf{u}_{t-1},\ldots,\mathbf{z}_0) \ p(\mathbf{x}_{t-1} | \mathbf{u}_{t-1},\ldots,\mathbf{z}_0) \ d\mathbf{x}_{t-1}
 \end{equation}
@@ -240,18 +241,19 @@ Exploiting the Markov property again the first expression in the integral can be
 Bel(\mathbf{x}_t) = \eta \ p(\mathbf{z}_t | \mathbf{x}_t) \int p(\mathbf{x}_{t} | \mathbf{x}_{t-1},\mathbf{u}_{t-1}) \ Bel(\mathbf{x}_{t-1}) \ d\mathbf{x}_{t-1}
 \end{equation}
 
-There are two key components to equation (10):  the first is probability $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{u}_{t-1})$ which is referred to as the \textit{motion model}; and the second is the probability $p(\mathbf{z}_t|\mathbf{x}_t)$ which is referred to as the \textit{sensor model}.
+There are two key components to equation (24):  the first is probability $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{u}_{t-1})$ which is referred to as the \textit{motion model}; and the second is the probability $p(\mathbf{z}_t|\mathbf{x}_t)$ which is referred to as the \textit{sensor model}.
 
 \subsubsection{Motion model $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{u}_{t-1})$ and sensor model $p(\mathbf{z}_t|\mathbf{x}_t)$}
-Under noise free ideal conditions the robot moves from state $\mathbf{x}_{t-1}$ to state $\mathbf{x}_t$ with certainty given some control action $\mathbf{u}_{t-1}$ - the assumption of idealness allows the use of kinematic equations to fully describe the robot's motion. As previously discussed, however, physical robot motion is subject to uncertainty since actuators are not ideal, which means there is uncertainty in pose $mathbf{x}_{t}$. The \textit{motion model}, $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{u}_{t-1})$, describes a posterior density over successors to pose $\mathbf{x}_{t-1}$. A graphical depiction of what this looks like can be seen in Figure XXXX, which shows the distribution over where the robot could be located given some control action. The image on the right shows the distribution of the robot location after moving 40 meters. The picture on the right shows a more complicated path. The darker regions of the distribution indicate more likely robot locations. 
-
-\begin{figure}[h]
+\begin{minipage}{0.45\textwidth}
+Under noise free ideal conditions the robot moves from state $\mathbf{x}_{t-1}$ to state $\mathbf{x}_t$ with certainty given some control action $\mathbf{u}_{t-1}$. The assumption of idealness allows the use of kinematic equations to fully describe the robot's motion. As previously discussed, however, physical robot motion is subject to uncertainty since actuators are not ideal, which means there is uncertainty in pose $\mathbf{x}_{t}$. The \textit{motion model}, $p(\mathbf{x}_t| \mathbf{x}_{t-1}, \mathbf{u}_{t-1})$, describes a posterior density over successors to pose $\mathbf{x}_{t-1}$. A graphical depiction of what this looks like can be seen in Figure 4. This shows the distribution over where the robot could be located given some control action. The \textit{sensor model} provides the probability, or likelihood, of obtaining the sensor measurements, $\mathbf{z}_t$, given a robot pose, $\mathbf{x}_t$ and control action $\mathbf{u}_{t-1}$, assuming that we have a known map.
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}{0.45\textwidth}
 \centering
-\includegraphics[scale=0.4]{motion_model}
-\caption{As the robot moves from the start location we see that the uncertainty of where the robot is located increases. This uncertainty is described by the \textit{motion model} - dispersed dots indicate higher uncertainty.}
-\end{figure}
+\includegraphics[scale=0.40]{motion_model}
+\captionof{figure}{We see that the uncertainty of where the robot is located increases as it moves. Uncertainty is indicated by highly dispersed points.}
+\end{minipage}
 
-The sensor model provides the probability, or likelihood, of obtaining the sensor measurements, $\mathbf{z}_t$, given a robot pose, $\mathbf{x}_t$ and control action $\mathbf{u}_{t-1}$, assuming that we have a known map. Sensors such as laser range finders are made up of multiple beams.
 
 \subsubsection{MCL Implementation}
 The state space for mobile robot localisation is continuous, meaning that implementing the recursive localisation equation shown in (24) is computationally intractable. Particle filter algorithms attempt to represent the belief $Bel(\mathbf{x}_t)$ using a set of $m$ weighted samples distributed according to $Bel(\mathbf{x}_t)$. Mathematically, we can express this as:
@@ -285,12 +287,11 @@ The MCL algorithm pseudocode is shown in Algorithm 2 below.
 \end{algorithm}
 
 \subsection{Comparison \& Model Selection}
-Kalman filters and MCL present very different approaches to solving the localisation problem. Kalman filters make underlying assumptions about the distribution of stochastic perturbation to model actuation and sensor noise in order to predict true robot pose - it assumes Gaussian distributions. As a result the pose posterior is also Gaussian. In contrast, MCL does not make this restrictive assumption and instead takes samples using particles to estimate the pose distribution. This means that the MCL is more robust than a Kalman filter approach given that it can handle situations in which there are violations of distribution assumptions in KF. The principal drawback of MCL is that it is much more expensive in terms of memory requirements and computational processing. This is because to properly estimate the pose distribution a large number of samples (particles) need to be stored and updated for each discrete time step in the algorithm. The main advantage of MCL over a Kalman filter approach is that it can recover from wheel slip events, that is, the MCL algorithm can solve the global localisation problem, whereas a Kalman filter can only be used for position tracking. MCL was selected to implement in simulation, given that it is able to solve the global localisation problem making it a more robust solution.
+Kalman filters and MCL present very different approaches to solving the localisation problem. Kalman filters make underlying assumptions about the distribution of stochastic perturbation to model actuation and sensor noise in order to predict true robot pose. Put simply there is an assumption of Gaussian distributed noise, and as a result the pose posterior is also Gaussian. In contrast, MCL does not make this restrictive assumption and instead takes samples, or particles, to estimate the pose distribution. This means MCL is more robust than a Kalman filter approach given that it can handle situations which violate KF distribution assumptions. The principal drawback of MCL is that it is much more expensive in terms of memory requirements and computational processing. To properly estimate the pose distribution a large number of samples (particles) need to be stored and updated for each discrete time step in the algorithm. The main advantage of MCL over KF is that MCL can recover from wheel slip events, that is, the MCL algorithm can solve the \textit{global localisation} problem. KF, on the other hand, can only be used for \textit{position tracking} - this was the principal motivation for selecting an MCL algorithm for implementation in simulation.
 
-\newpage
 
 \section{Simulations}
-Gazebo, a physical simulation environment, was used to test an off-the-shelf implementation of MCL on two mobile robot platforms: a benchmark model, and a personal model. ROS was used to implement and run the various process nodes which make up the robot model, and RVIZ was used to visualise sensor data, costmaps, and navigation paths. A basic simulated environment was used to test MCL performance for spawned robots - map topology can be seen in Figure XXXX.
+Gazebo, a physical simulation environment, was used to test an off-the-shelf implementation of MCL on two mobile robot platforms: a benchmark model, and an Alternative model. ROS was used to implement and run the various process nodes which make up the robot model, and RVIZ was used to visualise sensor data, costmaps, and navigation paths. A basic simulated environment was used to test MCL performance for spawned robots - map topology can be seen in Figure 5.
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.35]{map_topology}}
@@ -309,7 +310,7 @@ The benchmark robot model consisted of a rectangular prism chassis, along with t
 \end{figure}
 
 \begin{minipage}{0.45\textwidth}
-Figure XXXX shows the robot model loaded into an empty world using Gazebo. The robot was equipped with a differential drive controller, called \texttt{libgazebo\_ros\_diff\_drive.so}, which allowed ROS to control the robot wheels. Similarly, controllers for the camera and laser range finder were equipped which were called \texttt{libgazebo\_ros\_camera.so} and \texttt{libgazebo\_ros\_laser.so}, respectively. The robot dimensions can be seen in Table XXXX.
+Figure 6 shows the robot model loaded into an empty world using Gazebo. The robot was equipped with a differential drive controller, called \texttt{libgazebo\_ros\_diff\_drive.so}, which allowed ROS to control the robot wheels. Similarly, controllers for the camera and laser range finder were equipped. These were called \texttt{libgazebo\_ros\_camera.so} and \texttt{libgazebo\_ros\_laser.so}, respectively. The robot dimensions can be seen in Table 1.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
@@ -329,21 +330,21 @@ Wheel Placement & Center\\
 \end{minipage}
 
 
-\subsubsection{Personal Model}
+\subsubsection{Alternative Model}
 An alternative model was developed by modifying the benchmark design. The original chassis was retained, however, the cylindrical wheels were shifted to the rear, in a differential drive configuration. Two frictionless semi-spherical casters were set symmetrically at either end of the chassis. The camera was left in its original location.
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.47]{shane_model}}
-\caption{Personal robot model is comprised of a rectangular prism chassis, and two wheels arranged in a differential drive configuration towards the chassis rear. The model is equipped with a front mounted RGB camera, and a laser range finder. Frictionless casters provide stability underneath the chassis.}
+\caption{Alternative robot model is comprised of a rectangular prism chassis, and two wheels arranged in a differential drive configuration towards the chassis rear. The model is equipped with a front mounted RGB camera, and a laser range finder. Frictionless casters provide stability underneath the chassis.}
 \end{figure}
 
 \begin{minipage}{0.45\textwidth}
-To provided an elevated location for the laser range finder the height of the robot chassis at the rear was elevated. Figure XXXX shows the robot model loaded into an empty world using Gazebo. The robot was equipped with controllers for the differential drive, camera, and laser range finder identical to the benchmark model. Dimensions can be seen in Table XXXX.
+To provided an elevated location for the laser range finder the height of the robot chassis at the rear was elevated. Figure 7 shows the robot model loaded into an empty world using Gazebo. The robot was equipped with controllers for the differential drive, camera, and laser range finder identical to the benchmark model. Dimensions can be seen in Table 2.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
 \centering
-\captionof{table}{Descriptive measurement summary for the personal model}
+\captionof{table}{Descriptive measurement summary for the Alternative model}
 \begin{tabular}{lc}
 \toprule
 \textbf{Dimension} & \textbf{Measurement ($\si{\meter}$)} \\
@@ -363,9 +364,7 @@ Wheel Placement & Rear\\
 Two main packages are required to implement MCL in simulation. The first is the \texttt{amcl} package - an MCL package that alters the number of particles used to improve algorithm efficiency. The second package is the \texttt{move\_base} package which is used to generate cost maps and navigation paths for the robot model to reach goal locations. Sections 3.2.1 and 3.2.2 discuss the \texttt{amcl} and \texttt{move\_base} packages, respectively.
 
 \subsubsection{\texttt{amcl} package}
-The \texttt{amcl} package is a localisation system for a robot traversing 2D map topologies, which is implemented in ROS. The package implements an Monte Carlo localisation approach that uses a particle filter to track the pose of the robot for a given known map. Unlike standard MCL algorithms, this package implements an adaptive filter, which changes the number of sampled particles dynamically to ensure that error introduced by the sample-based representation is bounded.
-
-Some of the more important parameters for this package include:
+The \texttt{amcl} package is a localisation system for a robot traversing 2D map topologies, which is implemented in ROS. The package implements a Monte Carlo localisation approach that uses a particle filter to track the pose of the robot for a known map. Unlike standard MCL algorithms, this package implements an adaptive filter, which changes the number of sampled particles dynamically to ensure that error introduced by the sample-based representation is bounded. Some of the more important parameters for this package include:
 \begin{itemize}
 \item \textbf{\texttt{min\_particles}} and \textbf{\texttt{max\_particles}}: amcl dynamically adjusts the number of particles for each iteration, between some given range. A range with a high maximum may be too computationally expensive, for a given system.
 \item \textbf{\texttt{update\_min\_a}} and \textbf{\texttt{update\_min\_d}}: upon receiving a laser scan, amcl checks the linear and angular displacement of the robot from the last laser scan and will only provide a filter update if these values are greater than the values specified in these parameters 
@@ -375,7 +374,7 @@ Some of the more important parameters for this package include:
 \end{itemize}
 
 \subsubsection{\texttt{move\_base} package}
-The \texttt{move\_base} package provides the robot with a navigation and path planning tool. Given a goal in the world, the \texttt{move\_base} package will provide action to reach it with a mobile base. This is comprised of a global path planner, and a local path planner. The \texttt{mve\_base} node, once initialised, will also maintain two costmaps: one for the global planner, and one for the local planner. These maps are integral to accomplish navigation tasks. The \texttt{move\_base} node subscribes to a number of different topics. These include:
+The \texttt{move\_base} package provides the robot with a navigation and path planning tool. Given a goal in the world, the \texttt{move\_base} package will provide action to reach it with a mobile base. This is comprised of a global path planner, and a local path planner. The \texttt{move\_base} node, once initialised, will also maintain two costmaps: one for the global planner, and one for the local planner. These maps are integral to accomplish navigation tasks. The \texttt{move\_base} node subscribes to a number of different topics. These include:
 \begin{itemize}
 \item an environment map provided by a map server;
 \item laser scans from a laser range finder;
@@ -404,7 +403,7 @@ Some of the more important parameters for this package include:
 
 \subsection{Parameter Tuning}
 \begin{minipage}{0.55\textwidth}
-Parameters were tuned for the benchmark model using trial and error. This undertaken iteratively until a set of parameters were found allowing error free movement over short linear distances. Parameters were tuned one at a time by entering a test value for the model configuration, and then loading the model into the world, with an active \texttt{amcl} and \texttt{move\_base} node. Desired poses were provided a short distance from the original pose, and performance was evaluated visually. This process was continued until satisfactory localisation and navigation behaviours emerged for the benchmark model - the tuned parameter values can be seen in Table 1.
+Parameters were tuned for the benchmark model using trial and error. This was undertaken iteratively until a set of parameters were found allowing error free movement over short linear distances. Parameters were tuned one at a time by entering a test value for the model configuration, and then loading the model into the world with active \texttt{amcl} and \texttt{move\_base} nodes. Desired poses were provided a short distance from the original pose, and performance was evaluated visually. This process was continued until satisfactory localisation and navigation behaviours emerged for the benchmark model - the tuned parameter values can be seen in Table 3.
 \end{minipage}
 \hspace{0.75cm}
 \begin{minipage}{0.35\textwidth}
@@ -425,10 +424,8 @@ Parameters were tuned for the benchmark model using trial and error. This undert
 \end{tabular}
 \end{minipage}
 
-
-
 \section{Results}
-Robot models were deployed separately in the environment using identical parameter configurations for their \texttt{move\_base} and \texttt{amcl} nodes. Both models successfully generated a costmap, which was used for navigation. The physical environment, the ground truth map, and the local costmap, for the benchmark model, can be seen in Figures XXXX, XXXX, and XXXX, respectively. Robots, provided with a goal pose, were required to localise in the environment and navigate to the goal pose. Successful localisation saw particle convergence around the correct robot pose, which was determined by visual inspection. Time taken to localise, and time taken to reach the goal were measured. Each robot underwent five separate trials.\\
+Robot models were deployed separately in the environment using identical parameter configurations for their \texttt{move\_base} and \texttt{amcl} nodes. Both models successfully generated a costmap, which was used for navigation. The physical environment, the ground truth map, and the local costmap, for the benchmark model, can be seen in Figures 9, 10, and 11, respectively. Robots, provided with a goal pose, were required to localise in the environment and navigate to the goal pose. Successful localisation saw particle convergence around the correct robot pose, which was determined by visual inspection. Time taken to localise, and time taken to reach the goal were measured. Each robot underwent five separate trials.\\
 
 \begin{minipage}[t]{0.45\textwidth}
 \centering
@@ -445,7 +442,7 @@ Robot models were deployed separately in the environment using identical paramet
 \vspace{0.25cm}
 
 \begin{minipage}{0.45\textwidth}
-The benchmark model was able to localise in all five trials and avoided collisions with environment obstacles. The robot became stuck in two trials, and was unable to recover. Interestingly, the robot did not get stuck on the environment obstacles, rather, it became stuck on an \textit{invisible} barrier. The remaining three trials saw the robot successfully navigate to the desired goal pose. The average localisation time over the three successful trials was 0.49 seconds, and the average time to goal was 1 minute and 36 seconds. The full set of results can be seen in Table XXXX.
+The benchmark model was able to localise in all five trials and avoided collisions with environment obstacles. The robot became stuck in two trials, and was unable to recover. Interestingly, the robot did not get stuck on the environment obstacles, rather, it became stuck on an \textit{invisible} barrier. The remaining three trials saw the robot successfully navigate to the desired goal pose. The average localisation time over the three successful trials was 0.49 seconds, and the average time to goal was 1 minute and 36 seconds. The full set of results can be seen in Table 4.
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
@@ -456,14 +453,14 @@ The benchmark model was able to localise in all five trials and avoided collisio
 
 \vspace{0.5cm}
 
-The personal model as able to localise in all five trials and avoided collisions with environment obstacles. The robot became stuck in three trials, and was unable to recover. As with the benchmark model, the robot did not become stuck on actual physical obstacles. The remaining three trials saw the robot successfully navigate to the desired goal pose. The average localisation time over two successful trials was 0.375 seconds, and the average time to goal was 1 minute and 21 seconds. The full set of results can be seen in Table XXXX.
+The Alternative model was able to localise in all five trials and avoided collisions with environment obstacles. The robot became stuck in three trials, and was unable to recover. As with the benchmark model, the robot did not become stuck on actual physical obstacles. The remaining two trials saw the robot successfully navigate to the desired goal pose. The average localisation time over two successful trials was 0.375 seconds, and the average time to goal was 1 minute and 21 seconds. The full set of results can be seen in Table 4.
 
 \begin{table}[h]
 \centering
-\caption{Five independent trials in which the robot was required to navigate to a given goal pose for benchmark and personal models. Listed results show the time taken to localise and the time taken reach goal pose.}
+\caption{Five independent trials in which the robot was required to navigate to a given goal pose for benchmark and Alternative models. Listed results show the time taken to localise and the time taken reach goal pose.}
 \begin{tabular}{crrcrr}
 \toprule
-& \multicolumn{2}{c}{\textbf{Benchmark Model}} & & \multicolumn{2}{c}{\textbf{Personal Model}} \\
+& \multicolumn{2}{c}{\textbf{Benchmark Model}} & & \multicolumn{2}{c}{\textbf{Alternative Model}} \\
 \cline{2-3} \cline{5-6}
 \textbf{Trial} & \textbf{Localisation} & \textbf{Goal} & & \textbf{Localisation} & \textbf{Goal} \\
 \midrule
@@ -476,12 +473,17 @@ The personal model as able to localise in all five trials and avoided collisions
 \end{tabular}
 \end{table}
 
-Benchmark model performance, during a successful run, can be seen in Figures 12, 14. and 16. Figure XXXX shows the benchmark model initialised in the environment. The green arrows represent the distribution of particles used by the \texttt{amcl} node. Note they are uniformly distributed around the robot. Figure XXXX shows the robot navigating towards the goal location - the green arrows are starting to converge on the robots true pose within the environment map. Finally, Figure XXXX shows the robot at the goal pose. The arrows are tightly clustered around the robot demonstrating that \texttt{amcl} has localised the robot within the environment. Figures XXXX, XXXX, and XXXX show the same sequence of events for the personal robot model on a successful run.
+Benchmark model performance, during a successful run, can be seen in Figures 12, 14. and 16. Figure 12 shows the benchmark model initialised in the environment. The green arrows represent the distribution of particles used by the \texttt{amcl} node. Note they are uniformly distributed around the robot. Figure 14 shows the robot navigating towards the goal location - the green arrows are starting to converge on the robots true pose within the environment map. Finally, Figure 16 shows the robot at the goal pose. The arrows are tightly clustered around the robot demonstrating that \texttt{amcl} has localised the robot within the environment. Figures 13, 15, and 17 show the same sequence of events for the Alternative robot model on a successful run.\\
 
-\section{Discussion}
-The benchmark model appears the most stable as it was able to navigate the goal pose more reliably than the personal model. It must be noted, however, that this may simply be an artefact of the stochastic initialisation and pose evolution of the particles that are used in the \texttt{amcl} node. The \texttt{amcl} node randomly initialises the distribution of particles, and each discrete time step adds random perturbations to particle movement, and sensor measurements. Given that the \texttt{amcl} outputs to the \texttt{move\_base} node, it may be the case that both models are equally likely to get stuck - more trials need to be undertaken to determine if both models are equally likely to get stuck. No immediate reason is presented as to why the robot models are getting stuck. ROS does not flag any errors or warnings. Possible causes include poor parameter configuration, or a lack of adequate system resources - further experimentation is required to determine the root cause.\\
+A YouTube video of the Benchmark robot model successfully localising in the environment and reaching the desired goal location can be seen here:
+\begin{center}
+	\url{put_in_url}
+\end{center}
 
-Time to localisation results indicated that both robot models performed similarly suggesting \texttt{amcl} is not materially affected by modifications to robot geometries and sensor locations. Time taken to reach the goal location, however, was noticeably different. On average, the personal robot model was able to reach the goal location 15 seconds faster than the benchmark. There is no apparent reason for \texttt{move\_base} to provide more efficient navigation paths for the personal model, and observed model time differences may again be due to the stochastic nature of \texttt{amcl}. To further explore this finding, more trials need to be undertaken. Additionally, using different starting locations may also provide a set of results allowing for more robust conclusions.
+A YouTube video of the Alternative robot model successfully localising in the environment and reaching the desired goal location can be seen here:
+\begin{center}
+	\url{put_in_url}
+\end{center}
 
 \newpage
 
@@ -494,7 +496,7 @@ Time to localisation results indicated that both robot models performed similarl
 \begin{minipage}[t]{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4.5cm]{new_model_1}}
-\captionof{figure}{Personal model before the localisation process has commenced. Note the distribution of green pose arrows around the robot indicating a high level of pose uncertainty.}
+\captionof{figure}{Alternative model before the localisation process has commenced. Note the distribution of green pose arrows around the robot indicating a high level of pose uncertainty.}
 \end{minipage}
 
 \vspace{1cm}
@@ -508,7 +510,7 @@ Time to localisation results indicated that both robot models performed similarl
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4.5cm]{new_model_2}}
-\captionof{figure}{Personal model navigating the environment as \texttt{amcl} localises the robot. The distribution of green arrows is beginning to converge on the correct pose.}
+\captionof{figure}{Alternative model navigating the environment as \texttt{amcl} localises the robot. The distribution of green arrows is beginning to converge on the correct pose.}
 \end{minipage}
 
 \vspace{1cm}
@@ -522,12 +524,17 @@ Time to localisation results indicated that both robot models performed similarl
 \begin{minipage}{0.45\textwidth}
 \centering
 \frame{\includegraphics[height=4.5cm]{new_model_3}}
-\captionof{figure}{Personal model at the goal location. The tight clustering of green arrows indicates particle convergence on true robot location for \texttt{amcl}}
+\captionof{figure}{Alternative model at the goal location. The tight clustering of green arrows indicates particle convergence on true robot location for \texttt{amcl}}
 \end{minipage}
+
+\section{Discussion}
+The benchmark model appears the most stable as it was able to navigate to the goal pose more reliably than the Alternative model. It must be noted, however, that this may simply be an artefact of the stochastic initialisation and stochastic pose evolution of the particles that are used in the \texttt{amcl} node. The \texttt{amcl} node randomly initialises the distribution of particles, and each discrete time step adds random perturbations to particle movement, and sensor measurements. Given that the \texttt{amcl} outputs to the \texttt{move\_base} node, it may be the case that both models are equally likely to get stuck - more trials need to be undertaken to determine if both models are equally likely to get stuck. No immediate reason is presented as to why the robot models are getting stuck. ROS does not flag any errors or warnings. Possible causes include poor parameter configuration, or a lack of adequate system resources. Further experimentation is required to determine the cause.\\
+
+Time to localisation results indicated that both robot models performed similarly suggesting \texttt{amcl} is not materially affected by modifications to robot geometries and sensor locations. Time taken to reach the goal location was noticeably different. On average, the Alternative robot model was able to reach the goal location 15 seconds faster than the benchmark. There is no apparent reason why \texttt{move\_base} provided more efficient navigation paths for the Alternative model. Observed time differences may again be due to the stochastic nature of \texttt{amcl}. To further understand this result, more trials need to be undertaken. Additionally, different starting locations could be used, which may lead to more robust conclusions.
 
 
 \section{Conculsion}
-Two robot models with differing body geometries and sensor locations were tested to determine the robustness of \texttt{amcl} and \texttt{move\_base} packages, used to implement MCL on a mobile robot platform. Experimental simulation provided some evidence that time taken to localise within an environment is not affected by changes to robot geometries and sensor locations, however, this may not be the case for algorithm stability and navigation path efficiency. The personal model appeared to experience reduced stability becoming stuck in the environment more often, but was able to navigate to the goal pose faster than the benchmark model. Ultimately these findings are inconclusive, and more experimental trials need to be undertaken to determine if observations were due to stochastic variation or not.
+Two robot models with differing body geometries and sensor locations were tested to determine the robustness of \texttt{amcl} and \texttt{move\_base} packages, used to implement MCL on a mobile robot platform. Experimental simulation provided some evidence that time taken to localise within an environment is not affected by changes to robot geometries and sensor locations, however, this was not the case for algorithm stability and navigation path efficiency. The Alternative model appeared to experience reduced stability becoming stuck in the environment more often, but was able to navigate to the goal pose faster than the benchmark model. Ultimately these findings are inconclusive, and more experimental trials need to be undertaken to determine if results were due to stochastic variation or not.
 
 
 \bibliography{my_bib}
