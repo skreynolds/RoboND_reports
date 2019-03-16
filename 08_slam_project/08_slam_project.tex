@@ -2,6 +2,8 @@
 
 %------------------------------------------------------------
 \usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{caption}
@@ -83,28 +85,41 @@ Equation (3) is the equation for the \textit{online} SLAM problem, which is only
 p(x_{1:t}, m | z_{1:t}, u_{1:t})
 \end{equation}
 
-Typically, \textit{online} SLAM is used to dynamically localise the robot, whilst \textit{full} SLAM is determine offline and is used to determine where the robot has been. It is not hard to see that the solution to the \textit{online} SLAM problem can be determined by solving the \textit{full} SLAM problem and integrating - the relationship between the two problems can be seen in equation ():
+Typically, \textit{online} SLAM is used to dynamically localise the robot, whilst \textit{full} SLAM is determine offline and is used to determine where the robot has been. It is not hard to see that the solution to the \textit{online} SLAM problem can be determined by solving the \textit{full} SLAM problem and integrating - the relationship between the two problems can be seen in equation (XXXX):
 \begin{equation}
 p(x_t, m | z_{1:t}, u_{1:t}) = \int_{x_{t-1}} \int_{x_{t-2}} \dots \int_{x_1} p(x_{1:t}, m | z_{1:t}, u_{1:t}) dx_1 dx_2 \dots dx_{t-1}
 \end{equation}
 
-NEED TO TALK ABOUT CORRESPONDENCES
-
-\subsection{Grid Based FastSLAM}
-FastSLAM was first proposed by XXXX. The central idea was an application of Rao-Blackwellized particle filters to estimate the joint posterior shown in equation (4) (reference to Murphy). The key assumption made in this paper was that if the robot's path, $x_{1:t}$, is known, then landmark locations are conditionally independent of pose (AND CORRESPONDENCES). This assumption allows us to factorise equation (4) as follows:
+One final aspect of the SLAM problem has to do with determining whether or not the robot has previously encountered a feature in the map. The recognition of a map feature is discretely modelled: either the robot has encountered the feature before, or it has not. The literature refers to these recognitions as \textit{correspondences}, and correspendence $i$ is denoted as $c_i$. Rewriting the \textit{online} SLAM problem shown in equation (3) yields:
 \begin{equation}
-p(x_{1:t}, m | z_{1:t}, u_{1:t}) = p(x_{1:t} | z_{1:t}, u_{1:t}) \cdot p(m | x_{1:t}, z_{1:t})
+p(x_t, m, c_t \ | \ z_{1:t}, u_{1:t})
 \end{equation}
 
-Factorisation effectively breaks the problem up into two smaller problems: estimation of the robot path $p(x_{1:t} | z_{1:t}, u_{1:t})$; and estimation of the robot map $p(m | x_{1:t}, z_{1:t})$. These smaller problems are known as the \textit{localisation} problem, and \textit{mapping} problem, respectively. Considering the problem in this light allows for an iterative algorithm for FastSLAM consisting of two main steps: the robot position is calculated; and then the map is updated based on that position.\\
+Similarly, rewriting the \textit{full} SLAM problem shown in equation (4) yields:
+\begin{equation}
+p(x_{1:t}, m, c_{1:t} \ | \ z_{1:t}, u_{1:t})
+\end{equation}
 
-Grid based FastSLAM uses the occupancy grid mapping algorithm, which is discussed in XXXX. The localisation problem can be solved using a particle filter, such as Monte Carlo Localisation (MCL), where each particle represents a potential trajectory of the robot. The mapping problem can be computed analytically, assuming $x_{1:t}$ and $z_{1:t}$ are known.\\
+Finally, the \textit{online} and \textit{full} SLAM problems, with correspondences, can be linked similarly to equation (XXXX):
+\begin{equation}
+p(x_t, m, c_t | z_{1:t}, u_{1:t}) = \int_{x_{t-1}} \int_{x_{t-2}} \dots \int_{x_1} \sum_{c_1} \sum_{c_2} \dots \sum_{c_{t-1}} p(x_{1:t}, m | z_{1:t}, u_{1:t}) dx_1 dx_2 \dots dx_{t-1}
+\end{equation}
 
-TALK ABOUT HOW THE FASTSLAM ALGORITHM ACTUALLY WORKS.\\
+This paper discusses two approaches for solving the SLAM problem. The first method is Grid Based Fast SLAM, introduced in subsection 2.1; the second method is Graph SLAM introduced in subsection 2.2.
 
-TALK ABOUT THE NEED FOR LANDMARKS IN VANILLA FASTSLAM, TALK ABOUT THE USE OF OCCUPANCY GRID MAPPING AND WHY IT IS OKAY TO USE THIS IN\\
+\subsection{Grid Based FastSLAM}
+FastSLAM was first proposed by XXXX. The central idea was an application of Rao-Blackwellized particle filter to estimate the joint posterior (reference to Murphy). To reduce the state space dimensionality, and hence the problem complexity, we will consider the problem with known correspondences, hence the joint posterior we are solving for is the one shown in equation (4). Using the simple Bayes' rule, $p(x_1,x_2) = p(x_2|x_1) \cdot p(x_1)$, equation (4) can be re-expressed as follows:
+\begin{equation}
+p(x_{1:t}, m | z_{1:t}, u_{1:t}) = p(x_{1:t} | z_{1:t}, u_{1:t}) \cdot p(m | x_{1:t}, z_{1:t}, u_{1:t})
+\end{equation}
 
-TALK ABOUT TWO MAIN APPROACHES TO SOLVING SLAM PROBLEM (THEY ARE SPECIFICALLY NAMED - NEED TO CHECK THIS IN PAPER).\\
+The key assumption made in Murphy's paper was that if the robot's path, $x_{1:t}$, is known then landmark locations are conditionally independent given the poses. This assumption allows us to factorise equation (5) as follows:
+\begin{equation}
+p(x_{1:t}, m | z_{1:t}, u_{1:t}) = p(x_{1:t} | z_{1:t}, u_{1:t}) \cdot \prod_{i} p(m_i | x_{1:t}, z_{1:t}, u_{1:t})
+\end{equation}
+
+Applying Bayes' theorem and then factorisation breaks the problem into two smaller problems: estimation of the robot path $p(x_{1:t} | z_{1:t}, u_{1:t})$; and estimation of the robot map $\prod_{i}p(m_i | x_{1:t}, z_{1:t}, u_{1:t})$. These smaller problems are known as the \textit{localisation} problem, and \textit{mapping} problem, respectively. Considering the problem in this light hints at an iterative approach to solving SLAM which consists of two steps: calculate the robot position; and then update the map based on that position. Grid based FastSLAM uses a particle filter to solve the localisation problem, such as Monte Carlo Localisation (MCL). The mapping problem is addressed using the \textit{occupancy grid mapping} algorithm, discussed in XXXX. The full Grid Based Fast SLAM algorithm can be seen in section 2.1.2.
+
 
 \subsubsection{Occupancy Grid Mapping}
 A common technique for map representation is to decompose a continuous environment, $m$, into a discrete grid representation such that:
@@ -112,7 +127,12 @@ A common technique for map representation is to decompose a continuous environme
 m = \sum_{i} m_i
 \end{equation}
 
-Each cell, $m_i$, is either occupied or unoccupied. This representation, first introduced by XXXX, is referred to as an occupancy grid map. SHOW FIGURE FOR OCCUPANCY GRID MAP
+Each cell, $m_i$, is either occupied or unoccupied. This representation, first introduced by XXXX, is referred to as an occupancy grid map.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{occupancy_grid}
+\caption{text}
+\end{figure}
 
 As previously mentioned, the mapping problem requires estimation of the posterior $p(m | x_{1:t}, z_{1:t})$. The main problem with estimating this posterior using a discrete grid cell representation is the high dimensionality. An example of this can be seen  by considering a map broken down into 500 discrete cells. If each cell is either occupied or unoccupied, then the total number of different maps that exist are $2^{500}$. Estimating $p(m | x_{1:t}, z_{1:t})$ requires determining the probability for each of the $2^{500}$ maps. This is computationally intractable for a system which needs to operate in real time. Instead of attempting this, occupancy grid algorithms estimate $p(m_i | x_{1:t}, z_{1:t})$ for each grid cell $m_i$. Considering the occupancy of each grid cell as independent from other grid cells, whilst not strictly true, is a convenient assumption allowing the expression expression of the posterior $p(m | x_{1:t}, z_{1:t})$ as a product of it's marginals:
 \begin{equation}
@@ -164,20 +184,54 @@ We note that equation (XXXX) can be expressed recursively since the middle term 
 l_t = l_{t-1} + \log \bigg( \frac{p(m_i | z_t, x_t)}{1 - p(m_i | z_t, x_t)} \bigg) - l_0
 \end{equation}
 
-The final term in equation (XXXX) is just the initial belief for the grid cell, and the second to last term is referred to as the \textit{inverse sensor model}. The occupancy grid mapping algorithm takes the current pose $x_t$ and current sensor measurements $z_t$, along with the array of log odds ratios calculated in a previous iteration for each grid cell. This array is denoted as $\{l_{t-1,i}\}$. The algorithm simply loops through all of the grid cells which comprise an environmental map, updating the log odds ratio for each cell. The pseudo code for the occupancy grid algorithm can be seen in XXXX.
+The final term in equation (XXXX) is just the initial belief for the grid cell, and the second to last term is referred to as the \textit{inverse sensor model}. The occupancy grid mapping algorithm takes the current pose $x_t$ and current sensor measurements $z_t$, along with the array of log odds ratios calculated in a previous iteration for each grid cell. This array is denoted as $\{l_{t-1,i}\}$. The algorithm simply loops through all of the grid cells which comprise an environmental map, updating the log odds ratio for each cell. The pseudo code for the occupancy grid algorithm can be seen below.
 
+\begin{algorithm}[h]
+\caption{Occupancy Grid Mapping}
+\begin{algorithmic}[1]
+\Procedure{$\text{occupancy\_grid\_mapping}$}{$\{ l_{t-1,i} \}$, $x_t$, $z_t$}
+\For{all cells $m_i$}
+	\If{$m_i$ in preceptual field of $z_t$}
+		\State $l_{t,i} = l_{t-1,i} + \text{inverse\_sensor\_model}(m_i, x_t, z_t) - l_0$
+	\Else
+		\State $l_{t,i} = l_{t-1,i}$
+	\EndIf
+\EndFor
+\Return $\{ l_{t,i} \}$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
-
+\newpage
 
 \subsubsection{Grid Based FastSLAM Algorithm}
 The grid based FastSLAM algorithm uses a particle filter to 
 
+\begin{algorithm}[h]
+\caption{Grid Based FastSLAM}
+\begin{algorithmic}[1]
+\Procedure{$\text{gridbased\_fast\_slam}$}{$X_{t-1}$, $u_t$, $z_t$}
+\State $\hat{X}_t = X_t = \emptyset$
+\For{$k=1$ to $M$}
+	\State $x_t^{[k]} = \text{sample\_motion\_model}(u_t, x_{t-1}^{[k-1]})$
+	\State $\omega_t^{[k]} = \text{measurement\_model\_map}(z_t, x_t^{[k]}, m_{t-1}^{[k]})$
+	\State $m_t^{[k]} = \text{updated\_occupancy\_grid}(z_t, x_t^{[k]}, m_{t-1}^{[k]})$
+	\State $\hat{X}_t = \hat{X}_t \ \cup <x_t^{[k]}, m_t^{[k]}, \omega_t^{[k]}>$
+\EndFor
+\For{$k=1$ to $M$}
+	\State draw $i$ from $\hat{X}_t$ with probability $\propto \omega_t^{[i]}$
+	\State $X_t = X_t \ \cup <x_t^{[i]}, m_t^{[i]}>$
+\EndFor
+\Return $X_t$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{GraphSLAM}
 GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to solving the SLAM problem. The main idea behind GraphSLAM is to build up a graph that consists of robot poses, $x_t$, and map features, $m_t$. The graph edges represent a series of constraints. The constraints are used to develop a likelihood cost function - minimising this cost function is analogous to determining pose and map features that maximise the likelihood of measurement observations. This is achieved using optimisation techniques, and is performed offline once the graph has been constructed. Picture of the basic set up of GraphSLAM talk about front end and back end.
 \begin{figure}[h]
 \centering
-%\includegraphics[keyvals]{imagefile}
+\includegraphics[scale=0.35]{Graph-SLAM-system}
 \caption{text}
 \end{figure}
 
@@ -271,7 +325,14 @@ The back end of GraphSLAM is concerned with optimising the developed graph. Ther
 
 
 \subsubsection{RTAB Map Impementation}
+RTAB-Map is a graph-based SLAM approach that has been integrated in ROS. The \textit{rtabmap} node, seen in Figure XXXX, takes ROS \textit{tf} input to determine the position of the sensors in relation to the robot base; Odometry from any source such as rotary encoders or IMU; camera input from either RGB-D or stereo cameras; and an optional input from either 2D lidar, point cloud data from 3D lidar.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.3]{rtabmap_node}
+\caption{text}
+\end{figure}
 
+After sensor input has been synchronised, the Short-Term Memory (STM) module creates a node which remembers odometry pose, raw data from sensors, and additional information such as visual words for Loop Closure. Nodes are created every few millisecond at a predetermined frequency. As sequential nodes are created constraints are formed linking nodes together. Constraints come in three flavours: Neighbour, Loop Closure, and Proximity. Neighbour constraints are added in the STM between consecutive nodes with odometry transformation. Loop Closure and Proximity constraints are added through loop closure detection or proximity detection, respectively. Graph optimisation propagates computed error to the whole graph each time a new loop closure or proximity constraint is added to the graph - this helps to rectify odometry drift.
 
 \section{Scene and robot configuration}
 \subsection{Robot Model}
