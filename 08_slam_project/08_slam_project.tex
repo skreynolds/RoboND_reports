@@ -205,7 +205,7 @@ The final term in equation (XXXX) is just the initial belief for the grid cell, 
 \newpage
 
 \subsubsection{Grid Based FastSLAM Algorithm}
-The grid based FastSLAM algorithm uses a particle filter to 
+The grid based FastSLAM algorithm takes as input variable $X_{t-1}$, which holds the particles from a previous call to the algorithm. Each particle in $X_{t-1}$ consists of a hypothesised robot pose and map. Additionally, odometry $u_t$, and sensor measurements $z_t$ are also received as inputs. The algorithm commences by initialising empty variable $\hat{X}_t$ to store newly formed particle hypotheses. MCL is used to update the particle odometry from $X_{t-1}$, forming new pose hypotheses for each particle. Sensor measurements are used to determine the likelihood for each pose hypothesis. Using the updated pose hypotheses, the occupancy grid mapping algorithm is called, forming a map hypothesis for each particle. Once all of the existing particles from $X_{t-1}$ have been updated, then a re-sampling procedure commences, which sees particles selected at random according to their likelihood of existing calculated earlier. The final set of re-sampled particles is returned and the algorithm is completed. These set of particles form the new aggregate hypothesis of the robot's map, and pose within the map - over many iterations of the algorithm, the hypothesis will converge on the true map and robot pose. The full Grid Based FastSLAM algorithm can be seen in Algorithm 2 below.
 
 \begin{algorithm}[h]
 \caption{Grid Based FastSLAM}
@@ -228,7 +228,7 @@ The grid based FastSLAM algorithm uses a particle filter to
 \end{algorithm}
 
 \subsection{GraphSLAM}
-GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to solving the SLAM problem. The main idea behind GraphSLAM is to build up a graph that consists of robot poses, $x_t$, and map features, $m_t$. The graph edges represent a series of constraints. The constraints are used to develop a likelihood cost function - minimising this cost function is analogous to determining pose and map features that maximise the likelihood of measurement observations. This is achieved using optimisation techniques, and is performed offline once the graph has been constructed. Picture of the basic set up of GraphSLAM talk about front end and back end.
+GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to solving the SLAM problem. The main idea behind GraphSLAM is to build up a graph with nodes derived from robot poses, $x_t$, and map features, $m_t$. The graph edges represent a series of constraints. The constraints are used to develop a likelihood cost function - minimising this cost function is analogous to determining pose and map features that maximise the likelihood of measurement observations. Optimisation is achieved using classical optimisation techniques, and is performed off-line once the graph has been constructed. Often is its helpful to think of GraphSLAM as having a front end and a back end, as shown in Figure XXXX. The front end, which receives raw sensor data as input, focuses on graph construction. The back end receives the constructed graph as input, optimises the graph, and outputs map and trajectory estimation.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.35]{Graph-SLAM-system}
@@ -288,37 +288,56 @@ Mathematical induction over $t$ yields the closed form solution where $p(y_0)$ i
 p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t}) = \eta \ p(y_0) \ \prod_{t} p(x_t \ | \ x_{t-1}, u_t) p(z_t \ | \ y_t, c_t)
 \end{equation}
 
-We note that probability $p(x_t \ | \ x_{t-1}, u_t)$ is the \textit{motion model}, which gives us the probability of our current pose, $x_t$, given the previous pose and our odometry $u_t$. The other probability, $p(z_t \ | \ y_t, c_t)$, is the \textit{sensor model} - this gives us the probability of receiving the sensor measurements given the current position, map, and correspondences. Equation (XXXX) is important because it allows us to think of the full SLAM posterior as a series of independent probabilistic events\\
+We note that probability $p(x_t \ | \ x_{t-1}, u_t)$ is the \textit{motion model}, which gives us the probability of our current pose, $x_t$, given the previous pose and our odometry $u_t$. The other probability, $p(z_t \ | \ y_t, c_t)$, is the \textit{sensor model} - this gives us the probability of receiving the sensor measurements given the current position, map, and correspondences. Equation (XXXX) is important because it allows us to think of the full SLAM posterior as a series of independent probabilistic events. Our task now becomes one of optimisation: how should we select $x_{0:t}$ and $m$ so that we maximise the probability $p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t})$. Maximising a set of additive terms is much easier than maximising a set of multiplicative terms, and so we take a log transform which gives us:
+\begin{equation}
+\log p(y_{0:t} \ | \ z_{1:t}, u_{1:t}, c_{1:t}) = \log \eta + \log p(y_0) + \sum_{t} \bigg[ \log p(x_t | x_{t-1}, u_t)  \bigg] + \sum_{t} \bigg[ \log p(z_t | y_t, c_t)  \bigg]
+\end{equation}
 
-NEED TO FINISH OFF THIS EXPLANATION
+We assume that the robot motion is distributed normally according to $\mathcal{N}(g(u_t, x_{t-1}), R_t)$, where $g$ is the deterministic motion function, and $R_t$ is the covariance of the motion error. Similarly, measurements $z_t$ are generated according to $\mathcal{N}(h(y_t, c_t), Q_t)$, where $h$ is the measurement function and $Q_t$ is the measurement error covariance. Multivariate normal pdf, where $K_1$ is used to represent the leading scalar coefficient, allows us to express the \textit{motion model} as:
+\begin{equation}
+p(x_t|x_{t-1}, u_t) = K_1 \exp \bigg\{ -\frac{1}{2}(x_t - g(u_t, x_{t-1}))^T R_t^{-1} (x_t - g(u_t, x_{t-1})) \bigg\}
+\end{equation}
 
-Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data - these are represented using notation $u_t$. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors - these are represented using notation $z_t$. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. The robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves, sensors detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $u_0$, $u_1$, and $u_2$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $z_0$, $z_1$, $z_2$, and $z_3$. 
+Similarly, we can express the \textit{sensor model} as:
+\begin{equation}
+p(z_t|y_t, c_t) = K_2 \exp \bigg\{ -\frac{1}{2}(z_t - h(y_t,c_t))^T Q_t^{-1} (z_t - h(y_t,c_t)) \bigg\}
+\end{equation}
+
+Noting that the prior $p(y_0)$ can be factorised into two independent priors $p(x_0)$ and $p(m)$, we typically just replace $p(y_0)$ with $p(x_0)$ since we often have no prior knowledge about the map - $p(m)$ is often subsumed by the normaliser $\eta$. With this in mind, we also express the prior $p(x_0)$ with a Gaussian type distribution:
+\begin{equation}
+p(x_0) = K_3 \exp \bigg\{ -\frac{1}{2} x_0^T \Omega_0 x_0 \bigg\}
+\end{equation}
+
+with
+\begin{equation}
+\Omega_0 =
+\begin{bmatrix}
+\infty & 0      & 0 \\
+0 	   & \infty & 0 \\
+0 	   & 0 		& \infty
+\end{bmatrix}
+\end{equation}
+
+Substituting equations (XX), (XX), and (XX) into equation (XX) and putting constants $\log \eta$, $\log K_1$, $\log K_2$, and $\log K_3$ into $C$, we can express the negative of equation (XX) as:
+\begin{align}
+-\log p(y_{0:t}|z_{1:t}, u_{1:t}, c_{1:t}) = C &+ \frac{1}{2} \cdot x_0^T \Omega_0 x_0 \nonumber \\ &+ \frac{1}{2} \cdot \sum_{t} (x_t - g(u_t, x_{t-1}))^T R_t^{-1} (x_t - g(u_t, x_{t-1})) \nonumber \\ &+ \frac{1}{2} \cdot \sum_{t} (z_t - h(y_t,c_t))^T Q_t^{-1} (z_t - h(y_t,c_t))
+\end{align}
+
+Determining the robot trajectory and map by minimising equation (XX) is the same as maximising equation (XX). In the literature, equation (XX) often has the scalar coefficients removed and is referred to as $J_{GraphSLAM}$. This is expressed as:
+\begin{align}
+J_{GraphSLAM} = C &+ x_0^T \Omega_0 x_0 \nonumber \\ &+ \sum_{t} (x_t - g(u_t, x_{t-1}))^T R_t^{-1} (x_t - g(u_t, x_{t-1})) \nonumber \\ &+ \sum_{t} (z_t - h(y_t,c_t))^T Q_t^{-1} (z_t - h(y_t,c_t))
+\end{align}
+
+Another important way to think about equation (XX) is as the sum of constraints that make up which are the edges of a graph. Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data - these are represented using notation $u_t$. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors - these are represented using notation $z_t$. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. The robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves, sensors detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $u_0$, $u_1$, and $u_2$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $z_0$, $z_1$, $z_2$, and $z_3$. 
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}
-% Draw the nodes used for the picture
-\node[circle,fill=blue!20](a){$x_0$};
-\node[circle,fill=blue!20,right of=a,node distance=2cm](b){$x_1$};
-\node[circle,fill=blue!20,right of=b,node distance=2cm](c){$x_2$};
-\node[circle,fill=blue!20,right of=c,node distance=2cm](d){$x_3$};
-\node(e) at ($(a)!0.5!(b)$){};
-\node(f) at ($(c)!0.5!(d)$){};
-\node[circle,fill=green!20,below of=e,node distance=2cm](g){$m_1$};
-\node[circle,fill=green!20,below of=f,node distance=2cm](h){$m_2$};
-
-% Draw the edges between the nodes
-\draw (a) -- node[above]{$u_0$} (b);
-\draw (b) -- node[above]{$u_1$} (c);
-\draw (c) -- node[above]{$u_2$} (d);
-\draw[dashed] (a) -- node[left]{$z_0$} (g);
-\draw[dashed] (b) -- node[right]{$z_1$} (g);
-\draw[dashed] (c) -- node[left]{$z_2$} (h);
-\draw[dashed] (d) -- node[right]{$z_3$} (h);
-\end{tikzpicture}
+\input{./tikzpics/graph_1}
 \caption{text}
 \end{figure}
 
 The edges form a set of \textit{information constraints}. To compute a map posterior, GraphSLAM linearises the set of constraints which results in a sparse information matrix and an information vector. 
+
+\newpage
 
 \subsubsection{GraphSlam Back End}
 The back end of GraphSLAM is concerned with optimising the developed graph. There are a couple of ways to think about this if the constraints were all linear (or linearised) then we can find the maximum of the manifold surface by simply taking the derivative for each dimension and solve the resulting system of equations. The system is typically written as the following $\Omega \cdot \mu = \xi$. We note that $\Omega$ is referred to as the information matrix, and $\xi$ the information vector. Alternatively an optimisation algorithm such as Stochstic Gradient Descent 
@@ -333,6 +352,8 @@ RTAB-Map is a graph-based SLAM approach that has been integrated in ROS. The \te
 \end{figure}
 
 After sensor input has been synchronised, the Short-Term Memory (STM) module creates a node which remembers odometry pose, raw data from sensors, and additional information such as visual words for Loop Closure. Nodes are created every few millisecond at a predetermined frequency. As sequential nodes are created constraints are formed linking nodes together. Constraints come in three flavours: Neighbour, Loop Closure, and Proximity. Neighbour constraints are added in the STM between consecutive nodes with odometry transformation. Loop Closure and Proximity constraints are added through loop closure detection or proximity detection, respectively. Graph optimisation propagates computed error to the whole graph each time a new loop closure or proximity constraint is added to the graph - this helps to rectify odometry drift.
+
+\newpage
 
 \section{Scene and robot configuration}
 \subsection{Robot Model}
