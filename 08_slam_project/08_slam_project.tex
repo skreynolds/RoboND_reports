@@ -328,16 +328,14 @@ Determining the robot trajectory and map by minimising equation (XX) is the same
 J_{GraphSLAM} = C &+ x_0^T \Omega_0 x_0 \nonumber \\ &+ \sum_{t} (x_t - g(u_t, x_{t-1}))^T R_t^{-1} (x_t - g(u_t, x_{t-1})) \nonumber \\ &+ \sum_{t} (z_t - h(y_t,c_t))^T Q_t^{-1} (z_t - h(y_t,c_t))
 \end{align}
 
-Another important way to think about equation (XX) is as the sum of constraints that make up which are the edges of a graph. Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data - these are represented using notation $u_t$. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors - these are represented using notation $z_t$. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. The robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves, sensors detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $u_0$, $u_1$, and $u_2$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $z_0$, $z_1$, $z_2$, and $z_3$. 
+Another important way to think about equation (XX) is as the sum of constraints derived from the edges of a graph. As the robot moves around the environment, it forms pose nodes periodically. Additionally, it forms map feature nodes from sensor measurements. Edges between two corresponding pose nodes are referred to as motion constraints, and are derived from odometry sensor data - these are represented using notation $u_t$. Edges between poses and map features are referred to as measurement constraints, and are derived from exteroceptive sensors - these are represented using notation $z_t$. An example of a graph composed of pose nodes and map feature nodes can be seen in Figure XXXX. The robot moves from pose $x_0$ to pose $x_1$, and so on. As the robot moves, sensors detect map features $m_1$ and $m_2$. Odometric measurements are captured and used to create edges $u_0$, $u_1$, and $u_2$. Additionally, exteroceptive sensors capture the distance from the robot location to the map features resulting in dashed line edges $z_0$, $z_1$, $z_2$, and $z_3$.
 \begin{figure}[h]
 \centering
 \input{./tikzpics/graph_1}
 \caption{text}
 \end{figure}
 
-The edges form a set of \textit{information constraints}. To compute a map posterior, GraphSLAM linearises the set of constraints which results in a sparse information matrix and an information vector. 
-
-\newpage
+Once a set of constraints have been formed, $J_{GraphSLAM}$ can be found by simply summing the constraints together. Building a graph from pose and measurement nodes, and the subsequent constraint determination is the way that the front end of Graph SLAM is implemented. Once the graph has been determined, it is then passed to the back end for optimisation to determine the robot trajectory and map.
 
 \subsubsection{GraphSlam Back End}
 The back end of GraphSLAM is concerned with optimising the developed graph. There are a couple of ways to think about this if the constraints were all linear (or linearised) then we can find the maximum of the manifold surface by simply taking the derivative for each dimension and solve the resulting system of equations. The system is typically written as the following $\Omega \cdot \mu = \xi$. We note that $\Omega$ is referred to as the information matrix, and $\xi$ the information vector. Alternatively an optimisation algorithm such as Stochstic Gradient Descent 
@@ -353,7 +351,6 @@ RTAB-Map is a graph-based SLAM approach that has been integrated in ROS. The \te
 
 After sensor input has been synchronised, the Short-Term Memory (STM) module creates a node which remembers odometry pose, raw data from sensors, and additional information such as visual words for Loop Closure. Nodes are created every few millisecond at a predetermined frequency. As sequential nodes are created constraints are formed linking nodes together. Constraints come in three flavours: Neighbour, Loop Closure, and Proximity. Neighbour constraints are added in the STM between consecutive nodes with odometry transformation. Loop Closure and Proximity constraints are added through loop closure detection or proximity detection, respectively. Graph optimisation propagates computed error to the whole graph each time a new loop closure or proximity constraint is added to the graph - this helps to rectify odometry drift.
 
-\newpage
 
 \section{Scene and robot configuration}
 \subsection{Robot Model}
