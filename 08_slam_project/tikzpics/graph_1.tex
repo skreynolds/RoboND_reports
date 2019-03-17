@@ -1,0 +1,20 @@
+\begin{tikzpicture}
+% Draw the nodes used for the picture
+\node[circle,fill=blue!20](a){$x_0$};
+\node[circle,fill=blue!20,right of=a,node distance=2cm](b){$x_1$};
+\node[circle,fill=blue!20,right of=b,node distance=2cm](c){$x_2$};
+\node[circle,fill=blue!20,right of=c,node distance=2cm](d){$x_3$};
+\node(e) at ($(a)!0.5!(b)$){};
+\node(f) at ($(c)!0.5!(d)$){};
+\node[circle,fill=green!20,below of=e,node distance=2cm](g){$m_1$};
+\node[circle,fill=green!20,below of=f,node distance=2cm](h){$m_2$};
+
+% Draw the edges between the nodes
+\draw (a) -- node[above]{$u_0$} (b);
+\draw (b) -- node[above]{$u_1$} (c);
+\draw (c) -- node[above]{$u_2$} (d);
+\draw[dashed] (a) -- node[left]{$z_0$} (g);
+\draw[dashed] (b) -- node[right]{$z_1$} (g);
+\draw[dashed] (c) -- node[left]{$z_2$} (h);
+\draw[dashed] (d) -- node[right]{$z_3$} (h);
+\end{tikzpicture}
