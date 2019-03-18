@@ -7,13 +7,14 @@
 \BOOKMARK [3][-]{subsubsection.2.2.1}{GraphSLAM Front End}{subsection.2.2}% 7
 \BOOKMARK [3][-]{subsubsection.2.2.2}{GraphSlam Back End}{subsection.2.2}% 8
 \BOOKMARK [3][-]{subsubsection.2.2.3}{RTAB Map Impementation}{subsection.2.2}% 9
-\BOOKMARK [1][-]{section.3}{Scene and robot configuration}{}% 10
-\BOOKMARK [2][-]{subsection.3.1}{Robot Model}{section.3}% 11
-\BOOKMARK [2][-]{subsection.3.2}{Environment Model}{section.3}% 12
-\BOOKMARK [3][-]{subsubsection.3.2.1}{Benchmark Environment}{subsection.3.2}% 13
-\BOOKMARK [3][-]{subsubsection.3.2.2}{Alternative Environment}{subsection.3.2}% 14
-\BOOKMARK [1][-]{section.4}{Results}{}% 15
-\BOOKMARK [2][-]{subsection.4.1}{Benchmark Environment}{section.4}% 16
-\BOOKMARK [2][-]{subsection.4.2}{Alternative Environment}{section.4}% 17
-\BOOKMARK [1][-]{section.5}{Discussion}{}% 18
-\BOOKMARK [1][-]{section.6}{Future Work}{}% 19
+\BOOKMARK [2][-]{subsection.2.3}{Comparison of Grid Based FastSLAM to GraphSLAM}{section.2}% 10
+\BOOKMARK [1][-]{section.3}{Scene and robot configuration}{}% 11
+\BOOKMARK [2][-]{subsection.3.1}{Robot Model}{section.3}% 12
+\BOOKMARK [2][-]{subsection.3.2}{Environment Model}{section.3}% 13
+\BOOKMARK [3][-]{subsubsection.3.2.1}{Benchmark Environment}{subsection.3.2}% 14
+\BOOKMARK [3][-]{subsubsection.3.2.2}{Alternative Environment}{subsection.3.2}% 15
+\BOOKMARK [1][-]{section.4}{Results}{}% 16
+\BOOKMARK [2][-]{subsection.4.1}{Benchmark Environment}{section.4}% 17
+\BOOKMARK [2][-]{subsection.4.2}{Alternative Environment}{section.4}% 18
+\BOOKMARK [1][-]{section.5}{Discussion}{}% 19
+\BOOKMARK [1][-]{section.6}{Future Work}{}% 20
