@@ -498,7 +498,7 @@ A teleop node was set up to manoeuvre the robot around the benchmark environment
 \caption{Final 2D occupancy grid map output from RTAB-Map for the benchmark model. The blue line represents links between nodes, and the red lines highlight loop closures.}
 \end{figure}
 
-As the robot traverses the environment RTAB-Map identifies features from images using the \texttt{SURF} detection algorithm which was specified in the mapping node configuration. Figure 12 shows a single image along the robot path. Yellow highlights identify features in the image that \texttt{SURF} has identified. As images are collected along the robot path, features in new images are compared to features from old images. The pink highlights represent instances where two images have features in common. These common features are used to create neighbouring links between images and loop closures. Figure 13 shows the constraint view for the same point in time as Figure 12 - this image indicates where neighbouring links and loop closures were created.
+As the robot traverses the environment RTAB-Map identifies features from images using the \texttt{SURF} detection algorithm which was specified in the mapping node configuration. Figure 12 shows a single image along the robot path. Yellow highlights identify features in the image that \texttt{SURF} has detected. As images are collected along the robot path, features in new images are compared to features from old images. The pink highlights represent instances where two images have features in common. These common features are used to create neighbouring links between images resulting in loop closures. Figure 13 shows the constraint view for the same point in time as Figure 12 - this image indicates where neighbouring links and loop closures were created.
 \begin{figure}[h]
 \centering
 \begin{minipage}[t]{0.45\textwidth}
@@ -514,14 +514,13 @@ As the robot traverses the environment RTAB-Map identifies features from images 
 \end{minipage}
 \end{figure}
 
-NEED TO TALK MORE ABOUT THE DIFFERENT LOOP CLOSURE ACTIVITY AND ACTIVITY WHERE THERE WAS NO LOOP CLOSURE.
-
+RTAB-Map was not able to successfully find features in all areas of the benchmark environment. In particular, there was a stretch of wall with repetitive textures where very few features were found. This was the hallway that connected the lounge, kitchen, and balcony areas. As a result of not being able to detect features, there was no loop closure activity in this region. An example of this can be seen in Figures 14 and 15. 
 \begin{figure}[h]
 \centering
 \begin{minipage}[t]{0.45\textwidth}
 \centering
 \includegraphics[height=5.5cm]{kitchen_features}
-\caption{text}
+\caption{RTAB-Map was unable to detect features along the hallway due it containing bland and repetitive textures}
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}[t]{0.45\textwidth}
@@ -531,16 +530,15 @@ NEED TO TALK MORE ABOUT THE DIFFERENT LOOP CLOSURE ACTIVITY AND ACTIVITY WHERE T
 \end{minipage}
 \end{figure}
 
-Rtab-Map successfully created a 3D map from captured point cloud data captured by the RGBD camera. The 3D environment model was of reasonable fidelity, and well aligned with the 2D occupancy grid. Figure XXXX shows the 3D environment model from Rviz.
+Upon completion of the three laps, RTAB-Map had recorded 755 neighbouring links, and 95 loop closures. Throughout this time the robot was able to successfully localise itself in the mapped environment, and make small corrections to the odometry as loop closures took place. Further, RTAB-Map successfully created a 3D map from point cloud data captured by the RGB-D camera. The 3D environment model was of reasonable fidelity, and well aligned with the 2D occupancy grid. Figure 16 shows the created 3D environment model from Rviz.
+
+\vspace{0.2cm}
+
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.28]{kitchen_3d_map_2}}
 \caption{A 3D map of the benchmark environment created by RTAB-Map displayed in Rviz}
 \end{figure}
-
-The robot was able to successfully localise within the mapped environment, making small corrections to the odometry upon detection of loop closure.\\
-
-NEED TO PUT SOME TEXT IN HERE ABOUT THE NUMBER OF NEIGHBOURING LINKS, GLOBAL LOOP CLOSURES, ETCETERA
 
 \newpage
 
