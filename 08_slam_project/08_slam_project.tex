@@ -232,6 +232,8 @@ The grid based FastSLAM algorithm takes as input variable $X_{t-1}$, which holds
 \end{algorithmic}
 \end{algorithm}
 
+\newpage
+
 \subsection{GraphSLAM}
 GraphSLAM, in comparison to GBFS, takes a fundamentally different approach to solving the SLAM problem. The main idea behind GraphSLAM is to build up a graph with nodes derived from robot poses, $x_t$, and map features, $m_t$. The graph edges represent a series of constraints. The constraints are used to develop a likelihood cost function - minimising this cost function is analogous to determining pose and map features that maximise the likelihood of measurement observations. Optimisation is achieved using classical optimisation techniques, and is performed off-line once the graph has been constructed. Often is its helpful to think of GraphSLAM as having a front end and a back end, as shown in Figure XXXX. The front end, which receives raw sensor data as input, focuses on graph construction. The back end receives the constructed graph as input, optimises the graph, and outputs map and trajectory estimation.
 \begin{figure}[h]
@@ -342,6 +344,8 @@ Another important way to think about equation (XX) is as the sum of constraints 
 
 Once a set of constraints have been formed, $J_{GraphSLAM}$ can be found by simply summing the constraints together. Building a graph from pose and measurement nodes, and the subsequent constraint determination is the way that the front end of Graph SLAM is implemented. Once the graph has been determined, it is then passed to the back end for optimisation to determine the robot trajectory and map.
 
+\newpage
+
 \subsubsection{GraphSlam Back End}
 The back end of GraphSLAM is concerned with finding the robot trajectory, $x_{1:t}$, and map, $m$, which minimises the cost function, $J_{GraphSLAM}$, derived from the graph constraints obtained in the front end. Often the literature specifies robot trajectory and map using the single parameter, $\boldsymbol{\mu}$. Information from the constraints is expressed in an information matrix, $\boldsymbol{\Omega}$, and information vector, $\boldsymbol{\xi}$. The problem then simply becomes one of solving the following matrix equation:
 \begin{equation}
@@ -361,14 +365,31 @@ RTAB-Map is a graph-based SLAM approach that has been integrated in ROS. The \te
 
 After sensor input has been synchronised, the Short-Term Memory (STM) module creates a node which remembers odometry pose, raw data from sensors, and additional information such as visual words for Loop Closure. Nodes are created every few millisecond at a predetermined frequency. As sequential nodes are created constraints are formed linking nodes together. Constraints come in three flavours: Neighbour, Loop Closure, and Proximity. Neighbour constraints are added in the STM between consecutive nodes with odometry transformation. Loop Closure and Proximity constraints are added through loop closure detection or proximity detection, respectively. Graph optimisation propagates computed error to the whole graph each time a new loop closure or proximity constraint is added to the graph - this helps to rectify odometry drift.
 
+\newpage
+
+
 \subsection{Comparison of Grid Based FastSLAM to GraphSLAM}
 \lipsum[30]
+\begin{table}[h]
+\centering
+\begin{tabular}{rr}
+\toprule
+col1 & col2\\
+\midrule
+part1 & part 2\\
+part1 & part 2\\
+part1 & part 2\\
+part1 & part 2\\
+part1 & part 2\\
+part1 & part 2\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\newpage
 
 \section{Scene and robot configuration}
 \subsection{Robot Model}
-A robot model with simple geometries was selected for use in the SLAM simulation. The chassis is a rectangular prisim. Two wheels are located either side of the chassis centre forming a differential drive configuration - the robot model can be seen in Figure XXXX. An RGB-D camera, front mounted on the chassis, provides 3D point cloud data of the environment and is represented by a red cube. Finally, a laser range finder is mounted on top of the robot providing 2D planar depth information.\\
+A robot model with simple geometries was selected for use in the SLAM simulation. The chassis is a rectangular prisim. Two wheels are located either side of the chassis centre forming a differential drive configuration - the robot model can be seen in Figure 5. An RGB-D camera, front mounted on the chassis, provides 3D point cloud data of the environment and is represented by a red cube. Finally, a laser range finder is mounted on top of the robot providing 2D planar depth information.\\
 
 \begin{figure}[h]
 \begin{minipage}{0.45\textwidth}
@@ -378,7 +399,7 @@ A robot model with simple geometries was selected for use in the SLAM simulation
 \end{minipage}
 \hspace{1cm}
 \begin{minipage}{0.45\textwidth}
-	\captionof{table}{heading}
+	\captionof{table}{A complete list of robot links, including parent links}
 	\begin{tabular}{ll}
 		\toprule
 		\textbf{Link} & \textbf{Parent Link} \\
@@ -395,17 +416,25 @@ A robot model with simple geometries was selected for use in the SLAM simulation
 \end{minipage}
 \end{figure}
 
-A full list of the links used to construct the robot model in the \texttt{graph\_slam\_bot.xacro} xml file can be seen in Table XXXX. Pictorially, the 3D coordinate frame hierachy is shown in Figure XXXX on page XXXX. This shows the coordinate frame attached to each link, in addition to the coordinate fram used for odometry. Note that arrows go from parent frames to child frames. 
+A full list of the links used to construct the robot model in the \texttt{graph\_slam\_bot.xacro} xml file can be seen in Table 1. Pictorially, the 3D coordinate frame hierachy is shown in Figure 7 on page 12. This shows the coordinate frame attached to each link, in addition to the coordinate fram used for odometry. Note that arrows go from parent frames to child frames.
+
+\clearpage
+
+\begin{sidewaysfigure}[h]
+	\centering
+	\includegraphics[scale=0.5]{frames}
+	\caption{text}
+\end{sidewaysfigure}
+
+\clearpage
+
+RTAB-Map is the package used to equip the robot model with GraphSLAM capabilities. The package uses RGB-D or stereo cameras and Lidar, meaning that there is some configuration of the RTAB-Map node to ensure that it is correctly subscribed to the correct topics published from the robot model sensors. A block diagram of the suggested configuration for robot models employing both RGB-D and Lidar can be seen in Figure XXXX. Notably, there are three topics for subsctiption from the RGB-D camera: RGB Image, Camera Info, and Image Depth. The Laser Scan and Odometry need to be subscribed from the published Lidar and rotary encoders topics, respectively.\\
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.5]{rtabmap_setup}
-	\caption{text}
+	\caption{RTAB-Map requires correct subscription to published topics from the RGB-D camera and the robot odometry.}
 \end{figure}
-
-\newpage
-
-RTAB-Map is the package used to equip the robot model with GraphSLAM capabilities. The package uses RGB-D or stereo cameras and Lidar, meaning that there is some configuration of the RTAB-Map node to ensure that it is correctly subscribed to the correct topics published from the robot model sensors. A block diagram of the suggested configuration for robot models employing both RGB-D and Lidar can be seen in Figure XXXX. Notably, there are three topics for subsctiption from the RGB-D camera: RGB Image, Camera Info, and Image Depth. The Laser Scan and Odometry need to be subscribed from the published Lidar and rotary encoders topics, respectively.\\
 
 WHAT ARE THE MAIN FILES THAT WERE REQUIRED TO CONFIGURE THE ROBOT\\
 
@@ -423,37 +452,15 @@ TALK ABOUT THE LAUNCH FILES THAT WERE CREATED TO LAUNCH EACH OF THE RESPECTIVE N
 		RGBD Camera Info & \texttt{/camera\_ir/rgb/camera\_info} \\
 		Laser Scan & \texttt{/graph\_slam\_bot/laser/scan} \\
 		Odometry & \texttt{} \\ 
+		\midrule
+		\textbf{Parameter} & \textbf{Value}\\
+		\midrule
+		\texttt{Grid/FromDepth} & \texttt{false} \\
+		\texttt{subscribe\_scan} & \texttt{true} \\
+		\texttt{subscribe\_depth} & \texttt{true} \\
 		\bottomrule
 	\end{tabular}
 \end{table}
-
-\begin{figure}[h]
-	\begin{minipage}{0.45\textwidth}
-		text
-	\end{minipage}
-	\hspace{0.5cm}
-	\begin{minipage}{0.45\textwidth}
-		\centering
-		\captionof{table}{text}
-		\begin{tabular}{cc}
-			\toprule
-			\textbf{Parameter} & \textbf{Value}\\
-			\midrule
-			\texttt{Grid/FromDepth} & \texttt{false} \\
-			\texttt{subscribe\_scan} & \texttt{true} \\
-			\texttt{subscribe\_depth} & \texttt{true} \\
-			\bottomrule
-		\end{tabular}
-	\end{minipage}
-\end{figure}
-
-\clearpage
-
-\begin{sidewaysfigure}[h]
-	\centering
-	\includegraphics[scale=0.5]{frames}
-	\caption{text}
-\end{sidewaysfigure}
 
 \clearpage
 
@@ -466,14 +473,13 @@ TALK ABOUT THE LAUNCH FILES THAT WERE CREATED TO LAUNCH EACH OF THE RESPECTIVE N
 \clearpage
 
 \subsection{Environment Model}
-RTAB-Map was tested in two different environment models: a benchmark model, and an alternative model. Models have differing topologies, sizes, and features. 
 
 \subsubsection{Benchmark Environment}
 The benchmark model is of a small apartment mock up, featuring a kitchen and lounge room. The model is highly textured and contains many features - a good representation of real world environments. Rtab-Map should perform well in this environment because it is visually rich providing many opportunities for loop closure. The robot spawn point is in the kitchen. The benchmark environment model can be seen in Figure XXXX.
 
 \begin{figure}[h]
 \centering
-\frame{\includegraphics[scale=0.3]{benchmark_env}}
+\frame{\includegraphics[scale=0.23]{benchmark_env}}
 \caption{text}
 \end{figure}
 
@@ -482,7 +488,7 @@ The alternative model was designed to be very simple. The topology is a basic re
 
 \begin{figure}[h]
 \centering
-\frame{\includegraphics[scale=0.3]{alternative_env}}
+\frame{\includegraphics[scale=0.23]{alternative_env}}
 \caption{text}
 \end{figure}
 
