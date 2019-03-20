@@ -423,12 +423,12 @@ A full list of the links used to construct the robot model in the \texttt{graph\
 \begin{sidewaysfigure}[h]
 	\centering
 	\includegraphics[scale=0.5]{frames}
-	\caption{text}
+	\caption{Graphical representation of the coordinate frame hierarchy used for the robot model. Correct specification of the coordinate frames is important since this allows the robot to correctly orient sensor data with respect to the robot chassis.}
 \end{sidewaysfigure}
 
 \clearpage
 
-RTAB-Map is the package used to equip the robot model with GraphSLAM capabilities. The package uses RGB-D or stereo cameras and Lidar, meaning that there is some configuration of the RTAB-Map node to ensure that it is correctly subscribed to the correct topics published from the robot model sensors. A block diagram of the suggested configuration for robot models employing both RGB-D and Lidar can be seen in Figure XXXX. Notably, there are three topics for subsctiption from the RGB-D camera: RGB Image, Camera Info, and Image Depth. The Laser Scan and Odometry need to be subscribed from the published Lidar and rotary encoders topics, respectively.\\
+RTAB-Map is the package used to equip the robot model with GraphSLAM capabilities. The package uses RGB-D or stereo cameras and Lidar, meaning that there is some configuration of the RTAB-Map node to ensure that it is correctly subscribed to the correct topics published from the robot model sensors. A block diagram of the suggested configuration for robot models employing both RGB-D and Lidar can be seen in Figure 7. Notably, there are three topics for subsctiption from the RGB-D camera: RGB Image, Camera Info, and Image Depth. The Laser Scan and Odometry need to be subscribed from the published Lidar and rotary encoders topics, respectively. An RGB-D camera and 2D lidar set-up will see RTAB-Map outputting a 2D occupancy grid, in addition to a 3D map, called a cloud map, which is built using point cloud data. The occupancy grid and cloud map are visualised using Rviz.\\
 
 \begin{figure}[h]
 	\centering
@@ -436,30 +436,27 @@ RTAB-Map is the package used to equip the robot model with GraphSLAM capabilitie
 	\caption{RTAB-Map requires correct subscription to published topics from the RGB-D camera and the robot odometry.}
 \end{figure}
 
-WHAT ARE THE MAIN FILES THAT WERE REQUIRED TO CONFIGURE THE ROBOT\\
-
-TALK ABOUT THE LAUNCH FILES THAT WERE CREATED TO LAUNCH EACH OF THE RESPECTIVE NODES
-
 \begin{table}[h]
 	\centering
-	\caption{text}
-	\begin{tabular}{ll}
-		\toprule
-		\textbf{Sensor Topic} & \textbf{Topic Path} \\
-		\midrule
-		RGBD Camera Image & \texttt{/camera\_ir/rgb/image\_raw} \\
-		RGBD Camera Depth & \texttt{/camera\_ir/depth/image\_raw} \\
-		RGBD Camera Info & \texttt{/camera\_ir/rgb/camera\_info} \\
-		Laser Scan & \texttt{/graph\_slam\_bot/laser/scan} \\
-		Odometry & \texttt{} \\ 
-		\midrule
-		\textbf{Parameter} & \textbf{Value}\\
-		\midrule
-		\texttt{Grid/FromDepth} & \texttt{false} \\
-		\texttt{subscribe\_scan} & \texttt{true} \\
-		\texttt{subscribe\_depth} & \texttt{true} \\
-		\bottomrule
-	\end{tabular}
+	\captionof{table}{Some of the important topics and parameters that need to be properly configured to ensure RTAB-Map will function correctly}
+		\small
+		\begin{tabular}{ll}
+			\toprule
+			\textbf{Sensor Topic} & \textbf{Topic Path} \\
+			\midrule
+			RGBD Camera Image & \texttt{/camera\_ir/rgb/image\_raw} \\
+			RGBD Camera Depth & \texttt{/camera\_ir/depth/image\_raw} \\
+			RGBD Camera Info & \texttt{/camera\_ir/rgb/camera\_info} \\
+			Laser Scan & \texttt{/graph\_slam\_bot/laser/scan} \\
+			Odometry & \texttt{odom} \\ 
+			\midrule
+			\textbf{RTAB-MAP Parameter} & \textbf{Value}\\
+			\midrule
+			\texttt{Grid/FromDepth} & \texttt{false} \\
+			\texttt{subscribe\_scan} & \texttt{true} \\
+			\texttt{subscribe\_depth} & \texttt{true} \\
+			\bottomrule
+		\end{tabular}
 \end{table}
 
 \clearpage
@@ -467,7 +464,7 @@ TALK ABOUT THE LAUNCH FILES THAT WERE CREATED TO LAUNCH EACH OF THE RESPECTIVE N
 \begin{sidewaysfigure}[h]
 	\centering
 	\includegraphics[scale=0.4]{rosgraph}
-	\caption{text}
+	\caption{Graphical representation of the robot nodes and topics, with directional arrows showing publish and subscription relationships}
 \end{sidewaysfigure}
 
 \clearpage
@@ -475,33 +472,50 @@ TALK ABOUT THE LAUNCH FILES THAT WERE CREATED TO LAUNCH EACH OF THE RESPECTIVE N
 \subsection{Environment Model}
 
 \subsubsection{Benchmark Environment}
-The benchmark model is of a small apartment mock up, featuring a kitchen and lounge room. The model is highly textured and contains many features - a good representation of real world environments. Rtab-Map should perform well in this environment because it is visually rich providing many opportunities for loop closure. The robot spawn point is in the kitchen. The benchmark environment model can be seen in Figure XXXX.
+The benchmark model is of a small apartment mock up, featuring a kitchen and lounge room. The model is highly textured and contains many features - a good representation of real world environments. Rtab-Map should perform well in this environment because it is visually rich providing many opportunities for loop closure. The robot spawn point is in the kitchen. The benchmark environment model can be seen in Figure 9.
 
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.23]{benchmark_env}}
-\caption{text}
+\caption{Benchmark environment model is highly textured and feature rich}
 \end{figure}
 
 \subsubsection{Alternative Environment}
-The alternative model was designed to be very simple. The topology is a basic rectangular room. An important design feature is the variation of features in the environment: some areas have many features, and other areas are featureless. This design choice was made to help evaluate Rtab-Map's performance in sections of the environment that are visually bland, or that have repetitive textures. The environment model was developed using the building editor embedded in Gazebo. The alternative environment model can be seen in Figure XXXX.
+The alternative model was designed to be very simple. The topology is a basic rectangular room. An important design feature is the variation of features in the environment: some areas have many features, and other areas are featureless. This design choice was made to help evaluate Rtab-Map's performance in sections of the environment that are visually bland, or that have repetitive textures. The environment model was developed using the building editor embedded in Gazebo. The alternative environment model can be seen in Figure 10.
 
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.23]{alternative_env}}
-\caption{text}
+\caption{Alternative environment has been designed to contain bland, featureless areas}
 \end{figure}
 
 \section{Results}
 \subsection{Benchmark Environment}
-A teleop node was set up to manoeuvre the robot around the benchmark environment using keyboard input control. Approximately three laps of the kitchen, balcony, and lounge room areas were performed. Figure XXXX shows a final iteration of the 2D occupancy grid map, in addition to blue line which represents the robot's node graph through the environment, which is optimised by GraphSLAM in Rtab-Map. The red lines connecting nodes show loop closure activity. The red and green coordinate axes show the robot's starting location.
+A teleop node was set up to manoeuvre the robot around the benchmark environment using keyboard input control. Approximately three laps of the kitchen, balcony, and lounge room areas were performed. Figure 11 shows a final iteration of the 2D occupancy grid map. The blue line represents the robot's node graph through the environment which is optimised by GraphSLAM in RTAB-Map. The red lines connecting nodes show loop closure activity. The red and green coordinate axes show the robot's starting location.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.8]{kitchen_graph_view}
-\caption{text}
+\caption{Final 2D occupancy grid map output from RTAB-Map for the benchmark model. The blue line represents links between nodes, and the red lines highlight loop closures.}
 \end{figure}
 
-As the robot traverses the environment Rtab-Map identifies features from images using the \texttt{SURF} detection algorithm which was specified in the mapping node configuration. Figure XXXX shows a single image along the robot path, taken from the Rtab-Map database. The yellow highlights identify features that \texttt{SURF} has identified. As images are collected along the robot path, features in new images are compared to features from old images. The pink highlights represent instances where two images have features in common. These common features are used to create neighbouring links between images and loop closures. Figure XXXX shows the constraint view for the same point in time as Figure XXXX - this shows where the neighbouring links and loop closures were created.
+As the robot traverses the environment RTAB-Map identifies features from images using the \texttt{SURF} detection algorithm which was specified in the mapping node configuration. Figure 12 shows a single image along the robot path. Yellow highlights identify features in the image that \texttt{SURF} has identified. As images are collected along the robot path, features in new images are compared to features from old images. The pink highlights represent instances where two images have features in common. These common features are used to create neighbouring links between images and loop closures. Figure 13 shows the constraint view for the same point in time as Figure 12 - this image indicates where neighbouring links and loop closures were created.
+\begin{figure}[h]
+\centering
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{kitchen_features}
+\caption{RTAB-Map operating in a feature rich area, as shown by the yellow highlights. The pink highlights represent loop closures.}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\includegraphics[height=5.5cm]{kitchen_constraints}
+\caption{The constraints view of the same image shown in Figure 12. This also shows where neighbouring links and loop closures occur.}
+\end{minipage}
+\end{figure}
+
+NEED TO TALK MORE ABOUT THE DIFFERENT LOOP CLOSURE ACTIVITY AND ACTIVITY WHERE THERE WAS NO LOOP CLOSURE.
+
 \begin{figure}[h]
 \centering
 \begin{minipage}[t]{0.45\textwidth}
@@ -517,76 +531,81 @@ As the robot traverses the environment Rtab-Map identifies features from images 
 \end{minipage}
 \end{figure}
 
-NEED TO TALK MORE ABOUT THE DIFFERENT LOOP CLOSURE ACTIVITY AND ACTIVITY WHERE THERE WAS NO LOOP CLOSURE.
-
 Rtab-Map successfully created a 3D map from captured point cloud data captured by the RGBD camera. The 3D environment model was of reasonable fidelity, and well aligned with the 2D occupancy grid. Figure XXXX shows the 3D environment model from Rviz.
 \begin{figure}[h]
 \centering
 \frame{\includegraphics[scale=0.28]{kitchen_3d_map_2}}
-\caption{text}
+\caption{A 3D map of the benchmark environment created by RTAB-Map displayed in Rviz}
 \end{figure}
 
-The robot was able to successfully localise within the mapped environment, making small corrections to the odometry upon detection of loop closure.
+The robot was able to successfully localise within the mapped environment, making small corrections to the odometry upon detection of loop closure.\\
 
+NEED TO PUT SOME TEXT IN HERE ABOUT THE NUMBER OF NEIGHBOURING LINKS, GLOBAL LOOP CLOSURES, ETCETERA
+
+\newpage
 
 \subsection{Alternative Environment}
-As with the benchmark model, the robot was manoeuvred through the alternative environment using keyboard commands issued to a teleop node. Three laps of the basic environment were undertaken. The final iteration of the 2D occupancy grid map can be seen in Figure XXXX. The node graph used by GraphSLAM in Rtab-Map is represented by the blue line, and loop closure activity is shown in red.
+As with the benchmark model, the robot was manoeuvred through the alternative environment using keyboard commands issued to a teleop node. Three laps of the basic environment were undertaken. The final iteration of the 2D occupancy grid map can be seen in Figure 17. The node graph used by GraphSLAM in RTAB-Map is represented by the blue line, and loop closure activity is shown in red.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=1.2]{slam_house_2_graph_view}
-\caption{text}
+\caption{Final 2D occupancy grid map output from RTAB-Map for the alternative model. The blue line represents links between nodes, and the red lines highlight loop closures.}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\begin{minipage}{0.45\textwidth}
+\begin{minipage}[t]{0.45\textwidth}
 \centering
 \includegraphics[height=5.5cm]{slam_house_features_corner_1}
-\caption{text}
+\caption{RTAB-Map operating in a feature rich area, as shown by the yellow highlights. The pink highlights represent loop closures.}
 \end{minipage}
 \hspace{1cm}
-\begin{minipage}{0.45\textwidth}
+\begin{minipage}[t]{0.45\textwidth}
 \centering
 \includegraphics[height=5.5cm]{slam_house_constraints_1}
-\caption{text}
+\caption{The constraints view of the same image shown in Figure 12. This also shows where neighbouring links and loop closures occur.}
 \end{minipage}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\begin{minipage}{0.45\textwidth}
+\begin{minipage}[t]{0.45\textwidth}
 \centering
 \includegraphics[height=5.5cm]{slam_house_features_corner_2}
-\caption{text}
+\caption{RTAB-Map operating in a feature rich area, as shown by the yellow highlights. The pink highlights represent loop closures.}
 \end{minipage}
 \hspace{1cm}
-\begin{minipage}{0.45\textwidth}
+\begin{minipage}[t]{0.45\textwidth}
 \centering
 \includegraphics[height=5.5cm]{slam_house_constraints_2}
-\caption{text}
+\caption{The constraints view of the same image shown in Figure 12. This also shows where neighbouring links and loop closures occur.}
 \end{minipage}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\begin{minipage}{0.45\textwidth}
+\begin{minipage}[t]{0.45\textwidth}
 \centering
 \includegraphics[height=5.5cm]{slam_house_features_corner_3}
 \caption{text}
 \end{minipage}
 \hspace{1cm}
-\begin{minipage}{0.45\textwidth}
+\begin{minipage}[t]{0.45\textwidth}
 \centering
 \includegraphics[height=5.5cm]{slam_house_constraints_3}
 \caption{text}
 \end{minipage}
 \end{figure}
 
+\clearpage
+
 \begin{figure}
 \centering
 \frame{\includegraphics[scale=0.35]{slam_house_2_3d_map}}
-\caption{text}
+\caption{A 3D map of the alternative environment created by RTAB-Map displayed in Rviz}
 \end{figure}
+
+\newpage
 
 \section{Discussion}
 Discussion - The student explains how the procedure went and methodologies to improve it. The student should compare and contrast the performance of RTAB Mapping in different worlds.
