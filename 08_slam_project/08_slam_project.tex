@@ -62,7 +62,7 @@
 
 \rule{\textwidth}{1pt}
 \section*{Abstract}
-\lipsum[10]
+Simultaneous localisation and mapping (SLAM) is an important problem in robotics. Solving this efficiently and reliably allows a robot to visualise it's environment and where it is located within that environment, paving the way for higher order tasks like navigation and path planning. This paper explores two different approaches to solving the SLAM problem. Grid Based FastSLAM makes use of Rao-Blackwellised particle filters and occupancy grid mapping algorithms in an iterative process which estimates the robot pose and map. In contrast, GraphSLAM creates a computational graph with edges consisting of measurement constraints. Optimising the graph constraints yields pose and map estimates. The paper concludes with an simulation testing an implementation of GraphSLAM in a Gazebo simulation. The GraphSLAM package, called RTAB-Map, is tested for robustness against environment models with differing topologies and environmental features.\\
 
 \rule{\textwidth}{1pt}
 
@@ -550,6 +550,8 @@ As with the benchmark model, the robot was manoeuvred through the alternative en
 \caption{Final 2D occupancy grid map output from RTAB-Map for the alternative model. The blue line represents links between nodes, and the red lines highlight loop closures.}
 \end{figure}
 
+RTAB-Map identified image features in areas of the environment containing lots of objects. Figure 18 shows feature detection on the robotic object and traffic cone. Likewise, Figure 20 shows feature detection on the post box. Loop closure activity can be seen in both images. Figures 19 and 21 show the constraints view of Figures 18 and 20, respectively. RTAB-Map struggled to identify any features in the environment near the robot spawn origin due to a lack of unique objects, and wall textures which are bland and repetitive. Consequently, the robot was not able to detect any loop closures in this region. Upon completion of the three laps the robot had 171 neighbouring links, and 58 loop closures. RTAB-Map successfully localised the robot most of the time. Small corrections to the odometry were made as loop closures took place. Points of failure occurred the featureless corner, which resulted in 2D occupancy grid map uncertainty. Visually, this can be identified as image blurring in the bottom left hand corner. Uncertainty also affected the 3D cloud map seen in Figure 24 - environment dimensions and some objects appear distorted.
+
 \begin{figure}[h]
 \centering
 \begin{minipage}[t]{0.45\textwidth}
@@ -606,7 +608,8 @@ As with the benchmark model, the robot was manoeuvred through the alternative en
 \newpage
 
 \section{Discussion}
-Discussion - The student explains how the procedure went and methodologies to improve it. The student should compare and contrast the performance of RTAB Mapping in different worlds.
+RTAB-Map performed better than expected in the large kitchen environment. It was able to create a reasonably accurate 2D occupancy grid map, and corresponding 3D cloud map. Furthermore, despite encountering regions in bland and repetitive textures, map quality remained unaffected. The same cannot be said about the alternative model, which .
+
 
 
 \section{Future Work}
