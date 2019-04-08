@@ -128,40 +128,30 @@ v_{\pi^*(s)} = \max_{\pi} v_{\pi}(s), \ \forall \ s \in S
 \subsubsection{Experience Replay}
 \subsubsection{Fixed Q-Targets}
 
-
+\newpage
 
 \section{Robotic Arm Reinforcement Learning Problem}
 Newborn babies are typically unable to coordinate their arms to reliably grasp objects within their reach, however, as early as 4 months old babies can locate and pick up large objects such as blocks. One simple way to think about the baby developing this skill is to envision the baby taking repeated attempts to locate and pick up an object - if the baby successfully grasps the object then it feels happy, if it is unable to grasp the object then it feels sad. Simplifying things further we might crudely imagine the baby as a system comprised of an arm full of sensors which can detect object collisions, and a camera allowing vision of it's own arm interacting in the environment. This is the problem that this paper attempts to simulate and solve using DRL. The robotic arm is simulated in Gazebo, and consists of three revolute joints providing three degrees of freedom. A cylindrical object is placed within the work space of the robot, and the robot can observe the both its arm and the environment with an external camera. The scene set up is shown in Figure XXXX.
 \begin{figure}[h]
 \centering
-%\includegraphics[keyvals]{imagefile}
-\caption{text}
+\frame{\includegraphics[scale=0.4]{arm_image_2}}
+\caption{Robotic arm with three revolute joints: one in the base; a shoulder joint; and an elbow joint. The robot is tasked with touching the green cylindrical object, and can see itself interacting in the environment.}
 \end{figure}
 
-The task is simple - the robotic arm must reach towards and touch the object. The robot can view itself and the object with a camera, and the it knows what it's joint angles are. A single attempt at touching the object is called an episode, and can consist of many actions. An episode terminates when the robot collides with the ground; or successfully touches the object; or XXXX seconds elapse for a given episode. Commencing a new episode re-initialises the joint angles so that the robot arm stretches upwards. Furthermore, the object is repositioned back in front of the robot - using the same position each time. A discrete time step during an episode allows an action to be taken for a single joint. After each action, the robot receives an interim reward.\\
+The task is simple - the robotic arm must reach towards and touch the object. The robot can view itself and the object with a camera, and the it knows what it's joint angles are. A single attempt at touching the object is called an episode, and can consist of many actions. At each discrete time step during an episode, the robot can take a discrete action for a single one of its three joints. The robot can move a joint position by a small amount, or change the joint velocity by a small amount. After each action, the robot receives an interim reward. An episode terminates when the robot collides with the ground; or successfully touches the object; or XXXX seconds elapse for a given episode. Upon episode termination, the robot receives a final reward. Commencing a new episode re-initialises the joint angles so that the robot arm stretches upwards, and the object is repositioned back in front of the robot.\\
+
+Initialisation of the DQN agent, which contains the neural network being trained, requires a call to the \texttt{dqnAgent::Create()} function shown in Listing 1. The function takes a number of hyperparameters which are important for specifying the neural network architecture. Some of the more important parameters include the type of numerical optimiser to use, the learning rate for the network, batch size, and whether to use Long Short Term Memory (LSTM).
 
 \begin{figure}[h]\scriptsize
 \begin{sexylisting}{DQN Initialisation}
-agent = dqnAgent::Create(INPUT_WIDTH,
-			 INPUT_HEIGHT,
-			 INPUT_CHANNELS,
-			 DOF*2,
-			 OPTIMIZER,
-			 LEARNING_RATE,
-			 REPLAY_MEMORY,
-			 BATCH_SIZE, 
-		  	 GAMMA,
-		  	 EPS_START,
-		  	 EPS_END,
-		  	 EPS_DECAY, 
-		  	 USE_LSTM,
-		  	 LSTM_SIZE,
-		  	 ALLOW_RANDOM,
-		  	 DEBUG_DQN);
+agent = dqnAgent::Create(INPUT_WIDTH, INPUT_HEIGHT, INPUT_CHANNELS, DOF*2,
+			 OPTIMIZER, LEARNING_RATE, REPLAY_MEMORY, BATCH_SIZE, 
+		  	 GAMMA, EPS_START, EPS_END, EPS_DECAY, 
+		  	 USE_LSTM, LSTM_SIZE, ALLOW_RANDOM, DEBUG_DQN);
 \end{sexylisting}
 \end{figure}
 
-TALK ABOUT DQN AGENT SET UP\\
+\newpage
 
 There were two choices when designing the action space: allow an action to change a joint position; or allow an action to change a joint velocity. Changing the joint position directly was problematic since instantaneously altering joint positions by a small amount at each time step, led to  jittery robotic movements. Further it is obviously impossible to move joints instantaneously in the real world. Actions were instead defined to be the change of the angular velocity for a given joint, which yielded much smoother looking robotic movements. The robot action implementation was developed as part of a method for the DQN agent called \texttt{ArmPlugin::updateAgent()}
 
