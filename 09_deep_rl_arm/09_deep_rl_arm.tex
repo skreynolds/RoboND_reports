@@ -102,7 +102,7 @@ Often it is convenient to make future rewards less important that more immediate
 G_t = r_t + \gamma r_{1+1} + \gamma^2 r_{t+2} + \ldots + \gamma^{N-1} r_{N-1} = \sum_{k = 0}^{N-1} \gamma^k r_{t+k}
 \end{equation} 
 
-\subsection{Value Function}
+\subsection{Value Function \& Action Value Function}
 In order to help decide what the agent's best action to take at a particular instant it is important for the agent to know how good it is to be in a particular state. A way of measuring the ``goodness'' of a state is the \textit{value function}, $v_{\pi}(s)$, which is defined as the expected value of the return that an agent will receive while following a particular policy $\pi$ starting in some state $s$. Mathematically, this can be described as follows:
 \begin{equation}
 v_{\pi}(s) = \mathbb{E}_{\pi} ( G_t \ | \ s_t = s ) = \mathbb{E}_{\pi} \bigg( \sum_{k=0}^{\infty} \gamma^k r_{t+k} \ | \ s_t = s \bigg)
@@ -123,6 +123,40 @@ The objective of RL is to determine the policy which will maximise the expected 
 \begin{equation}
 v_{\pi^*(s)} = \max_{\pi} v_{\pi}(s), \ \forall \ s \in S
 \end{equation}
+
+Optimal policies also share the same optimal action-value functions, denoted $q_*(s,a)$, and defined as:
+\begin{equation}
+q_*(s,a) = \max_{\pi} q_{\pi}(s,a), \ \forall \ s \in S, \ a \in A(s)
+\end{equation}
+
+The optimal action value function, $q_*(s,a)$, is an important function because it yields the expected return for taking action $a$ in state $s$ and following the optimal policy $\pi_*$ thereafter. Determining this function allows us to derive the optimal policy. This is done by mapping each state to the action yielding the highest expected return according to $q_*$. An example of this can be seen in Table XXXX which shows a toy problem consisting of three discrete states: $s_1$, $s_2$, $s_3$ and four discrete actions: $a_1$, $a_2$, $a_3$, $a_4$.\\
+
+\begin{minipage}{0.55\textwidth}
+Classical RL approaches often represent \textit{action-value} functions for low dimensional discrete problems as tables, referred to as \textit{Q-tables}. States are represented as rows and actions as columns. Each state-action pair, $(s_i, a_j)$, corresponds to an entry in the table consisting of the expected return taking action $a_j$ from state $s_i$ and following the proposed policy.
+\end{minipage}
+\hspace{0.5cm}
+\begin{minipage}{0.35\textwidth}
+\centering
+\captionof{table}{text}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+ & $a_1$ & $a_2$ & $a_3$ & $a_4$\\
+\hline
+$s_1$ & -4 & 5 & \textbf{6} & 2 \\
+\hline
+$s_2$ & \textbf{3} & 1 & 1 & 1 \\
+\hline
+$s_3$ & 6 & 4 & 6 & \textbf{8} \\
+\hline
+$s_4$ & -6 & \textbf{4} & 3 & 3 \\
+\hline
+\end{tabular}
+\end{minipage}
+
+\vspace{0.5cm}
+
+In this instance, suppose Table XXXX represents the optimal \textit{Q-table}. The optimal policy is therefore obtained by simply taking the actions corresponding to the bold values.
+
 
 \subsection{Deep Reinforcement Learning}
 \subsubsection{Experience Replay}

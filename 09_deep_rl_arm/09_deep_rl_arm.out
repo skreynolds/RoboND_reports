@@ -1,17 +1,17 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
 \BOOKMARK [1][-]{section.2}{Background}{}% 2
-\BOOKMARK [2][-]{subsection.2.1}{Markov Decision Process}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.1}{Markov\040Decision\040Process}{section.2}% 3
 \BOOKMARK [2][-]{subsection.2.2}{Policy}{section.2}% 4
 \BOOKMARK [2][-]{subsection.2.3}{Return}{section.2}% 5
-\BOOKMARK [2][-]{subsection.2.4}{Value Function}{section.2}% 6
-\BOOKMARK [2][-]{subsection.2.5}{Reinforcement Learning Algorithms}{section.2}% 7
-\BOOKMARK [2][-]{subsection.2.6}{Deep Reinforcement Learning}{section.2}% 8
-\BOOKMARK [3][-]{subsubsection.2.6.1}{Experience Replay}{subsection.2.6}% 9
-\BOOKMARK [3][-]{subsubsection.2.6.2}{Fixed Q-Targets}{subsection.2.6}% 10
-\BOOKMARK [1][-]{section.3}{Robotic Arm Reinforcement Learning Problem}{}% 11
+\BOOKMARK [2][-]{subsection.2.4}{Value\040Function\040&\040Action\040Value\040Function}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.5}{Reinforcement\040Learning\040Algorithms}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.6}{Deep\040Reinforcement\040Learning}{section.2}% 8
+\BOOKMARK [3][-]{subsubsection.2.6.1}{Experience\040Replay}{subsection.2.6}% 9
+\BOOKMARK [3][-]{subsubsection.2.6.2}{Fixed\040Q-Targets}{subsection.2.6}% 10
+\BOOKMARK [1][-]{section.3}{Robotic\040Arm\040Reinforcement\040Learning\040Problem}{}% 11
 \BOOKMARK [1][-]{section.4}{Collisions}{}% 12
-\BOOKMARK [1][-]{section.5}{Reward Function}{}% 13
+\BOOKMARK [1][-]{section.5}{Reward\040Function}{}% 13
 \BOOKMARK [1][-]{section.6}{Hyperparameters}{}% 14
 \BOOKMARK [1][-]{section.7}{Results}{}% 15
 \BOOKMARK [1][-]{section.8}{Discussion}{}% 16
-\BOOKMARK [1][-]{section.9}{Future Work}{}% 17
+\BOOKMARK [1][-]{section.9}{Future\040Work}{}% 17
