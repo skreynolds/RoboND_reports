@@ -10,6 +10,7 @@
 \usepackage{float}
 \usepackage{inconsolata}
 \usepackage{listings}
+\usepackage{mathtools}
 \usepackage{pstricks-add}
 \usepackage{siunitx}
 \usepackage[most]{tcolorbox}
@@ -18,6 +19,7 @@
 \usepackage{hyperref}
 
 \usetikzlibrary{shapes.geometric}
+\usetikzlibrary{arrows}
 
 %------------------------------------------------------------
 \graphicspath{{./fig/}}
@@ -57,6 +59,11 @@
 \tikzstyle{input} = [coordinate]
 \tikzstyle{output} = [coordinate]
 \tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+%------------------------------------------------------------
+\newlength{\arrow}
+\settowidth{\arrow}{\scriptsize$1000$}
+\newcommand*{\myrightarrow}[1]{\xrightarrow{\mathmakebox[\arrow]{#1}}}
 
 %------------------------------------------------------------
 
@@ -156,9 +163,34 @@ In this instance, suppose Table XXXX represents the optimal \textit{action-value
 In contrast to model-based methods, model-free methods assume no known knowledge of the environment. Generally, these types of approaches are favoured over model-based methods since accurate environmental models are difficult to build all but the simplest of games. Model-free approaches try to learn an optimal \textit{action-value} function by exploring the world, iteratively building on the estimation, until such time that the Q-table estimation converges with $q_*(s,a)$. The optimal policy can be extracted from $q_*(s,a)$. Monte Carlo methods and Temporal Difference methods are both popular model-free approaches to solving the RL problem.
 
 \subsubsection{Monte Carlo Methods} 
-Monte Carlo (MC) methods require only
+Monte Carlo (MC) methods require only a sample of episodic sequences consisting of states, actions, and rewards from an agent interacting in an environment to estimate an \textit{action-value} function for some policy $\pi$. An estimate update occurs for every visit to a \textit{state-action} pair for a given episode. A \textit{state-action} pair is said to be visited in an episode if ever the state $s$ is visited and action $a$ is taken. Once an episode is completed, the \textit{action-value} estimate for each \textit{state-action} pair is updated either using the first visit to the \textit{state-action} pair, or by averaging the returns from all visits. This process, called the \textit{evaluation} step, only represents one half of the MC implementation. Once the \textit{action-value} function for some policy $\pi$ has been estimated, MC seeks to improve on it's current policy by choosing a policy favouring actions which provide the greatest return for each state. The new policy is derived from the current Q-table estimate of $q_{\pi}(s,a)$, and this step is called the \textit{policy improvement} step. For any sub-optimal \textit{action-value} function $q$, we select the action for each $s \in S$ that provides the maximal \textit{action-value}. Mathematically, this is described as follows:
+\begin{equation}
+\pi(s) = \arg \max_a q(s,a)
+\end{equation}
+
+The policy evaluation and policy improvement steps are repeated iteratively, as shown in Figure XXXX. 
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\node (A) {\huge$\pi$};
+\node[right of=A, node distance=5cm] (B) {\huge$Q$};
+
+\draw[->, line width=1pt] (A) edge[bend left=45] node[below=0.1cm] {$Q \rightsquigarrow q_\pi $} node[above] {evaluation} (B);
+\draw[->, line width=1pt] (B) edge[bend left=45] node[below] {improvement} node[above=0.25cm] {$\pi \rightsquigarrow greedy(Q)$} (A);
+\end{tikzpicture}
+\caption{text}
+\end{figure}
+
+The MC iteration continues to repeat these two distinct steps until convergence on $q_*$ is achieved. Beginning with some arbitrary policy, $\pi_0$, this can be mathematically shown as follows:
+\begin{equation*}
+\pi_0 \myrightarrow{E} q_{\pi_0} \myrightarrow{I} \pi_1 \myrightarrow{E} q_{\pi_1} \myrightarrow{I} \pi_2 \myrightarrow{E} \ldots \myrightarrow{I} \pi_* \myrightarrow{E} q_*,
+\end{equation*}
+
+where $\myrightarrow{E}$ denotes a complete policy evaluation and $\myrightarrow{I}$ demotes a complete policy improvement. One of the major drawbacks with practical implementations of MC methods is that if the agent never visits a \textit{state-action} pair then the arbitrary policy initially assigned will remain in place which can lead to sub-optimal policies. For low dimensional problems, this issue is addressed by getting the agent to select random policy actions with some non-zero probability. Doing this gives the agent a curiosity type behaviour, which encourages it to explore the the state action space, as opposed to simply exploiting the current best policy. This type of behaviour is especially important when the agent first commences learning, and becomes less important as the policy estimate converges to the optimal policy.
 
 \subsubsection{Temporal Difference Methods}
+
 
 \subsection{Deep Reinforcement Learning}
 For low dimensional problems Monte Carlo methods or Temporal Difference methods work fine, however, as the dimensionality of the problem grows it becomes more difficult to successfully build a discrete representation of the the optimal q function - requires more iterations and takes a larger amount of compute.
