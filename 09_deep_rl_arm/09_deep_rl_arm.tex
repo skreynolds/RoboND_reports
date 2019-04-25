@@ -129,13 +129,9 @@ Optimal policies also share the same optimal action-value functions, denoted $q_
 q_*(s,a) = \max_{\pi} q_{\pi}(s,a), \ \forall \ s \in S, \ a \in A(s)
 \end{equation}
 
-The optimal action value function, $q_*(s,a)$, is an important function because it yields the expected return for taking action $a$ in state $s$ and following the optimal policy $\pi_*$ thereafter. Determining this function allows us to derive the optimal policy. This is done by mapping each state to the action yielding the highest expected return according to $q_*$. An example of this can be seen in Table XXXX which shows a toy problem consisting of three discrete states: $s_1$, $s_2$, $s_3$ and four discrete actions: $a_1$, $a_2$, $a_3$, $a_4$.\\
+The optimal action value function, $q_*(s,a)$, is an important function because it yields the expected return for taking action $a$ in state $s$ and following the optimal policy $\pi_*$ thereafter. Determining this function allows us to derive the optimal policy. This is done by mapping each state to the action yielding the highest expected return according to $q_*$. Classical RL approaches often represent \textit{action-value} functions for low dimensional discrete problems as tables, referred to as \textit{Q-tables}. States are represented as rows and actions as columns. Each state-action pair, $(s_i, a_j)$, corresponds to an entry in the table consisting of the expected return of taking action $a_j$ from state $s_i$ and following the proposed policy. An example of this can be seen in Table XXXX which shows a toy problem consisting of three discrete states: $s_1$, $s_2$, $s_3$ and four discrete actions: $a_1$, $a_2$, $a_3$, $a_4$.\\
 
-\begin{minipage}{0.55\textwidth}
-Classical RL approaches often represent \textit{action-value} functions for low dimensional discrete problems as tables, referred to as \textit{Q-tables}. States are represented as rows and actions as columns. Each state-action pair, $(s_i, a_j)$, corresponds to an entry in the table consisting of the expected return taking action $a_j$ from state $s_i$ and following the proposed policy.
-\end{minipage}
-\hspace{0.5cm}
-\begin{minipage}{0.35\textwidth}
+\begin{table}[h]
 \centering
 \captionof{table}{text}
 \begin{tabular}{|c|c|c|c|c|}
@@ -151,14 +147,23 @@ $s_3$ & 6 & 4 & 6 & \textbf{8} \\
 $s_4$ & -6 & \textbf{4} & 3 & 3 \\
 \hline
 \end{tabular}
-\end{minipage}
+\end{table}
 
 \vspace{0.5cm}
 
-In this instance, suppose Table XXXX represents the optimal \textit{Q-table}. The optimal policy is therefore obtained by simply taking the actions corresponding to the bold values.
+In this instance, suppose Table XXXX represents the optimal \textit{action-value} function, $q_*(s,a)$. The optimal policy, $\pi_*$, is therefore obtained by simply taking the actions corresponding to the bold values. Posing the RL problem this way makes it clear that the primary objective is engineering approaches which estimate $q_*(s,a)$. For problems of low dimensionality there are two main approaches: model-based methods; and model-free methods. Model-based methods try to utilise some information of the environment. Historically this was achieved by building a model of the environment from first principals and using it to learn the optimal policy or value function. The problem with starting from first principals is that if the model is not an accurate depiction of reality, then the policy learned is likely to be sub-optimal. Two popular algorithms for model based policy evaluation are Policy Iteration and Value Iteration, both described in Appendix A.\\
 
+In contrast to model-based methods, model-free methods assume no known knowledge of the environment. Generally, these types of approaches are favoured over model-based methods since accurate environmental models are difficult to build all but the simplest of games. Model-free approaches try to learn an optimal \textit{action-value} function by exploring the world, iteratively building on the estimation, until such time that the Q-table estimation converges with $q_*(s,a)$. The optimal policy can be extracted from $q_*(s,a)$. Monte Carlo methods and Temporal Difference methods are both popular model-free approaches to solving the RL problem.
+
+\subsubsection{Monte Carlo Methods} 
+Monte Carlo (MC) methods require only
+
+\subsubsection{Temporal Difference Methods}
 
 \subsection{Deep Reinforcement Learning}
+For low dimensional problems Monte Carlo methods or Temporal Difference methods work fine, however, as the dimensionality of the problem grows it becomes more difficult to successfully build a discrete representation of the the optimal q function - requires more iterations and takes a larger amount of compute.
+
+to get around this problem, we can used neural networks
 \subsubsection{Experience Replay}
 \subsubsection{Fixed Q-Targets}
 
