@@ -187,15 +187,33 @@ The MC iteration continues to repeat these two distinct steps until convergence 
 \pi_0 \myrightarrow{E} q_{\pi_0} \myrightarrow{I} \pi_1 \myrightarrow{E} q_{\pi_1} \myrightarrow{I} \pi_2 \myrightarrow{E} \ldots \myrightarrow{I} \pi_* \myrightarrow{E} q_*,
 \end{equation*}
 
-where $\myrightarrow{E}$ denotes a complete policy evaluation and $\myrightarrow{I}$ demotes a complete policy improvement. One of the major drawbacks with practical implementations of MC methods is that if the agent never visits a \textit{state-action} pair then the arbitrary policy initially assigned will remain in place which can lead to sub-optimal policies. For low dimensional problems, this issue is addressed by getting the agent to select random policy actions with some non-zero probability. Doing this gives the agent a curiosity type behaviour, which encourages it to explore the the state action space, as opposed to simply exploiting the current best policy. This type of behaviour is especially important when the agent first commences learning, and becomes less important as the policy estimate converges to the optimal policy.
+where $\myrightarrow{E}$ denotes a complete policy evaluation and $\myrightarrow{I}$ demotes a complete policy improvement. One of the major drawbacks with practical implementations of MC methods is that if the agent never visits a \textit{state-action} pair then the arbitrary policy initially assigned will remain in place which can lead to sub-optimal policies. For low dimensional problems, this issue is addressed by getting the agent to select random policy actions with some non-zero probability. Doing this gives the agent a curiosity type behaviour, which encourages it to explore the the state action space, as opposed to simply exploiting the current best policy. This type of behaviour is especially important when the agent first commences learning, and becomes less important as the policy estimate converges to the optimal policy.\\
+
+Talk about the different ways that the Q-table can be updated. In particular there is one way called the constant alpha method. Why is this an important method?
+\begin{equation}
+Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \big( G_t - Q(S_t, A_t) \big)
+\end{equation}
 
 \subsubsection{Temporal Difference Methods}
+Similarly to MC methods, Temporal Difference (TD) methods can learn directly by experiencing states, actions, and rewards when the agent interacts with the environment. The important difference between MC and TD methods is that an MC approach requires the entire episode to be complete prior to updating the \textit{action-value} function estimates, whereas TD methods update continuously as an episode plays out. To understand how this works, consider the MC update equation (XXXX). We see it is dependent on $G_t$: the episode return at time $t$. To arrive at our TD model, we first note that $G_t$ is the sum $R_{t+1}$ and the return $G_{t+1}$. Further, we observe that, given $S_{t+1}$ and $A_{t+1}$, we can replace $G_{t+1}$ with its Q-table estimate, $Q(S_{t+1}, A_{t+1})$. Equation (XXXX) can then be re-expressed as:
+\begin{equation}
+Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \big[ R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t) \big]
+\end{equation}
 
+Equation (XXXX) forms the update for the well known SARSA model, which updates the Q-table after every transition from state $S_t$. Provided $S_{t+1}$ is non-terminal, every element of the transition from one \textit{state-action} pair to the next is used in the update. The full set of SARSA parameters is given by the quintuple ($S_t$, $A_t$, $R_{t+1}$, $S_{t+1}$, $A_{t+1}$) - this is where SARSA gets its name.
+
+Talk about Q-Learning and the update equation that is implemented for this. Talk about how the algorithm works - may need to talk about the epsilon greedy methods too.
 
 \subsection{Deep Reinforcement Learning}
-For low dimensional problems Monte Carlo methods or Temporal Difference methods work fine, however, as the dimensionality of the problem grows it becomes more difficult to successfully build a discrete representation of the the optimal q function - requires more iterations and takes a larger amount of compute.
+For low dimensional problems MC methods or TD methods see reasonable performance, however, as problem dimensionality of grows these approaches experience difficulty. The main reason for this is simply that it becomes difficult for the discrete RL algorithm to visit every state action resulting in unchanged \textit{state-action} values for an increasing number of \textit{state-action} pairs. Essentially this means that the agent does not have complete knowledge of optimal actions for every given state, leading to the derivation of sub-optimal policies. To get around this problem, for RL problems with high dimensional state spaces, the discrete Q-table is replaced with a function approximator known as a neural network. A high level overview of the architecture can be seen in Figure XXXX:
+\begin{figure}
+\centering
+%\includegraphics[keyvals]{imagefile}
+\caption{text}
+\end{figure}
 
-to get around this problem, we can used neural networks
+
+
 \subsubsection{Experience Replay}
 \subsubsection{Fixed Q-Targets}
 
